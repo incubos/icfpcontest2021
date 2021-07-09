@@ -1,8 +1,13 @@
-import icfpc2021.model.*
+import icfpc2021.model.Hole
+import icfpc2021.model.LambdaMan
+import icfpc2021.model.Task
+import icfpc2021.viz.ActionsPanel
 import icfpc2021.viz.Field
 import icfpc2021.viz.State
-import icfpc2021.viz.ActionsPanel
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.nio.file.Path
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -25,6 +30,11 @@ class Visualize(hole: Hole, man: LambdaMan) {
                 add(field, BorderLayout.CENTER)
                 add(actionsPanel, BorderLayout.SOUTH)
             }
+            addKeyListener(object : KeyAdapter() {
+                override fun keyPressed(e: KeyEvent) {
+                    field.keyPressed(e, actionsPanel)
+                }
+            })
             defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
             preferredSize = Dimension(800, 600)
             size = Dimension(800, 600)

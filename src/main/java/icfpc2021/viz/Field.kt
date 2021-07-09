@@ -1,12 +1,11 @@
 package icfpc2021.viz
 
-import java.awt.BasicStroke
-import java.awt.Color
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import javax.swing.JPanel
+import icfpc2021.actions.MoveAction
+import icfpc2021.actions.RotateAction
+import icfpc2021.model.LambdaMan
+import java.awt.*
+import java.awt.event.*
+import javax.swing.*
 
 class Field(val state: State) : JPanel() {
 
@@ -15,45 +14,125 @@ class Field(val state: State) : JPanel() {
             override fun mouseClicked(e: MouseEvent) {
                 val realX = realX(e.x)
                 val realY = realY(e.y)
-                actionsPanel.status.text = "Mouse click on ${e.x}, ${e.y} = $realX, $realY"
-                val clickVertex = state.findVertex(state.man.figure.vertices, realX, realY)
-                when (clickVertex) {
+                actionsPanel.status.text = "$state Mouse click on ${realX.toInt()}, ${realY.toInt()}"
+                if (state.actionInProcess == MoveAction::class.simpleName) {
+                    finishMoveAction(actionsPanel, realX, realY)
+                    return
+                }
+                val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
+                when (manVertex) {
                     null -> {
-                        actionsPanel.status.text = "No vertices selected"
                         actionsPanel.moveButton.isEnabled = false
                         actionsPanel.rotateButton.isEnabled = false
                         state.selectedVertex = null
+                        actionsPanel.status.text = "$state No vertices selected"
                     }
                     state.selectedVertex -> {
-                        actionsPanel.status.text = "Vertex $clickVertex deselected"
                         actionsPanel.moveButton.isEnabled = false
                         actionsPanel.rotateButton.isEnabled = false
                         state.selectedVertex = null
+                        actionsPanel.status.text = "$state Vertex $manVertex deselected"
                     }
                     else -> {
-                        actionsPanel.status.text = "Vertex $clickVertex selected"
                         actionsPanel.moveButton.isEnabled = true
                         actionsPanel.rotateButton.isEnabled = true
-                        state.selectedVertex = clickVertex
+                        state.selectedVertex = manVertex
+                        actionsPanel.status.text = "$state Vertex $manVertex selected"
                     }
                 }
                 repaint()
             }
+        })
 
+        addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 val realX = realX(e.x)
                 val realY = realY(e.y)
-                actionsPanel.status.text = "${e.x}, ${e.y} = $realX, $realY"
+                val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
+                val holeVertex = state.findVertex(state.hole.vertices, realX, realY)
+                actionsPanel.status.text = "$state ${realX.toInt()}, ${realY.toInt()}" +
+                        "[Closest man vertex: $manVertex][Closest hole vertex: $holeVertex"
             }
         })
-//         addKeyListener(object : KeyAdapter() {
-//             override fun keyPressed(e: KeyEvent) {
-//                 if (e.keyCode == 27) { // Escape
-//                     actionsPanel.status.text = state.printMan()
-//                     state.selectedVertex = null
-//                 }
-//             }
-//         })
+
+        addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(e: KeyEvent) {
+                keyPressed(e, actionsPanel)
+            }
+        })
+
+        actionsPanel.moveButton.addActionListener {
+            actionsPanel.status.text = "$state Select point to move"
+            state.actionInProcess = MoveAction::class.simpleName
+            actionsPanel.moveButton.isEnabled = false
+            actionsPanel.rotateButton.isEnabled = false
+        }
+
+        actionsPanel.rotateButton.addActionListener {
+            finishRotateAction(actionsPanel)
+        }
+
+    }
+
+    private fun finishRotateAction(actionsPanel: ActionsPanel) {
+        actionsPanel.status.text = "$state Enter degrees"
+        state.actionInProcess = RotateAction::class.simpleName
+        actionsPanel.moveButton.isEnabled = false
+        actionsPanel.rotateButton.isEnabled = false
+
+        // Show input dialog
+        val textComponent = JTextArea("")
+        val optPane = JOptionPane(JPanel(BorderLayout()).apply {
+            add(JLabel("Enter degrees"), BorderLayout.NORTH)
+            add(JScrollPane(textComponent), BorderLayout.CENTER)
+        }, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION)
+        optPane.createDialog(this, "Rotation").apply {
+            isVisible = true
+        }
+        if (optPane.value == JOptionPane.OK_OPTION) {
+            val degrees = textComponent.text.toInt()
+            val v = state.man.figure.vertices[state.selectedVertex!!]
+            val action = RotateAction(v.x, v.y, degrees.toDouble())
+            val newFigure = action.apply(state.man.figure)
+            state.actions.add(action)
+            state.figures.add(newFigure)
+            state.man = LambdaMan().apply {
+                figure = newFigure
+                epsilon = state.man.epsilon
+            }
+        }
+        state.selectedVertex = null
+        state.actionInProcess = null
+        actionsPanel.status.text = "$state Rotated successfully"
+        repaint()
+    }
+
+    private fun finishMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
+        val v = state.man.figure.vertices[state.selectedVertex!!]
+        val action = MoveAction(realX - v.x, realY - v.y)
+        val newFigure = action.apply(state.man.figure)
+        state.actions.add(action)
+        state.figures.add(newFigure)
+        state.man = LambdaMan().apply {
+            figure = newFigure
+            epsilon = state.man.epsilon
+        }
+
+        state.selectedVertex = null
+        state.actionInProcess = null
+        actionsPanel.status.text = "$state Moved successfully"
+        repaint()
+    }
+
+    fun keyPressed(e: KeyEvent, actionsPanel: ActionsPanel) {
+        if (e.keyCode == 27) { // Escape
+            state.selectedVertex = null
+            state.actionInProcess = null
+            actionsPanel.moveButton.isEnabled = false
+            actionsPanel.rotateButton.isEnabled = false
+            actionsPanel.status.text = "$state ${state.printMan()}"
+            repaint()
+        }
     }
 
     override fun paint(g: Graphics) {
@@ -95,12 +174,14 @@ class Field(val state: State) : JPanel() {
     }
 
 
-    private fun screenX(x: Double) = (M + (width - M * 2) * (x - state.minX()) / (state.maxX() - state.minX())).toInt()
-    private fun screenY(y: Double) = (M + (height - M * 2) * (y - state.minY()) / (state.maxY() - state.minY())).toInt()
+    private fun screenX(x: Double) =
+        (MARGIN + (width - MARGIN * 2) * (x - state.minX()) / (state.maxX() - state.minX())).toInt()
 
-    private fun realX(xScreen: Int) = (xScreen - M) * (state.maxX() - state.minX()) / (width - M * 2)
-    private fun realY(yScreen: Int) = (yScreen - M) * (state.maxY() - state.minY()) / (height - M * 2)
+    private fun screenY(y: Double) =
+        (MARGIN + (height - MARGIN * 2) * (y - state.minY()) / (state.maxY() - state.minY())).toInt()
 
-    val M = 100
+    private fun realX(xScreen: Int) = state.minX() + (xScreen - MARGIN) * (state.maxX() - state.minX()) / (width - MARGIN * 2)
+    private fun realY(yScreen: Int) = state.minY() + (yScreen - MARGIN) * (state.maxY() - state.minY()) / (height - MARGIN * 2)
 
+    val MARGIN = 10
 }
