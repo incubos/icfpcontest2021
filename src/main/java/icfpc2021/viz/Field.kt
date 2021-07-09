@@ -1,10 +1,8 @@
 package icfpc2021.viz
 
 import icfpc2021.ScoringUtils
+import icfpc2021.actions.*
 import icfpc2021.actions.Action
-import icfpc2021.actions.MoveAction
-import icfpc2021.actions.PushVertexAction
-import icfpc2021.actions.RotateAction
 import java.awt.*
 import java.awt.event.*
 import javax.swing.*
@@ -81,6 +79,7 @@ class Field(val state: State) : JPanel() {
             actionsPanel.disableButtons()
         }
 
+
         actionsPanel.rotateButton.addActionListener {
             finishRotateAction(actionsPanel)
         }
@@ -89,6 +88,10 @@ class Field(val state: State) : JPanel() {
             state.actionInProcess = PushVertexAction::class.simpleName
             actionsPanel.status.text = "$state Select point to push"
             actionsPanel.disableButtons()
+        }
+
+        actionsPanel.foldSubFigureButton.addActionListener {
+            finishFoldAction(actionsPanel)
         }
 
         actionsPanel.rollBackLastAction.addActionListener {
@@ -172,6 +175,39 @@ class Field(val state: State) : JPanel() {
             state.figures.add(newFigure)
             state.current = state.figures.size - 1
             actionsPanel.status.text = "$state Rotated to $degrees"
+        }
+        state.selectedVertex = null
+        state.actionInProcess = null
+        actionsPanel.disableButtons()
+        repaint()
+    }
+
+    private fun finishFoldAction(actionsPanel: ActionsPanel) {
+        actionsPanel.status.text = "$state Enter second vertex and subfigure vertex (e.g. 0,5)"
+        state.actionInProcess = RotateAction::class.simpleName
+        actionsPanel.disableButtons()
+
+        // Show input dialog
+        val textComponent = JTextField("")
+        val optPane = JOptionPane(JPanel(BorderLayout()).apply {
+            add(JLabel("Enter second vertex and subfigure vertex (e.g. 0,5)"), BorderLayout.NORTH)
+            add(JScrollPane(textComponent), BorderLayout.CENTER)
+        }, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION)
+        optPane.createDialog(this, "Enter vertices").apply {
+            isVisible = true
+        }
+        if (optPane.value == JOptionPane.OK_OPTION) {
+            val (second, subFigure) = try {
+                Pair(textComponent.text.split(",")[0].toInt(),textComponent.text.split(",")[1].toInt())
+            } catch (e: Exception) {
+                Pair(0,0)
+            }
+            val v = state.man.figure.vertices[state.selectedVertex!!]
+            val action = FoldAction(state.selectedVertex!!, second, subFigure)
+            val newFigure = action.apply(state.man.figure)
+            state.actions.add(action)
+            state.figures.add(newFigure)
+            state.current = state.figures.size - 1
         }
         state.selectedVertex = null
         state.actionInProcess = null

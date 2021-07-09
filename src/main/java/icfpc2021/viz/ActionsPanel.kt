@@ -11,12 +11,14 @@ class ActionsPanel : JPanel(BorderLayout()) {
         moveButton.isEnabled = false
         rotateButton.isEnabled = false
         pushVertexButton.isEnabled = false
+        foldSubFigureButton.isEnabled = false
     }
 
     fun enableButtons() {
         moveButton.isEnabled = true
         rotateButton.isEnabled = true
         pushVertexButton.isEnabled = true
+        foldSubFigureButton.isEnabled = true
     }
 
 
@@ -29,6 +31,9 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val pushVertexButton = JButton("PushVertex").apply {
         isEnabled = false;
     }
+    val foldSubFigureButton = JButton("FoldSubfigure").apply {
+        isEnabled = false;
+    }
 
     val rollBackLastAction = JButton("Rollback last")
     val forwardButton = JButton(">")
@@ -38,6 +43,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
         add(status, BorderLayout.LINE_START)
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
+            add(foldSubFigureButton)
             add(moveButton)
             add(rotateButton)
             add(pushVertexButton)
