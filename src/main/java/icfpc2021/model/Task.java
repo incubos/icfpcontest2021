@@ -1,30 +1,24 @@
 package icfpc2021.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class Task {
-    static class Figure {
-        public List<List<Integer>> edges;
-        public List<List<Integer>> vertices;
-
-        @JsonCreator
-        public Figure(@JsonProperty("edges") List<List<Integer>> edges,
-                      @JsonProperty("vertices") List<List<Integer>> vertices) {
-            this.edges = edges;
-            this.vertices = vertices;
-        }
-    }
-    public List<List<Integer>> hole;
+    public Hole hole;
     public Figure figure;
     public int epsilon;
 
-    @JsonCreator
-    public Task(@JsonProperty("hole") List<List<Integer>> hole,
-                @JsonProperty("figure") Figure figure) {
+    public Task(Hole hole, Figure figure, int epsilon) {
         this.hole = hole;
         this.figure = figure;
+        this.epsilon = epsilon;
+    }
+
+    static Task fromRaw(RawTask rawTask) {
+        Hole hole = new Hole();
+        hole.vertices = rawTask.hole.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+        Figure figure = new Figure();
+        figure.edges = rawTask.figure.edges.stream().map(o -> new Edge(o.get(0), o.get(1))).collect(Collectors.toList());
+        figure.vertices = rawTask.figure.vertices.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+        return new Task(hole, figure, rawTask.epsilon);
     }
 }
