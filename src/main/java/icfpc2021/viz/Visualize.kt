@@ -23,7 +23,7 @@ class Visualize(hole: Hole, man: LambdaMan) {
         field = Field(state).apply {
             addActionsListener(actionsPanel)
         }
-        actionsPanel.status.text = state.printMan()
+        actionsPanel.status.text = "$state ${state.printMan()}"
         frame.apply {
             contentPane = JPanel().apply {
                 layout = BorderLayout()

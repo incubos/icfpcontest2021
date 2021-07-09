@@ -9,9 +9,17 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-class State(val hole: Hole, var man: LambdaMan) {
-    val figures = arrayListOf<Figure>(man.figure)
+class State(val hole: Hole, var originalMan: LambdaMan) {
+    val figures = arrayListOf<Figure>(originalMan.figure)
     val actions = arrayListOf<Action>()
+    // Used for scroll
+    var current: Int = 0
+
+    val man: LambdaMan
+        get() = LambdaMan().apply {
+            figure = figures[current]
+            epsilon = originalMan.epsilon
+        }
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
@@ -32,6 +40,6 @@ class State(val hole: Hole, var man: LambdaMan) {
     fun printMan() = man.figure.vertices.joinToString(",") { "(${it.x.toInt()}, ${it.y.toInt()})" }
 
     override fun toString(): String {
-        return "[#${actions.size + 1}][Action ${actionInProcess}][Selection ${selectedVertex}]"
+        return "[#${current + 1}/${actions.size + 1}][Action ${actionInProcess}][Selection ${selectedVertex}]"
     }
 }

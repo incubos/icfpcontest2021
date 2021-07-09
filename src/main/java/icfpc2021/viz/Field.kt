@@ -101,10 +101,35 @@ class Field(val state: State) : JPanel() {
                 actionsPanel.status.text = "$state Rolled back action ${state.actions.last().javaClass.simpleName}"
                 state.actions.removeLast()
                 state.figures.removeLast()
-                state.man = LambdaMan().apply {
-                    figure = state.figures.last()
-                    epsilon = state.man.epsilon
-                }
+                state.current = state.actions.size
+                actionsPanel.status.text = "$state"
+                repaint()
+            }
+        }
+
+        actionsPanel.backButton.addActionListener {
+            state.selectedVertex = null
+            state.actionInProcess = null
+            actionsPanel.disableButtons()
+            if (state.current <= 0) {
+                actionsPanel.status.text = "$state Nothing to apply"
+            } else {
+                state.current -= 1
+                actionsPanel.status.text = "$state"
+                repaint()
+            }
+        }
+
+
+        actionsPanel.forwardButton.addActionListener {
+            state.selectedVertex = null
+            state.actionInProcess = null
+            actionsPanel.disableButtons()
+            if (state.current >= state.actions.size) {
+                actionsPanel.status.text = "$state Nothing to apply"
+            } else {
+                state.current += 1
+                actionsPanel.status.text = "$state"
                 repaint()
             }
         }
@@ -145,10 +170,7 @@ class Field(val state: State) : JPanel() {
             val newFigure = action.apply(state.man.figure)
             state.actions.add(action)
             state.figures.add(newFigure)
-            state.man = LambdaMan().apply {
-                figure = newFigure
-                epsilon = state.man.epsilon
-            }
+            state.current = state.actions.size
             actionsPanel.status.text = "$state Rotated to $degrees"
         }
         state.selectedVertex = null
@@ -161,11 +183,7 @@ class Field(val state: State) : JPanel() {
         val newFigure = action.apply(state.man.figure)
         state.actions.add(action)
         state.figures.add(newFigure)
-        state.man = LambdaMan().apply {
-            figure = newFigure
-            epsilon = state.man.epsilon
-        }
-
+        state.current = state.actions.size
         state.selectedVertex = null
         state.actionInProcess = null
         actionsPanel.status.text = "$state ${action.javaClass.simpleName} successfully"
