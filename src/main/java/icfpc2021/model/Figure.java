@@ -6,12 +6,12 @@ import java.util.Objects;
 import java.util.stream.DoubleStream;
 
 public class Figure {
-    public List<Vertex> vertices;
-    public List<Edge> edges;
+    public final List<Vertex> vertices;
+    public final List<Edge> edges;
 
     public Figure(List<Vertex> vertices, List<Edge> edges) {
-        this.vertices = vertices;
-        this.edges = edges;
+        this.vertices = List.copyOf(vertices);
+        this.edges = List.copyOf(edges);
     }
 
     @Override
