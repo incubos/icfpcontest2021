@@ -3,14 +3,13 @@ package icfpc2021.model;
 import java.util.Objects;
 
 public class Edge {
-    public int start;
+    public final int start;
+    public final int end;
 
     public Edge(int start, int end) {
         this.start = start;
         this.end = end;
     }
-
-    public int end;
 
     @Override
     public boolean equals(Object o) {
