@@ -22,20 +22,17 @@ class Field(val state: State) : JPanel() {
                 val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
                 when (manVertex) {
                     null -> {
-                        actionsPanel.moveButton.isEnabled = false
-                        actionsPanel.rotateButton.isEnabled = false
+                        actionsPanel.disableButtons()
                         state.selectedVertex = null
                         actionsPanel.status.text = "$state No vertices selected"
                     }
                     state.selectedVertex -> {
-                        actionsPanel.moveButton.isEnabled = false
-                        actionsPanel.rotateButton.isEnabled = false
+                        actionsPanel.disableButtons()
                         state.selectedVertex = null
                         actionsPanel.status.text = "$state Vertex $manVertex deselected"
                     }
                     else -> {
-                        actionsPanel.moveButton.isEnabled = true
-                        actionsPanel.rotateButton.isEnabled = true
+                        actionsPanel.enableButtons()
                         state.selectedVertex = manVertex
                         actionsPanel.status.text = "$state Vertex $manVertex selected"
                     }
@@ -64,8 +61,7 @@ class Field(val state: State) : JPanel() {
         actionsPanel.moveButton.addActionListener {
             actionsPanel.status.text = "$state Select point to move"
             state.actionInProcess = MoveAction::class.simpleName
-            actionsPanel.moveButton.isEnabled = false
-            actionsPanel.rotateButton.isEnabled = false
+            actionsPanel.disableButtons()
         }
 
         actionsPanel.rotateButton.addActionListener {
@@ -77,8 +73,7 @@ class Field(val state: State) : JPanel() {
     private fun finishRotateAction(actionsPanel: ActionsPanel) {
         actionsPanel.status.text = "$state Enter degrees"
         state.actionInProcess = RotateAction::class.simpleName
-        actionsPanel.moveButton.isEnabled = false
-        actionsPanel.rotateButton.isEnabled = false
+        actionsPanel.disableButtons()
 
         // Show input dialog
         val textComponent = JTextArea("")
@@ -128,8 +123,7 @@ class Field(val state: State) : JPanel() {
         if (e.keyCode == 27) { // Escape
             state.selectedVertex = null
             state.actionInProcess = null
-            actionsPanel.moveButton.isEnabled = false
-            actionsPanel.rotateButton.isEnabled = false
+            actionsPanel.disableButtons()
             actionsPanel.status.text = "$state ${state.printMan()}"
             repaint()
         }

@@ -6,6 +6,18 @@ import javax.swing.*
 
 class ActionsPanel : JPanel(BorderLayout()) {
     val status = JLabel("Ready")
+
+    fun disableButtons() {
+        moveButton.isEnabled = false
+        rotateButton.isEnabled = false
+    }
+
+    fun enableButtons() {
+        moveButton.isEnabled = true
+        rotateButton.isEnabled = true
+    }
+
+
     val moveButton = JButton("Move").apply {
         isEnabled = false
     }
