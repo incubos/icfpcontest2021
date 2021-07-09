@@ -16,4 +16,12 @@ public class Vertex {
         return Math.round(vertex.x) == Math.round(x) &&
                 Math.round(vertex.y) == Math.round(y);
     }
+
+    @Override
+    public String toString() {
+        return "Vertex{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

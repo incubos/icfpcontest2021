@@ -24,4 +24,12 @@ public class Edge {
     public int hashCode() {
         return Objects.hash(start, end);
     }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "start=" + start +
+                ", end=" + end +
+                '}';
+    }
 }

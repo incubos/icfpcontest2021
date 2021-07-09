@@ -27,6 +27,14 @@ public class Figure {
         return Objects.hash(vertices, edges);
     }
 
+    @Override
+    public String toString() {
+        return "Figure{" +
+                "vertices=" + vertices +
+                ", edges=" + edges +
+                '}';
+    }
+
     public double[] verticesToDoubleArray() {
         return vertices
                 .stream()
