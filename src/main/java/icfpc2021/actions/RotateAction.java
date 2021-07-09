@@ -24,4 +24,10 @@ public class RotateAction implements Action {
         transform.transform(doubles, 0, result, 0, doubles.length / 2);
         return figure.copyVerticesFromDoubleArray(result);
     }
+
+    @Override
+    public String toString() {
+        return "Rotate[" + x + "," + y + "," + rotate + "]";
+    }
+
 }

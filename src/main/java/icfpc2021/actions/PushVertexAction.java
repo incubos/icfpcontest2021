@@ -162,4 +162,9 @@ public class PushVertexAction implements Action {
 
         //throw new IllegalStateException("Can't reach the goal");
     }
+
+        @Override
+        public String toString() {
+            return "PushVertex[" + vertex + ","  + dX + "," + dY + "]";
+        }
 }
