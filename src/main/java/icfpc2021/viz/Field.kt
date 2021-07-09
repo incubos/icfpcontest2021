@@ -1,11 +1,13 @@
 package icfpc2021.viz
 
+import icfpc2021.actions.Action
 import icfpc2021.actions.MoveAction
 import icfpc2021.actions.PushVertexAction
 import icfpc2021.actions.RotateAction
 import icfpc2021.model.LambdaMan
 import java.awt.*
 import java.awt.event.*
+import java.lang.Exception
 import javax.swing.*
 
 class Field(val state: State) : JPanel() {
@@ -15,7 +17,7 @@ class Field(val state: State) : JPanel() {
         val realY = realY(e.y)
         val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
         val holeVertex = state.findVertex(state.hole.vertices, realX, realY)
-        return "[$realX,$realY][Closest man:$manVertex][Closest hole:$holeVertex"
+        return "[$realX,$realY][Closest man:$manVertex][Closest hole:$holeVertex]"
     }
 
     fun addActionsListener(actionsPanel: ActionsPanel) {
@@ -103,7 +105,7 @@ class Field(val state: State) : JPanel() {
         actionsPanel.disableButtons()
 
         // Show input dialog
-        val textComponent = JTextArea("")
+        val textComponent = JTextField("")
         val optPane = JOptionPane(JPanel(BorderLayout()).apply {
             add(JLabel("Enter degrees"), BorderLayout.NORTH)
             add(JScrollPane(textComponent), BorderLayout.CENTER)
@@ -112,7 +114,11 @@ class Field(val state: State) : JPanel() {
             isVisible = true
         }
         if (optPane.value == JOptionPane.OK_OPTION) {
-            val degrees = textComponent.text.toInt()
+            val degrees = try {
+                textComponent.text.toInt()
+            } catch (e: Exception) {
+                0
+            }
             val v = state.man.figure.vertices[state.selectedVertex!!]
             val action = RotateAction(v.x, v.y, degrees.toDouble())
             val newFigure = action.apply(state.man.figure)
@@ -122,45 +128,39 @@ class Field(val state: State) : JPanel() {
                 figure = newFigure
                 epsilon = state.man.epsilon
             }
+            actionsPanel.status.text = "$state Rotated to $degrees"
         }
         state.selectedVertex = null
         state.actionInProcess = null
-        actionsPanel.status.text = "$state Rotated successfully"
+        actionsPanel.disableButtons()
+        repaint()
+    }
+
+    private fun applyAction(action: Action, actionsPanel: ActionsPanel) {
+        val newFigure = action.apply(state.man.figure)
+        state.actions.add(action)
+        state.figures.add(newFigure)
+        state.man = LambdaMan().apply {
+            figure = newFigure
+            epsilon = state.man.epsilon
+        }
+
+        state.selectedVertex = null
+        state.actionInProcess = null
+        actionsPanel.status.text = "$state ${action.javaClass.simpleName} successfully"
         repaint()
     }
 
     private fun finishMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
         val v = state.man.figure.vertices[state.selectedVertex!!]
         val action = MoveAction(realX - v.x, realY - v.y)
-        val newFigure = action.apply(state.man.figure)
-        state.actions.add(action)
-        state.figures.add(newFigure)
-        state.man = LambdaMan().apply {
-            figure = newFigure
-            epsilon = state.man.epsilon
-        }
-
-        state.selectedVertex = null
-        state.actionInProcess = null
-        actionsPanel.status.text = "$state Moved successfully"
-        repaint()
+        applyAction(action, actionsPanel)
     }
 
     private fun finishPushMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
         val v = state.man.figure.vertices[state.selectedVertex!!]
         val action = PushVertexAction(state.selectedVertex!!, (realX - v.x).toInt(), (realY - v.y).toInt())
-        val newFigure = action.apply(state.man.figure)
-        state.actions.add(action)
-        state.figures.add(newFigure)
-        state.man = LambdaMan().apply {
-            figure = newFigure
-            epsilon = state.man.epsilon
-        }
-
-        state.selectedVertex = null
-        state.actionInProcess = null
-        actionsPanel.status.text = "$state PushVertex successfully"
-        repaint()
+        applyAction(action, actionsPanel)
     }
 
     override fun paint(g: Graphics) {
