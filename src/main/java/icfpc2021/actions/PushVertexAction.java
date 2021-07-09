@@ -49,14 +49,76 @@ public class PushVertexAction implements Action {
         vertices.set(vertex, figure.vertices.get(vertex).move(dX, dY));
 
         // Try BFS traversal and move the vertices until the target is reached
-        bfsExceptStart(figure.edges, vertex, integer -> {
-            throw new UnsupportedOperationException("Implement me!");
-
-        });
-
-        // TODO: Keep away from the hole border
+        bfsExceptStart(
+                figure.edges,
+                vertex,
+                current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) != 0);
 
         return new Figure(vertices, figure.edges);
+    }
+
+    private static long moveToLocalOptimumAndReturnDiff(
+            List<Edge> edges,
+            List<Vertex> vertices,
+            int vertex,
+            long[] goal) {
+        // TODO: Keep away from the hole border
+
+        // Zero means the goal is reached
+        long best = squareDiff(goal, squareEdgeLengthsFrom(vertices, edges));
+
+        // Try to move each direction for many times
+        boolean advanced;
+        do {
+            advanced = false;
+            for (final Direction direction : Direction.values()) {
+                Vertex v = vertices.get(vertex);
+                long estimate;
+                while (best > 0) {
+                    // Move
+                    vertices.set(vertex, v.move(direction.dx, direction.dy));
+                    estimate = squareDiff(goal, squareEdgeLengthsFrom(vertices, edges));
+                    if (estimate >= best) {
+                        // Rollback
+                        vertices.set(vertex, v);
+                        break;
+                    } else {
+                        // Move on
+                        best = estimate;
+                        advanced = true;
+                    }
+                }
+            }
+        } while (advanced);
+
+        return best;
+    }
+
+    private static long squareDiff(long[] a, long[] b) {
+        long result = 0L;
+        for (int i = 0; i < a.length; i++) {
+            final long diff = a[i] - b[i];
+            result += diff * diff;
+        }
+        return result;
+    }
+
+    enum Direction {
+        UP(0, -1),
+        RIGHT(1, 0),
+        UP_RIGHT(1, -1),
+        DOWN(0, 1),
+        DOWN_RIGHT(1, 1),
+        LEFT(-1, 0),
+        UP_LEFT(-1, -1),
+        DOWN_LEFT(-1, 1);
+
+        final int dx, dy;
+
+        Direction(final int dx, final int dy) {
+            this.dx = dx;
+            this.dy = dy;
+        }
     }
 
     private void bfsExceptStart(
@@ -74,9 +136,9 @@ public class PushVertexAction implements Action {
 
             // Expand neighbours
             edges.forEach(edge -> {
-                if (edge.start == vertex) {
+                if (edge.start == vertex && !visited.contains(edge.end)) {
                     queue.addLast(edge.end);
-                } else if (edge.end == vertex) {
+                } else if (edge.end == vertex && !visited.contains(edge.start)) {
                     queue.addLast(edge.start);
                 }
             });
@@ -95,5 +157,7 @@ public class PushVertexAction implements Action {
                 return;
             }
         }
+
+        throw new IllegalStateException("Can't reach the goal");
     }
 }
