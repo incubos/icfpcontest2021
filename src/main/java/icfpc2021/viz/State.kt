@@ -40,6 +40,6 @@ class State(val hole: Hole, var originalMan: LambdaMan) {
     fun printMan() = man.figure.vertices.joinToString(",") { "(${it.x.toInt()}, ${it.y.toInt()})" }
 
     override fun toString(): String {
-        return "[#${current + 1}/${actions.size + 1}][Action ${actionInProcess}][Selection ${selectedVertex}]"
+        return "[#${current + 1}/${figures.size}][Action ${actionInProcess}][Selection ${selectedVertex}]"
     }
 }

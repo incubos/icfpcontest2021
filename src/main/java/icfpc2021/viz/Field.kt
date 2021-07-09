@@ -101,7 +101,7 @@ class Field(val state: State) : JPanel() {
                 actionsPanel.status.text = "$state Rolled back action ${state.actions.last().javaClass.simpleName}"
                 state.actions.removeLast()
                 state.figures.removeLast()
-                state.current = state.actions.size
+                state.current = state.figures.size - 1
                 actionsPanel.status.text = "$state"
                 repaint()
             }
@@ -125,7 +125,7 @@ class Field(val state: State) : JPanel() {
             state.selectedVertex = null
             state.actionInProcess = null
             actionsPanel.disableButtons()
-            if (state.current >= state.actions.size) {
+            if (state.current >= state.figures.size) {
                 actionsPanel.status.text = "$state Nothing to apply"
             } else {
                 state.current += 1
@@ -170,7 +170,7 @@ class Field(val state: State) : JPanel() {
             val newFigure = action.apply(state.man.figure)
             state.actions.add(action)
             state.figures.add(newFigure)
-            state.current = state.actions.size
+            state.current = state.figures.size - 1
             actionsPanel.status.text = "$state Rotated to $degrees"
         }
         state.selectedVertex = null
@@ -183,7 +183,7 @@ class Field(val state: State) : JPanel() {
         val newFigure = action.apply(state.man.figure)
         state.actions.add(action)
         state.figures.add(newFigure)
-        state.current = state.actions.size
+        state.current = state.figures.size - 1
         state.selectedVertex = null
         state.actionInProcess = null
         actionsPanel.status.text = "$state ${action.javaClass.simpleName} successfully"
