@@ -8,6 +8,7 @@ import icfpc2021.actions.RotateAction
 import java.awt.*
 import java.awt.event.*
 import javax.swing.*
+import kotlin.math.roundToInt
 
 class Field(val state: State) : JPanel() {
 
@@ -197,7 +198,7 @@ class Field(val state: State) : JPanel() {
 
     private fun finishPushMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
         val v = state.man.figure.vertices[state.selectedVertex!!]
-        val action = PushVertexAction(state.selectedVertex!!, (realX - v.x).toInt(), (realY - v.y).toInt())
+        val action = PushVertexAction(state.selectedVertex!!, (realX - v.x).roundToInt(), (realY - v.y).roundToInt())
         applyAction(action, actionsPanel)
     }
 
