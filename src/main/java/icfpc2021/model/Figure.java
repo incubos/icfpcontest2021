@@ -1,7 +1,9 @@
 package icfpc2021.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.DoubleStream;
 
 public class Figure {
     public List<Vertex> vertices;
@@ -23,5 +25,20 @@ public class Figure {
     @Override
     public int hashCode() {
         return Objects.hash(vertices, edges);
+    }
+
+    public double[] verticesToDoubleArray() {
+        return vertices
+                .stream()
+                .flatMapToDouble(v -> DoubleStream.of(v.x, v.y))
+                .toArray();
+    }
+
+    public Figure copyVerticesFromDoubleArray(double[] array) {
+        var result = new ArrayList<Vertex>();
+        for (int i = 0; i < array.length; i += 2) {
+            result.add(new Vertex(array[i], array[i + 1]));
+        }
+        return new Figure(result, edges);
     }
 }
