@@ -20,8 +20,8 @@ public class Task {
     }
 
     static Task fromRaw(RawTask rawTask) {
-        Hole hole = new Hole();
-        hole.vertices = rawTask.hole.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+        var holeVertices = rawTask.hole.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+        Hole hole = new Hole(holeVertices);
         var edges = rawTask.figure.edges.stream().map(o -> new Edge(o.get(0), o.get(1))).collect(Collectors.toList());
         var vertices = rawTask.figure.vertices.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
         var figure = new Figure(vertices, edges);
