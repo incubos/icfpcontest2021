@@ -1,13 +1,12 @@
 package icfpc2021.viz
 
+import icfpc2021.ScoringUtils
 import icfpc2021.actions.Action
 import icfpc2021.actions.MoveAction
 import icfpc2021.actions.PushVertexAction
 import icfpc2021.actions.RotateAction
-import icfpc2021.model.LambdaMan
 import java.awt.*
 import java.awt.event.*
-import java.lang.Exception
 import javax.swing.*
 
 class Field(val state: State) : JPanel() {
@@ -19,7 +18,7 @@ class Field(val state: State) : JPanel() {
         val manVertex = if (manVertexIdx != null) state.man.figure.vertices[manVertexIdx] else null
         val holeVertexIdx = state.findVertex(state.hole.vertices, realX, realY)
         val holeVertex = if (holeVertexIdx != null) state.hole.vertices[holeVertexIdx] else null
-        return "[${realX.toInt()},${realY.toInt()}]" +
+        return "[x${realX.toInt()},y${realY.toInt()}]" +
                 "[Closest man:${if (manVertex != null) "#$manVertexIdx(${manVertex.x.toInt()},${manVertex.y.toInt()})" else "-"}]" +
                 "[Closest hole:${if (holeVertex != null) "#$holeVertexIdx(${holeVertex.x.toInt()},${holeVertex.y.toInt()})" else "-"}]"
     }
@@ -227,7 +226,7 @@ class Field(val state: State) : JPanel() {
         }
 
         // Draw man
-        g2d.color = Color.RED
+        g2d.color = if (ScoringUtils.fitsWithinHole(man.figure, hole)) Color.GREEN else Color.RED
         g2d.stroke = BasicStroke(5f)
         man.figure.edges.forEach { e ->
             val p1 = man.figure.vertices[e.start]
