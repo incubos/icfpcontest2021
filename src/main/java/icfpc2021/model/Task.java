@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Task {
@@ -21,9 +22,9 @@ public class Task {
     static Task fromRaw(RawTask rawTask) {
         Hole hole = new Hole();
         hole.vertices = rawTask.hole.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
-        Figure figure = new Figure();
-        figure.edges = rawTask.figure.edges.stream().map(o -> new Edge(o.get(0), o.get(1))).collect(Collectors.toList());
-        figure.vertices = rawTask.figure.vertices.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+        var edges = rawTask.figure.edges.stream().map(o -> new Edge(o.get(0), o.get(1))).collect(Collectors.toList());
+        var vertices = rawTask.figure.vertices.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+        var figure = new Figure(vertices, edges);
         return new Task(hole, figure, rawTask.epsilon);
     }
 
