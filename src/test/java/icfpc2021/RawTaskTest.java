@@ -2,6 +2,7 @@ package icfpc2021;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icfpc2021.model.RawTask;
+import icfpc2021.model.Task;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,12 +16,19 @@ public class RawTaskTest {
     public void testRead() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         RawTask rawTask = mapper.readValue(s, RawTask.class);
+        Assert.assertNotNull(rawTask);
     }
 
     @Test
     public void testEpsilonIn001() throws IOException {
         var mapper = new ObjectMapper();
         var task = mapper.readValue(Files.readString(Path.of("problems", "001.json")), RawTask.class);
+        Assert.assertEquals(150_000, task.epsilon);
+    }
+
+    @Test
+    public void testTaskFromJson() throws IOException {
+        var task = Task.fromJsonFile(Path.of("problems", "001.json"));
         Assert.assertEquals(150_000, task.epsilon);
     }
 }

@@ -1,5 +1,6 @@
 import icfpc2021.model.*
 import java.awt.*
+import java.nio.file.Path
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.WindowConstants
@@ -60,24 +61,17 @@ class Visualize(val hole: Hole, val man: LambdaMan) {
     }
 
     companion object {
-        // Figure 12 example
-        // {"hole":[[28,0],[56,4],[0,4]],"epsilon":0,"figure":{"edges":[[0,1],[0,2],[1,3],[2,3]],"vertices":[[0,20],[20,0],[20,40],[40,20]]}}
-        val hole = Hole().apply {
-            vertices = listOf(Vertex(28.0, 0.0), Vertex(56.0, 4.0), Vertex(0.0, 4.0))
-        }
-        val man = LambdaMan().apply {
-            figure = Figure().apply {
-                vertices = listOf(
-                    Vertex(15.0, 21.0), Vertex(34.0, 0.0), Vertex(0.0, 45.0), Vertex(19.0, 24.0)
-                )
-                edges = listOf(Edge(0, 1), Edge(0, 2), Edge(1, 3), Edge(2, 3))
-            }
-            epsilon = 1e-2
-        }
-
         @JvmStatic
         fun main(args: Array<String>) {
-            Visualize(hole, man).show()
+            if (args.size != 1) {
+                error("Usage: Visualize <path-to-problem-json>")
+            }
+            val task = Task.fromJsonFile(Path.of(args[0]))
+            val man = LambdaMan().apply {
+                figure = task.figure
+                epsilon = task.epsilon.toDouble()
+            }
+            Visualize(task.hole, man).show()
             Runtime.getRuntime().addShutdownHook(object : Thread() {
                 override fun run() {
                     println("Shutdown hook")
