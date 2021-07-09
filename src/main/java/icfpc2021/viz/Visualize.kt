@@ -1,6 +1,7 @@
 import icfpc2021.model.*
 import icfpc2021.viz.Field
 import icfpc2021.viz.State
+import icfpc2021.viz.ActionsPanel
 import java.awt.*
 import java.nio.file.Path
 import javax.swing.JFrame
@@ -8,16 +9,21 @@ import javax.swing.JPanel
 import javax.swing.WindowConstants
 
 class Visualize(hole: Hole, man: LambdaMan) {
-    private val frame : JFrame by lazy { JFrame("Visualizator") }
+    private val frame: JFrame by lazy { JFrame("Visualizator") }
     private val state = State(hole, man)
+    private val actionsPanel = ActionsPanel()
     lateinit var field: Field
 
     fun show() {
-        field = Field(state)
+        field = Field(state).apply {
+            addActionsListener(actionsPanel)
+        }
+        actionsPanel.status.text = state.printMan()
         frame.apply {
             contentPane = JPanel().apply {
                 layout = BorderLayout()
                 add(field, BorderLayout.CENTER)
+                add(actionsPanel, BorderLayout.SOUTH)
             }
             defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
             preferredSize = Dimension(800, 600)
