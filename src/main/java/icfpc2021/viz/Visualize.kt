@@ -36,8 +36,8 @@ class Visualize(hole: Hole, man: LambdaMan) {
                 }
             })
             defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
-            preferredSize = Dimension(800, 600)
-            size = Dimension(800, 600)
+            preferredSize = Dimension(1280, 1024)
+            size = Dimension(1280, 1024)
             isVisible = true
         }
     }

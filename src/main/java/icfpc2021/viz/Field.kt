@@ -1,6 +1,7 @@
 package icfpc2021.viz
 
 import icfpc2021.actions.MoveAction
+import icfpc2021.actions.PushVertexAction
 import icfpc2021.actions.RotateAction
 import icfpc2021.model.LambdaMan
 import java.awt.*
@@ -9,32 +10,47 @@ import javax.swing.*
 
 class Field(val state: State) : JPanel() {
 
+    fun position(e: MouseEvent): String {
+        val realX = realX(e.x)
+        val realY = realY(e.y)
+        val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
+        val holeVertex = state.findVertex(state.hole.vertices, realX, realY)
+        return "[$realX,$realY][Closest man:$manVertex][Closest hole:$holeVertex"
+    }
+
     fun addActionsListener(actionsPanel: ActionsPanel) {
         addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
                 val realX = realX(e.x)
                 val realY = realY(e.y)
-                actionsPanel.status.text = "$state Mouse click on ${realX.toInt()}, ${realY.toInt()}"
+                actionsPanel.status.text = "$state${position(e)} Mouse click"
+
                 if (state.actionInProcess == MoveAction::class.simpleName) {
                     finishMoveAction(actionsPanel, realX, realY)
                     return
                 }
+
+                if (state.actionInProcess == PushVertexAction::class.simpleName) {
+                    finishPushMoveAction(actionsPanel, realX, realY)
+                    return
+                }
+
                 val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
                 when (manVertex) {
                     null -> {
                         actionsPanel.disableButtons()
                         state.selectedVertex = null
-                        actionsPanel.status.text = "$state No vertices selected"
+                        actionsPanel.status.text = "$state${position(e)} No vertices selected"
                     }
                     state.selectedVertex -> {
                         actionsPanel.disableButtons()
                         state.selectedVertex = null
-                        actionsPanel.status.text = "$state Vertex $manVertex deselected"
+                        actionsPanel.status.text = "$state${position(e)} Vertex man $manVertex deselected"
                     }
                     else -> {
                         actionsPanel.enableButtons()
                         state.selectedVertex = manVertex
-                        actionsPanel.status.text = "$state Vertex $manVertex selected"
+                        actionsPanel.status.text = "$state${position(e)} Vertex man $manVertex selected"
                     }
                 }
                 repaint()
@@ -43,12 +59,7 @@ class Field(val state: State) : JPanel() {
 
         addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
-                val realX = realX(e.x)
-                val realY = realY(e.y)
-                val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
-                val holeVertex = state.findVertex(state.hole.vertices, realX, realY)
-                actionsPanel.status.text = "$state ${realX.toInt()}, ${realY.toInt()}" +
-                        "[Closest man vertex: $manVertex][Closest hole vertex: $holeVertex"
+                actionsPanel.status.text = "$state${position(e)}"
             }
         })
 
@@ -68,6 +79,22 @@ class Field(val state: State) : JPanel() {
             finishRotateAction(actionsPanel)
         }
 
+        actionsPanel.pushVertexButton.addActionListener {
+            actionsPanel.status.text = "$state Select point to push"
+            state.actionInProcess = PushVertexAction::class.simpleName
+            actionsPanel.disableButtons()
+        }
+
+    }
+
+    fun keyPressed(e: KeyEvent, actionsPanel: ActionsPanel) {
+        if (e.keyCode == 27) { // Escape
+            state.selectedVertex = null
+            state.actionInProcess = null
+            actionsPanel.disableButtons()
+            actionsPanel.status.text = "$state${state.printMan()}"
+            repaint()
+        }
     }
 
     private fun finishRotateAction(actionsPanel: ActionsPanel) {
@@ -119,14 +146,21 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
-    fun keyPressed(e: KeyEvent, actionsPanel: ActionsPanel) {
-        if (e.keyCode == 27) { // Escape
-            state.selectedVertex = null
-            state.actionInProcess = null
-            actionsPanel.disableButtons()
-            actionsPanel.status.text = "$state ${state.printMan()}"
-            repaint()
+    private fun finishPushMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
+        val v = state.man.figure.vertices[state.selectedVertex!!]
+        val action = PushVertexAction(state.selectedVertex!!, (realX - v.x).toInt(), (realY - v.y).toInt())
+        val newFigure = action.apply(state.man.figure)
+        state.actions.add(action)
+        state.figures.add(newFigure)
+        state.man = LambdaMan().apply {
+            figure = newFigure
+            epsilon = state.man.epsilon
         }
+
+        state.selectedVertex = null
+        state.actionInProcess = null
+        actionsPanel.status.text = "$state PushVertex successfully"
+        repaint()
     }
 
     override fun paint(g: Graphics) {
@@ -159,7 +193,7 @@ class Field(val state: State) : JPanel() {
         if (state.selectedVertex != null) {
             g2d.color = Color.GREEN
             val v = man.figure.vertices[state.selectedVertex!!]
-            g2d.drawOval(screenX(v.x), screenY(v.y), 5, 5)
+            g2d.drawOval(screenX(v.x) - 5, screenY(v.y) - 5, 10, 10)
         }
         g2d.color = Color.BLACK
         man.figure.vertices.forEachIndexed { i, v ->
@@ -167,15 +201,18 @@ class Field(val state: State) : JPanel() {
         }
     }
 
-
+    // Screen and model coordinates conversion
     private fun screenX(x: Double) =
         (MARGIN + (width - MARGIN * 2) * (x - state.minX()) / (state.maxX() - state.minX())).toInt()
 
     private fun screenY(y: Double) =
         (MARGIN + (height - MARGIN * 2) * (y - state.minY()) / (state.maxY() - state.minY())).toInt()
 
-    private fun realX(xScreen: Int) = state.minX() + (xScreen - MARGIN) * (state.maxX() - state.minX()) / (width - MARGIN * 2)
-    private fun realY(yScreen: Int) = state.minY() + (yScreen - MARGIN) * (state.maxY() - state.minY()) / (height - MARGIN * 2)
+    private fun realX(xScreen: Int) =
+        state.minX() + (xScreen - MARGIN) * (state.maxX() - state.minX()) / (width - MARGIN * 2)
+
+    private fun realY(yScreen: Int) =
+        state.minY() + (yScreen - MARGIN) * (state.maxY() - state.minY()) / (height - MARGIN * 2)
 
     val MARGIN = 10
 }

@@ -10,11 +10,13 @@ class ActionsPanel : JPanel(BorderLayout()) {
     fun disableButtons() {
         moveButton.isEnabled = false
         rotateButton.isEnabled = false
+        pushVertexButton.isEnabled = false
     }
 
     fun enableButtons() {
         moveButton.isEnabled = true
         rotateButton.isEnabled = true
+        pushVertexButton.isEnabled = true
     }
 
 
@@ -22,6 +24,9 @@ class ActionsPanel : JPanel(BorderLayout()) {
         isEnabled = false
     }
     val rotateButton = JButton("Rotate").apply {
+        isEnabled = false;
+    }
+    val pushVertexButton = JButton("PushVertex").apply {
         isEnabled = false;
     }
 
@@ -32,6 +37,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             add(moveButton)
             add(rotateButton)
+            add(pushVertexButton)
         }, BorderLayout.EAST)
     }
 }
