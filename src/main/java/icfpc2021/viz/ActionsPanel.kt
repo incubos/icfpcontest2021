@@ -30,6 +30,8 @@ class ActionsPanel : JPanel(BorderLayout()) {
         isEnabled = false;
     }
 
+    val rollBackLastAction = JButton("Rollback last action")
+
     init {
         border = BorderFactory.createLineBorder(Color.GRAY)
         add(status, BorderLayout.LINE_START)
@@ -38,6 +40,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(moveButton)
             add(rotateButton)
             add(pushVertexButton)
+            add(rollBackLastAction)
         }, BorderLayout.EAST)
     }
 }

@@ -76,8 +76,8 @@ class Field(val state: State) : JPanel() {
         })
 
         actionsPanel.moveButton.addActionListener {
-            actionsPanel.status.text = "$state Select point to move"
             state.actionInProcess = MoveAction::class.simpleName
+            actionsPanel.status.text = "$state Select point to move"
             actionsPanel.disableButtons()
         }
 
@@ -86,11 +86,28 @@ class Field(val state: State) : JPanel() {
         }
 
         actionsPanel.pushVertexButton.addActionListener {
-            actionsPanel.status.text = "$state Select point to push"
             state.actionInProcess = PushVertexAction::class.simpleName
+            actionsPanel.status.text = "$state Select point to push"
             actionsPanel.disableButtons()
         }
 
+        actionsPanel.rollBackLastAction.addActionListener {
+            state.selectedVertex = null
+            state.actionInProcess = null
+            actionsPanel.disableButtons()
+            if (state.actions.size == 0) {
+                actionsPanel.status.text = "$state No actions to rollback"
+            } else {
+                actionsPanel.status.text = "$state Rolled back action ${state.actions.last().javaClass.simpleName}"
+                state.actions.removeLast()
+                state.figures.removeLast()
+                state.man = LambdaMan().apply {
+                    figure = state.figures.last()
+                    epsilon = state.man.epsilon
+                }
+                repaint()
+            }
+        }
     }
 
     fun keyPressed(e: KeyEvent, actionsPanel: ActionsPanel) {
