@@ -18,17 +18,17 @@ public class PushVertexAction implements Action {
         this.dY = dY;
     }
 
-    private static long[] squareEdgeLengthsFrom(
+    private static double[] edgeLengthsFrom(
             List<Vertex> vertices,
             List<Edge> edges) {
-        long[] result = new long[edges.size()];
+        double[] result = new double[edges.size()];
         for (int i = 0; i < edges.size(); i++) {
             Edge edge = edges.get(i);
             Vertex start = vertices.get(edge.start);
             Vertex end = vertices.get(edge.end);
-            long dx = (long) (end.x - start.x);
-            long dy = (long) (end.y - start.y);
-            result[i] = dx * dx + dy * dy;
+            double dx = end.x - start.x;
+            double dy = end.y - start.y;
+            result[i] = Math.hypot(dx, dy);
         }
         return result;
     }
@@ -41,7 +41,7 @@ public class PushVertexAction implements Action {
         }
 
         // Calculate target invariant
-        final long[] targetEdgeSquareLengths = squareEdgeLengthsFrom(figure.vertices, figure.edges);
+        final double[] targetEdgeSquareLengths = edgeLengthsFrom(figure.vertices, figure.edges);
 
         // Allocate mutable vertices and replace the touched vertex
         final List<Vertex> vertices = new ArrayList<>(figure.vertices);
@@ -52,32 +52,34 @@ public class PushVertexAction implements Action {
         bfsExceptStart(
                 figure.edges,
                 vertex,
-                current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) != 0);
+                current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) > 0.001);
 
         return new Figure(vertices, figure.edges);
     }
 
-    private static long moveToLocalOptimumAndReturnDiff(
+    private static double moveToLocalOptimumAndReturnDiff(
             List<Edge> edges,
             List<Vertex> vertices,
             int vertex,
-            long[] goal) {
+            double[] goal) {
         // TODO: Keep away from the hole border
 
         // Zero means the goal is reached
-        long best = squareDiff(goal, squareEdgeLengthsFrom(vertices, edges));
+        double best = absDiffSum(goal, edgeLengthsFrom(vertices, edges));
 
         // Try to move each direction for many times
         boolean advanced;
         do {
             advanced = false;
             for (final Direction direction : Direction.values()) {
-                Vertex v = vertices.get(vertex);
-                long estimate;
-                while (best > 0) {
+                double estimate;
+                while (best > 0.001) {
+                    // Remember to be able to rollback
+                    Vertex v = vertices.get(vertex);
+
                     // Move
                     vertices.set(vertex, v.move(direction.dx, direction.dy));
-                    estimate = squareDiff(goal, squareEdgeLengthsFrom(vertices, edges));
+                    estimate = absDiffSum(goal, edgeLengthsFrom(vertices, edges));
                     if (estimate >= best) {
                         // Rollback
                         vertices.set(vertex, v);
@@ -94,11 +96,11 @@ public class PushVertexAction implements Action {
         return best;
     }
 
-    private static long squareDiff(long[] a, long[] b) {
-        long result = 0L;
+    private static double absDiffSum(double[] a, double[] b) {
+        double result = 0L;
         for (int i = 0; i < a.length; i++) {
-            final long diff = a[i] - b[i];
-            result += diff * diff;
+            final double diff = a[i] - b[i];
+            result += Math.abs(diff);
         }
         return result;
     }
@@ -158,6 +160,6 @@ public class PushVertexAction implements Action {
             }
         }
 
-        throw new IllegalStateException("Can't reach the goal");
+        //throw new IllegalStateException("Can't reach the goal");
     }
 }
