@@ -14,7 +14,15 @@ class Visualize(val hole: Hole, val man: LambdaMan) {
     val frame = object : JFrame("Visualizator") {
         override fun paint(g: Graphics) {
             val g2d = g as Graphics2D
+            g.color = Color.LIGHT_GRAY
+            g2d.fillRect(0, 0, W, H)
             // Draw hole
+            g.color = Color.WHITE
+            g2d.fillPolygon(
+                hole.vertices.map { screenX(it.x) }.toIntArray(),
+                hole.vertices.map { screenY(it.y) }.toIntArray(),
+                hole.vertices.size
+            )
             g.color = Color.BLACK
             g2d.stroke = BasicStroke(2f)
             hole.vertices.forEachIndexed { i, v1 ->
@@ -24,7 +32,7 @@ class Visualize(val hole: Hole, val man: LambdaMan) {
 
             // Draw man
             g.color = Color.RED
-            g2d.stroke = BasicStroke(3f)
+            g2d.stroke = BasicStroke(5f)
             man.figure.edges.forEach { e ->
                 val p1 = man.figure.vertices[e.start]
                 val p2 = man.figure.vertices[e.end]
