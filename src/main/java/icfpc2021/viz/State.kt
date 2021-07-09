@@ -21,7 +21,7 @@ class State(val hole: Hole, var man: LambdaMan) {
     fun minY() = min(man.figure.vertices.minOf { it.y }, hole.vertices.minOf { it.y })
     fun maxY() = max(man.figure.vertices.maxOf { it.y }, hole.vertices.maxOf { it.y })
 
-    fun findVertex(vertices: List<Vertex>, realX: Double, realY: Double, precision: Double = 10.0): Int? {
+    fun findVertex(vertices: List<Vertex>, realX: Double, realY: Double, precision: Double = 5.0): Int? {
          return vertices.indices.map {
              val x = vertices[it].x
              val y = vertices[it].y

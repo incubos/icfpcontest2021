@@ -15,9 +15,13 @@ class Field(val state: State) : JPanel() {
     fun position(e: MouseEvent): String {
         val realX = realX(e.x)
         val realY = realY(e.y)
-        val manVertex = state.findVertex(state.man.figure.vertices, realX, realY)
-        val holeVertex = state.findVertex(state.hole.vertices, realX, realY)
-        return "[$realX,$realY][Closest man:$manVertex][Closest hole:$holeVertex]"
+        val manVertexIdx = state.findVertex(state.man.figure.vertices, realX, realY)
+        val manVertex = if (manVertexIdx != null) state.man.figure.vertices[manVertexIdx] else null
+        val holeVertexIdx = state.findVertex(state.hole.vertices, realX, realY)
+        val holeVertex = if (holeVertexIdx != null) state.hole.vertices[holeVertexIdx] else null
+        return "[${realX.toInt()},${realY.toInt()}]" +
+                "[Closest man:${if (manVertex != null) "#$manVertexIdx(${manVertex.x.toInt()},${manVertex.y.toInt()})" else "-"}]" +
+                "[Closest hole:${if (holeVertex != null) "#$holeVertexIdx(${holeVertex.x.toInt()},${holeVertex.y.toInt()})" else "-"}]"
     }
 
     fun addActionsListener(actionsPanel: ActionsPanel) {
@@ -176,12 +180,17 @@ class Field(val state: State) : JPanel() {
             hole.vertices.map { screenY(it.y) }.toIntArray(),
             hole.vertices.size
         )
-        g2d.color = Color.BLACK
+        g2d.color = Color.DARK_GRAY
         g2d.stroke = BasicStroke(2f)
         hole.vertices.forEachIndexed { i, v1 ->
             val v2 = hole.vertices[(i + 1).mod(hole.vertices.size)]
             g2d.drawLine(screenX(v1.x), screenY(v1.y), screenX(v2.x), screenY(v2.y))
         }
+        g2d.color = Color.BLACK
+        hole.vertices.forEachIndexed { i, v ->
+            g2d.drawString(i.toString(), screenX(v.x).toFloat(), screenY(v.y).toFloat())
+        }
+
         // Draw man
         g2d.color = Color.RED
         g2d.stroke = BasicStroke(5f)
@@ -214,5 +223,5 @@ class Field(val state: State) : JPanel() {
     private fun realY(yScreen: Int) =
         state.minY() + (yScreen - MARGIN) * (state.maxY() - state.minY()) / (height - MARGIN * 2)
 
-    val MARGIN = 10
+    private val MARGIN = 30
 }
