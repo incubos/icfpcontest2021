@@ -1,7 +1,4 @@
-import icfpc2021.viz.Hole
-import icfpc2021.viz.LambdaMan
-import icfpc2021.viz.Point
-import icfpc2021.viz.Figure
+import icfpc2021.model.*
 import java.awt.*
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -14,34 +11,35 @@ class Visualize(val hole: Hole, val man: LambdaMan) {
     val H = 600
     val M = 100
 
-    val frame = object: JFrame("Visualizator") {
+    val frame = object : JFrame("Visualizator") {
         override fun paint(g: Graphics) {
+            val g2d = g as Graphics2D
             // Draw hole
             g.color = Color.BLACK
-            (g as Graphics2D).stroke = BasicStroke(2f)
-            hole.points.forEachIndexed { i, p1 ->
-                val p2 = hole.points[(i + 1).mod(hole.points.size)]
-                g.drawLine(screenX(p1.x), screenY(p1.y), screenX(p2.x), screenY(p2.y))
+            g2d.stroke = BasicStroke(2f)
+            hole.vertices.forEachIndexed { i, v1 ->
+                val v2 = hole.vertices[(i + 1).mod(hole.vertices.size)]
+                g.drawLine(screenX(v1.x), screenY(v1.y), screenX(v2.x), screenY(v2.y))
             }
 
             // Draw man
             g.color = Color.RED
-            (g as Graphics2D).stroke = BasicStroke(3f)
-            man.figure.edges.forEach { (p1I, p2I) ->
-                val p1 = man.figure.vertices[p1I]
-                val p2 = man.figure.vertices[p2I]
+            g2d.stroke = BasicStroke(3f)
+            man.figure.edges.forEach { e ->
+                val p1 = man.figure.vertices[e.start]
+                val p2 = man.figure.vertices[e.end]
                 g.drawLine(screenX(p1.x), screenY(p1.y), screenX(p2.x), screenY(p2.y))
             }
         }
 
-        private fun screenX(x: Float) = (M + (W - M * 2) * (x - minX()) / (maxX() - minX())).toInt()
-        private fun screenY(y: Float) = (M + (H - M * 2) * (y - minY()) / (maxY() - minY())).toInt()
+        private fun screenX(x: Double) = (M + (W - M * 2) * (x - minX()) / (maxX() - minX())).toInt()
+        private fun screenY(y: Double) = (M + (H - M * 2) * (y - minY()) / (maxY() - minY())).toInt()
     }
 
-    private fun minX() = min(man.figure.vertices.minOf { it.x }, hole.points.minOf { it.x })
-    private fun maxX() = max(man.figure.vertices.maxOf { it.x }, hole.points.maxOf { it.x })
-    private fun minY() = min(man.figure.vertices.minOf { it.y }, hole.points.minOf { it.y })
-    private fun maxY() = max(man.figure.vertices.maxOf { it.y }, hole.points.maxOf { it.y })
+    private fun minX() = min(man.figure.vertices.minOf { it.x }, hole.vertices.minOf { it.x })
+    private fun maxX() = max(man.figure.vertices.maxOf { it.x }, hole.vertices.maxOf { it.x })
+    private fun minY() = min(man.figure.vertices.minOf { it.y }, hole.vertices.minOf { it.y })
+    private fun maxY() = max(man.figure.vertices.maxOf { it.y }, hole.vertices.maxOf { it.y })
 
     fun show() {
         frame.apply {
@@ -54,20 +52,20 @@ class Visualize(val hole: Hole, val man: LambdaMan) {
     }
 
     companion object {
+        // Figure 12 example
         // {"hole":[[28,0],[56,4],[0,4]],"epsilon":0,"figure":{"edges":[[0,1],[0,2],[1,3],[2,3]],"vertices":[[0,20],[20,0],[20,40],[40,20]]}}
-        val hole = Hole(
-            listOf(
-                Point(28, 0), Point(56, 4), Point(0, 4)
-            )
-        )
-        val man = LambdaMan(
-            figure = Figure(
+        val hole = Hole().apply {
+            vertices = listOf(Vertex(28.0, 0.0), Vertex(56.0, 4.0), Vertex(0.0, 4.0))
+        }
+        val man = LambdaMan().apply {
+            figure = Figure().apply {
                 vertices = listOf(
-                    Point(15, 21), Point(34, 0), Point(0, 45), Point(19, 24)
-                ),
-                edges = listOf(0 to 1, 0 to 2, 1 to 3, 2 to 3)
-            ), epsilon = 1e-2f
-        )
+                    Vertex(15.0, 21.0), Vertex(34.0, 0.0), Vertex(0.0, 45.0), Vertex(19.0, 24.0)
+                )
+                edges = listOf(Edge(0, 1), Edge(0, 2), Edge(1, 3), Edge(2, 3))
+            }
+            epsilon = 1e-2
+        }
 
         @JvmStatic
         fun main(args: Array<String>) {

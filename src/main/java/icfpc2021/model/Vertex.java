@@ -1,9 +1,9 @@
 package icfpc2021.model;
 
 public class Vertex {
-    public int x;
-    public int y;
-    public Vertex(int x, int y) {
+    public double x;
+    public double y;
+    public Vertex(double x, double y) {
         this.x = x;
         this.y = y;
     }
