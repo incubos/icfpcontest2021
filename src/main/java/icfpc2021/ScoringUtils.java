@@ -37,10 +37,16 @@ public class ScoringUtils {
      * Returns true if the figure is transformed correctly
      */
     public static boolean checkFigure(Figure figure, Figure originalFigure, double epsilon) {
-        final double[] originalEdgesLength = edgeLengthsFrom(originalFigure.vertices, originalFigure.edges);
-        final double[] edgesLength = edgeLengthsFrom(figure.vertices, figure.edges);
-        double absDiffSum = absDiffSum(originalEdgesLength, edgesLength);
-        return absDiffSum <= epsilon;
+        final double[] originalEdgesLength = edgeSquareLengthsFrom(originalFigure.vertices, originalFigure.edges);
+        final double[] edgesLength = edgeSquareLengthsFrom(figure.vertices, figure.edges);
+        final double threshold = epsilon / 1_000_000.0;
+        for (int i = 0; i < originalEdgesLength.length; i++) {
+            final double score = Math.abs(originalEdgesLength[i] / edgesLength[i] - 1.0);
+            if (score > threshold) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static double[] edgeLengthsFrom(
