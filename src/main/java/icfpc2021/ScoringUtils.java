@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static icfpc2021.ConvexHullKt.counterClockWise;
+
 public class ScoringUtils {
     private static final double COORDINATE_PRECISION = 0.001;
 
@@ -21,10 +23,34 @@ public class ScoringUtils {
      */
     public static boolean fitsWithinHole(Figure figure, Hole hole) {
         var figurePath = verticesToPath(figure.vertices);
-        var holePath = verticesToPath(hole.vertices);
         var area = new Area(figurePath);
-        area.subtract(new Area(holePath));
-        return area.isEmpty();
+        if (!area.isEmpty()) {
+            var holePath = verticesToPath(hole.vertices);
+            area.subtract(new Area(holePath));
+            return area.isEmpty();
+        } else {
+            // Check edges intersections
+            for (Edge edge : figure.edges) {
+                var e1 = figure.vertices.get(edge.start);
+                var e2 = figure.vertices.get(edge.end);
+                for (int i = 0; i < hole.vertices.size(); i++) {
+                    var h1 = hole.vertices.get(i);
+                    var h2 = hole.vertices.get((i + 1) % hole.vertices.size());
+                    if (e1.equals(h1) || e2.equals(h1) || e1.equals(h2) || e2.equals(h2)) {
+                        continue; // Precise fit
+                    }
+                    if (intersects(e1, e2, h1, h2)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    private static boolean intersects(Vertex e1, Vertex e2, Vertex h1, Vertex h2) {
+        return counterClockWise(e1, e2, h1) != counterClockWise(e1, e2, h2) &&
+                counterClockWise(h1, h2, e1) != counterClockWise(h1, h2, e2);
     }
 
     public static List<Integer> listNotFitting(Figure figure, Hole hole) {

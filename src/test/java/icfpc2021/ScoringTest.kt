@@ -90,6 +90,14 @@ class ScoringTest {
     }
 
     @Test
+    fun testFitsLine012() {
+        val hole = Hole(listOf(Vertex(28.0, 0.0), Vertex(56.0, 4.0), Vertex(0.0, 4.0)))
+        val figure = Figure(listOf(Vertex(8.0, 36.0), Vertex(28.0, 16.0), Vertex(28.0, 16.0), Vertex(48.0, -4.0)),
+        listOf(Edge(0, 1), Edge(0, 2), Edge(1, 3), Edge(2, 3)))
+        Assert.assertFalse(ScoringUtils.fitsWithinHole(figure, hole))
+    }
+
+    @Test
     fun testDoesntFitSlightly() {
         val figure = Figure(
             listOf(
