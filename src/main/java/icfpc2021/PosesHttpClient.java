@@ -24,7 +24,7 @@ public class PosesHttpClient {
     public static void main(String[] args) {
         var serverUrl = "https://poses.live/api";
         var apiToken = "f1b30d61-a94e-4980-bd2d-66f8b9dd8714";
-        var problemsCount = 59;
+        var problemsCount = 78;
 
         try {
             Files.createDirectory(Path.of("problems"));
