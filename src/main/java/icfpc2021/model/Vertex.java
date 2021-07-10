@@ -10,10 +10,6 @@ public class Vertex implements Comparable<Vertex> {
         this.y = y;
     }
 
-    public Vertex move(double dx, double dy) {
-        return new Vertex(x + dx, y + dy);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
