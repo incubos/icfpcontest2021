@@ -2,53 +2,52 @@ package icfpc2021.viz
 
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Dimension
+import java.awt.Insets
 import javax.swing.*
 
 class ActionsPanel : JPanel(BorderLayout()) {
     val status = JLabel("Ready")
 
-    fun disableButtons() {
+    fun disableActions() {
         moveButton.isEnabled = false
         rotateButton.isEnabled = false
         pushVertexButton.isEnabled = false
         foldSubFigureButton.isEnabled = false
-        printButton.isEnabled = true
     }
 
-    fun enableButtons() {
+    fun enableActions() {
         moveButton.isEnabled = true
         rotateButton.isEnabled = true
         pushVertexButton.isEnabled = true
         foldSubFigureButton.isEnabled = true
-        printButton.isEnabled = false
     }
 
 
-    val moveButton = JButton("Move").apply {
+    val moveButton = createSmallButton("Move").apply {
         isEnabled = false
     }
-    val rotateButton = JButton("Rotate").apply {
+    val rotateButton = createSmallButton("Rotate").apply {
         isEnabled = false;
     }
-    val pushVertexButton = JButton("PushVertex").apply {
+    val pushVertexButton = createSmallButton("Push").apply {
         isEnabled = false;
     }
-    val foldSubFigureButton = JButton("FoldSubfigure").apply {
+    val foldSubFigureButton = createSmallButton("Fold").apply {
         isEnabled = false;
     }
-    val printButton = JButton("Print").apply {
+    val printButton = createSmallButton("Print").apply {
         isEnabled = true;
     }
 
-    val rollBackLastAction = JButton("Rollback last")
-    val forwardButton = JButton(">")
-    val backButton = JButton("<")
+    val rollBackLastAction = createSmallButton("Rollback")
+    val forwardButton = createSmallButton(">")
+    val backButton = createSmallButton("<")
 
     init {
         add(status, BorderLayout.LINE_START)
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
-            add(printButton)
             add(foldSubFigureButton)
             add(moveButton)
             add(rotateButton)
@@ -56,6 +55,17 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(rollBackLastAction)
             add(backButton)
             add(forwardButton)
+            add(printButton)
         }, BorderLayout.EAST)
     }
+}
+
+fun createSmallButton(text: String) = JButton(text).apply {
+    val fontMetrics = getFontMetrics(font)
+    val dimension = Dimension(fontMetrics.stringWidth(text) + 16, fontMetrics.height + 4)
+    size = dimension
+    margin = Insets(2, 2, 2, 2)
+    preferredSize = dimension
+    minimumSize = dimension
+    maximumSize = dimension
 }
