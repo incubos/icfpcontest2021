@@ -32,7 +32,7 @@ public class AutoFoldAreaAction implements Action {
             );
         }
         var minArea = area(convexHull);
-        FoldAction minFoldAction = null;
+        Action minFoldAction = null;
         for (int i = 0; i < figure.vertices.size(); i++) {
             for (int k = 0; k < figure.vertices.size(); k++) {
                 for (int j = 0; j < figure.vertices.size(); j++) {
@@ -40,7 +40,7 @@ public class AutoFoldAreaAction implements Action {
                             !(convexHullEdges.contains(Pair.create(i, j)) ||
                                     convexHullEdges.contains(Pair.create(j, i))) &&
                             checkCorrect(i, j, k, figure.edges)) {
-                        FoldAction fa = new FoldAction(i, j, k);
+                        Action fa = Action.checked(new FoldAction(i, j, k));
                         var newFigure = fa.apply(state, figure);
                         if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
                             var newArea = area(convexHull(newFigure.vertices));
