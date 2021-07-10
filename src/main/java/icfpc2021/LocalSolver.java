@@ -24,7 +24,7 @@ public class LocalSolver {
         int correctValues = 0;
         int fitted = 0;
         int solved = 0;
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 78; i++) {
             System.out.println("Task " + i);
             if (IGNORED.contains(i)) {
                 System.out.println("IGNORED");
@@ -41,6 +41,10 @@ public class LocalSolver {
                     "; Man vertices " + lambdaMan.figure.vertices.size() +
                     "; Man edges " + lambdaMan.figure.edges.size() +
                     "; Epsilon " + lambdaMan.epsilon);
+            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 3000) {
+                System.out.println("TOO LARGE");
+                continue;
+            }
             AutoKutuzoffStrategy strategy = new AutoKutuzoffStrategy();
             state.applyStrategy(strategy);
             Figure figure = state.getMan().figure;
