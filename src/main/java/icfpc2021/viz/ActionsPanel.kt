@@ -46,6 +46,9 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val printButton = createSmallButton("Print").apply {
         isEnabled = true;
     }
+    val posifyButton = createSmallButton("Assume position").apply {
+        isEnabled = true;
+    }
 
     val rollBackLastAction = createSmallButton("RollbackLast")
     val forwardButton = createSmallButton(">")
@@ -67,6 +70,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(backButton)
             add(forwardButton)
             add(printButton)
+            add(posifyButton)
             add(restartButton)
         }, BorderLayout.CENTER)
         add(status, BorderLayout.PAGE_END)

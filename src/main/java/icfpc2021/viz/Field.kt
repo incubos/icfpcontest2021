@@ -109,6 +109,9 @@ class Field(val state: State) : JPanel() {
         actionsPanel.printButton.addActionListener {
             finishPrintAction(actionsPanel)
         }
+        actionsPanel.posifyButton.addActionListener {
+            finishPosifyAction(actionsPanel)
+        }
 
         actionsPanel.rollBackLastAction.addActionListener {
             state.selectedVertex = null
@@ -207,7 +210,11 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
-    //TODO: need PosifyAction. it should round all vertices to ints and check if epsilon holds. If not, need to do something
+    private fun finishPosifyAction(actionsPanel: ActionsPanel) {
+        val action = PosifyAction()
+        state.applyAction(action)
+        repaint()
+    }
     private fun finishPrintAction(actionsPanel: ActionsPanel) {
         val pose = Pose.fromVertices(state.figures[state.current].vertices)
         val json = objectMapper.writeValueAsString(pose)
