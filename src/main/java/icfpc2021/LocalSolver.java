@@ -11,6 +11,7 @@ import icfpc2021.viz.State;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Set;
 
 public class LocalSolver {
@@ -57,6 +58,9 @@ public class LocalSolver {
             if (correct) {
                 correctValues += 1;
             }
+            System.out.println("Problem " + i);
+            System.out.println("Original lengths: " + Arrays.toString(ScoringUtils.edgeLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges)));
+            System.out.println("Our lengths: " + Arrays.toString(ScoringUtils.edgeLengthsFrom(figure.vertices, figure.edges)));
             boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
             if (fits) {
                 fitted += 1;
