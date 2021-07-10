@@ -17,7 +17,6 @@ import java.nio.file.Path;
  */
 public class PosesHttpClient {
     private static final Logger log = LoggerFactory.getLogger(PosesHttpClient.class);
-
     /**
      * Download and store all problems.
      */
