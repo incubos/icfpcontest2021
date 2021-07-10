@@ -3,7 +3,10 @@ package icfpc2021.viz
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Insets
-import javax.swing.*
+import javax.swing.BoxLayout
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JPanel
 
 class ActionsPanel : JPanel(BorderLayout()) {
     val status = JLabel("Ready")
@@ -36,7 +39,8 @@ class ActionsPanel : JPanel(BorderLayout()) {
         isEnabled = false;
     }
     val autoCenterButton = createSmallButton("AutoCenter")
-    val autorotateButton = createSmallButton("AutoRotate")
+    val autoRotateButton = createSmallButton("AutoRotate")
+    val autoFoldButton = createSmallButton("AutoFold")
 
     val printButton = createSmallButton("Print").apply {
         isEnabled = true;
@@ -52,7 +56,8 @@ class ActionsPanel : JPanel(BorderLayout()) {
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             add(autoCenterButton)
-            add(autorotateButton)
+            add(autoRotateButton)
+            add(autoFoldButton)
             add(foldSubFigureButton)
             add(moveButton)
             add(rotateButton)

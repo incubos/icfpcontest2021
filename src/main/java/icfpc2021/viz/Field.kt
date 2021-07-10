@@ -93,9 +93,13 @@ class Field(val state: State) : JPanel() {
         actionsPanel.autoCenterButton.addActionListener {
             finishAutoCenterAction(actionsPanel)
         }
-        actionsPanel.autorotateButton.addActionListener {
+        actionsPanel.autoRotateButton.addActionListener {
             finishAutoRotateAction(actionsPanel)
         }
+        actionsPanel.autoFoldButton.addActionListener {
+            finishAutoFoldAction(actionsPanel)
+        }
+
 
         actionsPanel.printButton.addActionListener {
             finishPrintAction(actionsPanel)
@@ -267,6 +271,12 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
+    private fun finishAutoFoldAction(actionsPanel: ActionsPanel) {
+        val action = AutoFoldAction()
+        state.applyAction(action)
+        actionsPanel.status.text = "$state $action applied successfully"
+        repaint()
+    }
 
     override fun paint(g: Graphics) {
         val g2d = g as Graphics2D

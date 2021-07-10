@@ -8,6 +8,9 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.List;
 
+import static icfpc2021.actions.PushVertexAction.absDiffSum;
+import static icfpc2021.actions.PushVertexAction.edgeLengthsFrom;
+
 public class ScoringUtils {
     /**
      * Returns true if the figure completely fits with the hole.
@@ -31,4 +34,15 @@ public class ScoringUtils {
         path.closePath();
         return path;
     }
+
+    /**
+     * Returns true if the figure is transformed correctly
+     */
+    public static boolean checkFigure(Figure figure, Figure originalFigure, double epsilon) {
+        final double[] originalEdgesLength = edgeLengthsFrom(originalFigure.vertices, originalFigure.edges);
+        final double[] edgesLength = edgeLengthsFrom(figure.vertices, figure.edges);
+        double absDiffSum = absDiffSum(originalEdgesLength, edgesLength);
+        return absDiffSum <= epsilon;
+    }
+
 }

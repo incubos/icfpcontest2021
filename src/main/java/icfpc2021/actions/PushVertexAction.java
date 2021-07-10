@@ -18,7 +18,7 @@ public class PushVertexAction implements Action {
         this.dY = dY;
     }
 
-    private static double[] edgeLengthsFrom(
+    public static double[] edgeLengthsFrom(
             List<Vertex> vertices,
             List<Edge> edges) {
         double[] result = new double[edges.size()];
@@ -96,7 +96,7 @@ public class PushVertexAction implements Action {
         return best;
     }
 
-    private static double absDiffSum(double[] a, double[] b) {
+    public static double absDiffSum(double[] a, double[] b) {
         double result = 0L;
         for (int i = 0; i < a.length; i++) {
             final double diff = a[i] - b[i];
@@ -163,8 +163,8 @@ public class PushVertexAction implements Action {
         //throw new IllegalStateException("Can't reach the goal");
     }
 
-        @Override
-        public String toString() {
-            return "PushVertex[" + vertex + ","  + dX + "," + dY + "]";
-        }
+    @Override
+    public String toString() {
+        return "PushVertex[" + vertex + "," + dX + "," + dY + "]";
+    }
 }
