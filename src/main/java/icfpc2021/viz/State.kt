@@ -1,6 +1,8 @@
 package icfpc2021.viz
 
 import icfpc2021.actions.Action
+import icfpc2021.area
+import icfpc2021.convexHull
 import icfpc2021.model.Figure
 import icfpc2021.model.Hole
 import icfpc2021.model.LambdaMan
@@ -22,6 +24,9 @@ class State(val hole: Hole, originalMan: LambdaMan, val taskName: String, val pr
             figure = figures[current]
             epsilon = this@State.epsilon
         }
+
+    val holeConvexHull = convexHull(hole.vertices)
+    val holeConvexHullArea = area(holeConvexHull)
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
@@ -51,6 +56,8 @@ class State(val hole: Hole, originalMan: LambdaMan, val taskName: String, val pr
     fun printMan() = man.figure.vertices.joinToString(",") { "(${it.x.toInt()}, ${it.y.toInt()})" }
 
     override fun toString(): String {
-        return "[#${current + 1}/${figures.size}][Action ${actionInProcess}][Selection ${selectedVertex}]"
+        return "[#${current + 1}/${figures.size}]" +
+                "[HArea $holeConvexHullArea][MArea ${area(convexHull(man.figure.vertices))}]" +
+                "[Action ${actionInProcess}][Selection ${selectedVertex}]"
     }
 }

@@ -267,7 +267,8 @@ class Field(val state: State) : JPanel() {
         )
         g2d.color = Color.DARK_GRAY.brighter()
         g2d.stroke = BasicStroke(1f)
-        drawVertices(g2d, convexHull(hole.vertices))
+
+        drawVertices(g2d, state.holeConvexHull)
         g2d.color = Color.DARK_GRAY
         g2d.stroke = BasicStroke(3f)
         drawVertices(g2d, hole.vertices)

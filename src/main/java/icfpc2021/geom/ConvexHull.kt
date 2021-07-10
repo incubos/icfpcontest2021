@@ -1,6 +1,7 @@
 package icfpc2021
 
 import icfpc2021.model.Vertex
+import kotlin.math.abs
 
 /**
  * Adapted form https://rosettacode.org/wiki/Convex_hull#Kotlin
@@ -34,3 +35,9 @@ fun convexHull(pO: List<Vertex>): List<Vertex> {
 /* ccw returns true if the three points make a counter-clockwise turn */
 fun counterClockWise(a: Vertex, b: Vertex, c: Vertex) =
     ((b.x - a.x) * (c.y - a.y)) > ((b.y - a.y) * (c.x - a.x))
+
+
+fun area(convexHull: List<Vertex>): Double {
+    return abs(0.5 * (convexHull.indices.sumOf { convexHull[it].x * convexHull[(it + 1).mod(convexHull.size)].y } -
+            convexHull.indices.sumOf { convexHull[it].y * convexHull[(it + 1).mod(convexHull.size)].x }))
+}
