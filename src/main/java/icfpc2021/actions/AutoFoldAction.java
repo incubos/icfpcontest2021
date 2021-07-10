@@ -43,11 +43,13 @@ public class AutoFoldAction implements Action {
             for (int j = 0; j < figure.vertices.size(); j++) {
                 if (k != i && k != j &&
                         !(convexHullEdges.contains(Pair.create(k, j)) ||
-                                convexHullEdges.contains(Pair.create(j, k))) &&
-                        checkCorrect(j, k, i, figure.edges)) {
+                                convexHullEdges.contains(Pair.create(j, k)))) {
+                    if (numNotFitting == 0) {
+                        break;
+                    }
                     Action fa = Action.checked(new FoldAction(j, k, i));
                     var newFigure = fa.apply(state, figure);
-                    if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
+                    if (figure != newFigure && checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
                         var newNotFitting = ScoringUtils.listNotFitting(newFigure, state.getHole());
                         if (newNotFitting.size() < numNotFitting) {
                             numNotFitting = newNotFitting.size();

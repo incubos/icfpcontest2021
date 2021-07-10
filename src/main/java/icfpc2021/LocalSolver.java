@@ -28,6 +28,10 @@ public class LocalSolver {
         int fitted = 0;
         int solved = 0;
         for (int i = 1; i < 78; i++) {
+//            if (i==65 || i==70 || i==71 || i==63) {
+//                continue;
+//            }
+
             System.out.println("Task " + i);
             if (IGNORED.contains(i)) {
                 System.out.println("IGNORED");
