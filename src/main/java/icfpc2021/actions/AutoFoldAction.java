@@ -27,15 +27,17 @@ public class AutoFoldAction implements Action {
         for (int i = 0; i < convexHull.size(); i++) {
             convexHullEdges.add(
                     Pair.create(figure.vertices.indexOf(convexHull.get(i)),
-                            figure.vertices.indexOf(convexHull.get(i + 1 % convexHull.size())))
+                            figure.vertices.indexOf(convexHull.get((i + 1) % convexHull.size())))
             );
         }
-        var minArea = 10e10;
+        var minArea = area(convexHull);
         FoldAction minFoldAction = null;
         for (int i = 0; i < figure.vertices.size(); i++) {
             for (int j = i + 1; j < figure.vertices.size(); j++) {
                 for (int k = 0; k < figure.vertices.size(); k++) {
-                    if (!convexHullEdges.contains(Pair.create(i, j)) && k != i && k != j) {
+                    if (k != i && k != j &&
+                            !(convexHullEdges.contains(Pair.create(i, j)) ||
+                                    convexHullEdges.contains(Pair.create(j, i)))) {
                         FoldAction fa = new FoldAction(i, j, k);
                         var newFigure = fa.apply(state, figure);
                         if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {

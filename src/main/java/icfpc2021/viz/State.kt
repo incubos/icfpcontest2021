@@ -41,7 +41,8 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
     }
 
     fun applyStrategy(strategy: Strategy) {
-        strategy.apply(this, man.figure).forEach { action ->
+        val actions = strategy.apply(this, man.figure)
+        actions.forEach { action ->
             applyAction(action)
         }
     }
