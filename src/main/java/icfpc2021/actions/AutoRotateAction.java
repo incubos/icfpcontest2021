@@ -30,7 +30,7 @@ public class AutoRotateAction implements Action {
     }
 
     private double length(Vertex vector) {
-        return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+        return Math.hypot(vector.x, vector.y);
     }
     @Override
     public String toString() {

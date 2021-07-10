@@ -12,9 +12,9 @@ public class RotateAction implements Action {
         this.rotate = rotate;
     }
 
-    public double x;
-    public double y;
-    public double rotate;
+    public final double x;
+    public final double y;
+    public final double rotate;
 
     @Override
     public Figure apply(State state, Figure figure) {

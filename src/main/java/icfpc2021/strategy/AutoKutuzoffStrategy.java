@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoKutuzoffStrategy implements Strategy {
-    private int slightlyMoveDelta = 5;
+    private final int slightlyMoveDelta = 5;
 
     @Override
     public List<Action> apply(State state, Figure figure) {
