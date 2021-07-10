@@ -1,6 +1,7 @@
 package icfpc2021;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import icfpc2021.actions.PosifyAction;
 import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Pose;
@@ -54,20 +55,23 @@ public class LocalSolver {
             AutoKutuzoffStrategy strategy = new AutoKutuzoffStrategy();
             state.applyStrategy(strategy);
             Figure figure = state.getMan().figure;
+
+            figure = new PosifyAction().apply(state, figure);
+
             boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
             if (correct) {
                 correctValues += 1;
             }
             System.out.println("Problem " + i);
-            System.out.println("Original lengths: " + Arrays.toString(ScoringUtils.edgeLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges)));
-            System.out.println("Our lengths: " + Arrays.toString(ScoringUtils.edgeLengthsFrom(figure.vertices, figure.edges)));
+            System.out.println("Original lengths: " + Arrays.toString(ScoringUtils.edgeSquareLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges)));
+            System.out.println("Our lengths: " + Arrays.toString(ScoringUtils.edgeSquareLengthsFrom(figure.vertices, figure.edges)));
             boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
             if (fits) {
                 fitted += 1;
             }
             if (correct && fits) {
                 solved += 1;
-                Pose pose = Pose.fromVertices(state.getMan().figure.vertices);
+                Pose pose = Pose.fromVertices(figure.vertices);
                 String json = objectMapper.writeValueAsString(pose);
                 Files.writeString(solutionPath, json);
             }
