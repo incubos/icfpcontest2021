@@ -12,8 +12,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-class State(val hole: Hole, originalMan: LambdaMan, val taskName: String, val problemPath: Path) {
-    val epsilon = originalMan.epsilon
+class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, val problemPath: Path) {
     val figures = arrayListOf<Figure>(originalMan.figure)
     val actions = arrayListOf<Action>()
     // Used for scroll
@@ -22,7 +21,7 @@ class State(val hole: Hole, originalMan: LambdaMan, val taskName: String, val pr
     val man: LambdaMan
         get() = LambdaMan().apply {
             figure = figures[current]
-            epsilon = this@State.epsilon
+            epsilon = originalMan.epsilon
         }
 
     val holeConvexHull = convexHull(hole.vertices)
@@ -32,7 +31,7 @@ class State(val hole: Hole, originalMan: LambdaMan, val taskName: String, val pr
     var actionInProcess: String? = null // TODO fix me!
 
     fun applyAction(action: Action) {
-        val newFigure = action.apply(man.figure)
+        val newFigure = action.apply(this, man.figure)
         actions.add(action)
         figures.add(newFigure)
         current = figures.size - 1

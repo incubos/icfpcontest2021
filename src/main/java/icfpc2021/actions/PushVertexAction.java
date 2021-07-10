@@ -4,6 +4,7 @@ import icfpc2021.ScoringUtils;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
+import icfpc2021.viz.State;
 
 import java.util.*;
 import java.util.function.Function;
@@ -20,7 +21,7 @@ public class PushVertexAction implements Action {
     }
 
     @Override
-    public Figure apply(Figure figure) {
+    public Figure apply(State state, Figure figure) {
         if (dX == 0 && dY == 0) {
             // Nothing changed
             return figure;

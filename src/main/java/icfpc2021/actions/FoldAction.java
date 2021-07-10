@@ -3,6 +3,7 @@ package icfpc2021.actions;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
+import icfpc2021.viz.State;
 
 import java.util.*;
 import java.util.function.Function;
@@ -92,7 +93,7 @@ public class FoldAction implements Action {
     }
 
     @Override
-    public Figure apply(Figure figure) {
+    public Figure apply(State state, Figure figure) {
         if (vertex1 == vertex2) {
             // invalid action
             return figure;

@@ -2,6 +2,7 @@ package icfpc2021.actions;
 
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
+import icfpc2021.viz.State;
 
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class MoveAction implements Action {
     public double dY;
 
     @Override
-    public Figure apply(Figure figure) {
+    public Figure apply(State state, Figure figure) {
         var doubles = figure.verticesToDoubleArray();
         var result = new double[doubles.length];
         var transform = new AffineTransform();

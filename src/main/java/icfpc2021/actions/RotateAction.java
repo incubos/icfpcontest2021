@@ -1,6 +1,7 @@
 package icfpc2021.actions;
 
 import icfpc2021.model.Figure;
+import icfpc2021.viz.State;
 
 import java.awt.geom.AffineTransform;
 
@@ -16,7 +17,7 @@ public class RotateAction implements Action {
     public double rotate;
 
     @Override
-    public Figure apply(Figure figure) {
+    public Figure apply(State state, Figure figure) {
         var doubles = figure.verticesToDoubleArray();
         var result = new double[doubles.length];
         var transform = new AffineTransform();
