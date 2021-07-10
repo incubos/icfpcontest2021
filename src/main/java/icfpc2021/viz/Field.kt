@@ -9,8 +9,7 @@ import java.awt.*
 import java.awt.event.*
 import java.nio.file.Path
 import javax.swing.*
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 import kotlin.math.roundToInt
 
 class Field(val state: State) : JPanel() {
@@ -191,11 +190,13 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
+    //TODO: need PosifyAction. it should round all vertices to ints and check if epsilon holds. If not, need to do something
     private fun finishPrintAction(actionsPanel: ActionsPanel) {
         val pose = Pose.fromVertices(state.figures[state.current].vertices)
         val json = objectMapper.writeValueAsString(pose)
-        val of = Path.of(state.problemPath.parent.absolutePathString(), "solutions", state.taskName)
-        of.writeText(json)
+        val path = Path.of(state.problemPath.parent.parent.absolutePathString(), "solutions", state.taskName)
+        path.deleteIfExists()
+        path.createFile().writeText(json)
     }
 
     private fun finishFoldAction(actionsPanel: ActionsPanel) {
