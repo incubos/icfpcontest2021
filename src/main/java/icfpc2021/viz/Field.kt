@@ -369,11 +369,15 @@ class Field(val state: State) : JPanel() {
     }
 
     // Screen and model coordinates conversion
-    private fun screenX(x: Double) = (MARGIN + (width - MARGIN * 2) * (x - minCs()) / (maxCs() - minCs())).toInt()
-    private fun screenY(y: Double) = (MARGIN + (height - MARGIN * 2) * (y - minCs()) / (maxCs() - minCs())).toInt()
-    private fun realX(xScreen: Int) = minCs() + (xScreen - MARGIN) * (maxCs() - minCs()) / (width - MARGIN * 2)
-    private fun realY(yScreen: Int) = minCs() + (yScreen - MARGIN) * (maxCs() - minCs()) / (height - MARGIN * 2)
+    private fun screenX(x: Double) = (MARGINX + (width - MARGINX * 2) * (x - minCs()) / (maxCs() - minCs())).toInt()
+    private fun screenY(y: Double) = (MARGINY + (height - MARGINY * 2) * (y - minCs()) / (maxCs() - minCs())).toInt()
+    private fun realX(xScreen: Int) = minCs() + (xScreen - MARGINX) * (maxCs() - minCs()) / (width - MARGINX * 2)
+    private fun realY(yScreen: Int) = minCs() + (yScreen - MARGINY) * (maxCs() - minCs()) / (height - MARGINY * 2)
 
+    private fun minWH() = min(width, height)
+
+    private val MARGINX = 10 + (width - minWH()) / 2
+    private val MARGINY = 10 + (height - minWH()) / 2
     // Use these values to keep X / Y ratio constant
     private val MARGIN = 20
     fun minCs() = min(state.minX(), state.minY()) - MARGIN
