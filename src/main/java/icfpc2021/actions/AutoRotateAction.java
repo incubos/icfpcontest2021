@@ -1,26 +1,17 @@
 package icfpc2021.actions;
 
 import icfpc2021.model.Figure;
-import icfpc2021.model.Hole;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
 
-import java.awt.geom.AffineTransform;
-import java.util.List;
-
 import static icfpc2021.ConvexHullKt.convexHull;
+import static icfpc2021.actions.AutoCenterAction.figureCenter;
 import static icfpc2021.geom.PCAKt.principalComponents;
 
 public class AutoRotateAction implements Action {
-    public AutoRotateAction(List<Vertex> holeConvexHull) {
-        this.holeConvexHull = holeConvexHull;
-    }
-
-    List<Vertex> holeConvexHull;
-
     @Override
     public Figure apply(State state, Figure figure) {
-        var pcaHole = principalComponents(holeConvexHull);
+        var pcaHole = principalComponents(state.getHoleConvexHull());
         var figureConvexHull = convexHull(figure.vertices);
         var pcaFigure = principalComponents(figureConvexHull);
         var mainDirectionHole = pcaHole.get(0);
@@ -29,8 +20,8 @@ public class AutoRotateAction implements Action {
                 (length(mainDirectionHole) * length(mainDirectionFigure));
         var rads = Math.acos(cos);
         var degrees = Math.toDegrees(rads);
-        double[] center = figure.center();
-        return new RotateAction(center[0], center[1], -degrees).apply(state, figure);
+        Vertex centerVertex = figureCenter(figure.vertices);
+        return new RotateAction(centerVertex.x, centerVertex.y, -degrees).apply(state, figure);
     }
 
     private double length(Vertex vector) {

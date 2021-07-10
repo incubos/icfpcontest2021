@@ -258,14 +258,14 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishAutoCenterAction(actionsPanel: ActionsPanel) {
-        val action = AutoCenterAction(state.hole)
+        val action = AutoCenterAction()
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()
     }
 
     private fun finishAutoRotateAction(actionsPanel: ActionsPanel) {
-        val action = AutoRotateAction(state.holeConvexHull)
+        val action = AutoRotateAction()
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()

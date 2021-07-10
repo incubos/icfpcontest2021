@@ -1,25 +1,29 @@
 package icfpc2021.actions;
 
 import icfpc2021.model.Figure;
-import icfpc2021.model.Hole;
+import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
 
-import java.awt.geom.AffineTransform;
+import java.util.List;
+
+import static icfpc2021.ConvexHullKt.convexHull;
 
 public class AutoCenterAction implements Action {
-    public AutoCenterAction(Hole hole) {
-        this.hole = hole;
-    }
-
-    Hole hole;
 
     @Override
     public Figure apply(State state, Figure figure) {
-        var figureCenterCoords = figure.center();
-        var holeCenterCoords = hole.center();
-        var dx = holeCenterCoords[0] - figureCenterCoords[0];
-        var dy = holeCenterCoords[1] - figureCenterCoords[1];
+        var figureCenterCoords = figureCenter(convexHull(figure.vertices));
+        var holeCenterCoords = figureCenter(state.getHoleConvexHull());
+        var dx = holeCenterCoords.x - figureCenterCoords.x;
+        var dy = holeCenterCoords.y - figureCenterCoords.y;
         return new MoveAction(dx, dy).apply(state, figure);
+    }
+
+    public static Vertex figureCenter(List<Vertex> vertices) {
+        return new Vertex(
+                vertices.stream().mapToDouble(v -> v.x).average().getAsDouble(),
+                vertices.stream().mapToDouble(v -> v.y).average().getAsDouble()
+        );
     }
 
     @Override
