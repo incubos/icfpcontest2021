@@ -9,20 +9,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoKutuzoffStrategy implements Strategy {
-    private final int slightlyMoveDelta = 5;
+    private static final int CYCLES = 10;
+    private static final int FOLDS = 10;
+    private static final int ROTATES = 5;
+    private static final int MOVE_DELTA = 20;
 
     @Override
     public List<Action> apply(State state, Figure figure) {
         var currentFigure = figure;
         var actions = new ArrayList<Action>();
         var givenUp = false;
-        for (int count=0; count < 10; count++) {
+        for (int count = 0; count < CYCLES; count++) {
             // Check
             if (ScoringUtils.fitsWithinHole(currentFigure, state.getHole())) {
                 return actions;
             }
-            // Folde
-            for (int i = 0; i < 10; i++) {
+            // Folding
+            for (int i = 0; i < FOLDS; i++) {
                 Action a = Action.checked(new AutoFoldAction());
                 var newFigure = a.apply(state, currentFigure);
                 if (!newFigure.equals(currentFigure)) {
@@ -36,7 +39,7 @@ public class AutoKutuzoffStrategy implements Strategy {
                     break;
                 }
             }
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < ROTATES; i++) {
                 Action a = Action.checked(new AutoRotateAction());
                 var newFigure = a.apply(state, currentFigure);
                 if (!newFigure.equals(currentFigure)) {
@@ -60,8 +63,8 @@ public class AutoKutuzoffStrategy implements Strategy {
             }
 
             // Slightly move to fit if we can
-            for (int x = -slightlyMoveDelta; x <= slightlyMoveDelta; x++) {
-                for (int y = -slightlyMoveDelta; y <= slightlyMoveDelta; y++) {
+            for (int x = -MOVE_DELTA; x <= MOVE_DELTA; x++) {
+                for (int y = -MOVE_DELTA; y <= MOVE_DELTA; y++) {
                     Action moveAction = Action.checked(new MoveAction(x, y));
                     Figure slightlyMoved = moveAction.apply(state, currentFigure);
                     if (ScoringUtils.fitsWithinHole(slightlyMoved, state.getHole())) {
