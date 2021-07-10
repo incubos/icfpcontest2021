@@ -1,5 +1,6 @@
 package icfpc2021.actions;
 
+import icfpc2021.ScoringUtils;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
@@ -18,21 +19,6 @@ public class PushVertexAction implements Action {
         this.dY = dY;
     }
 
-    public static double[] edgeLengthsFrom(
-            List<Vertex> vertices,
-            List<Edge> edges) {
-        double[] result = new double[edges.size()];
-        for (int i = 0; i < edges.size(); i++) {
-            Edge edge = edges.get(i);
-            Vertex start = vertices.get(edge.start);
-            Vertex end = vertices.get(edge.end);
-            double dx = end.x - start.x;
-            double dy = end.y - start.y;
-            result[i] = Math.hypot(dx, dy);
-        }
-        return result;
-    }
-
     @Override
     public Figure apply(Figure figure) {
         if (dX == 0 && dY == 0) {
@@ -41,7 +27,7 @@ public class PushVertexAction implements Action {
         }
 
         // Calculate target invariant
-        final double[] targetEdgeSquareLengths = edgeLengthsFrom(figure.vertices, figure.edges);
+        final double[] targetEdgeSquareLengths = ScoringUtils.edgeLengthsFrom(figure.vertices, figure.edges);
 
         // Allocate mutable vertices and replace the touched vertex
         final List<Vertex> vertices = new ArrayList<>(figure.vertices);
@@ -65,7 +51,7 @@ public class PushVertexAction implements Action {
         // TODO: Keep away from the hole border
 
         // Zero means the goal is reached
-        double best = absDiffSum(goal, edgeLengthsFrom(vertices, edges));
+        double best = ScoringUtils.absDiffSum(goal, ScoringUtils.edgeLengthsFrom(vertices, edges));
 
         // Try to move each direction for many times
         boolean advanced;
@@ -79,7 +65,7 @@ public class PushVertexAction implements Action {
 
                     // Move
                     vertices.set(vertex, v.move(direction.dx, direction.dy));
-                    estimate = absDiffSum(goal, edgeLengthsFrom(vertices, edges));
+                    estimate = ScoringUtils.absDiffSum(goal, ScoringUtils.edgeLengthsFrom(vertices, edges));
                     if (estimate >= best) {
                         // Rollback
                         vertices.set(vertex, v);
@@ -94,15 +80,6 @@ public class PushVertexAction implements Action {
         } while (advanced);
 
         return best;
-    }
-
-    public static double absDiffSum(double[] a, double[] b) {
-        double result = 0L;
-        for (int i = 0; i < a.length; i++) {
-            final double diff = a[i] - b[i];
-            result += Math.abs(diff);
-        }
-        return result;
     }
 
     enum Direction {

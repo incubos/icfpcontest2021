@@ -1,5 +1,6 @@
 package icfpc2021;
 
+import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Hole;
 import icfpc2021.model.Vertex;
@@ -7,9 +8,6 @@ import icfpc2021.model.Vertex;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.List;
-
-import static icfpc2021.actions.PushVertexAction.absDiffSum;
-import static icfpc2021.actions.PushVertexAction.edgeLengthsFrom;
 
 public class ScoringUtils {
     /**
@@ -45,4 +43,27 @@ public class ScoringUtils {
         return absDiffSum <= epsilon;
     }
 
+    public static double[] edgeLengthsFrom(
+            List<Vertex> vertices,
+            List<Edge> edges) {
+        double[] result = new double[edges.size()];
+        for (int i = 0; i < edges.size(); i++) {
+            Edge edge = edges.get(i);
+            Vertex start = vertices.get(edge.start);
+            Vertex end = vertices.get(edge.end);
+            double dx = end.x - start.x;
+            double dy = end.y - start.y;
+            result[i] = Math.hypot(dx, dy);
+        }
+        return result;
+    }
+
+    public static double absDiffSum(double[] a, double[] b) {
+        double result = 0L;
+        for (int i = 0; i < a.length; i++) {
+            final double diff = a[i] - b[i];
+            result += Math.abs(diff);
+        }
+        return result;
+    }
 }
