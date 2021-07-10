@@ -140,7 +140,6 @@ public class FoldAction implements Action {
             }
 
             // Process
-            System.out.println(vertex);
             vertices.set(vertex, fold(vertices.get(vertex), new Axis(vertices.get(vertex1), vertices.get(vertex2))));
             visited.add(vertex);
         }
