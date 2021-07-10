@@ -10,7 +10,7 @@ public class Vertex implements Comparable<Vertex> {
         this.y = y;
     }
 
-    public Vertex move(int dx, int dy) {
+    public Vertex move(double dx, double dy) {
         return new Vertex(x + dx, y + dy);
     }
 

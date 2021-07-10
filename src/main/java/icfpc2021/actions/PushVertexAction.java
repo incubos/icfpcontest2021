@@ -13,41 +13,13 @@ public class PushVertexAction implements Action {
     private static final double ACCEPTABLE_SUM_LENGTH_DIFF = 0.01;
 
     public int vertex;
-    public int dX;
-    public int dY;
+    public int targetX;
+    public int targetY;
 
-    public PushVertexAction(int vertex, int dX, int dY) {
+    public PushVertexAction(int vertex, int targetX, int targetY) {
         this.vertex = vertex;
-        this.dX = dX;
-        this.dY = dY;
-    }
-
-    @Override
-    public Figure apply(State state, Figure figure) {
-        if (dX == 0 && dY == 0) {
-            // Nothing changed
-            return figure;
-        }
-
-        // Calculate target invariant
-        final double[] targetEdgeSquareLengths = ScoringUtils.edgeLengthsFrom(figure.vertices, figure.edges);
-
-        // Allocate mutable vertices and replace the touched vertex
-        final List<Vertex> vertices = new ArrayList<>(figure.vertices);
-        // Now the target is violated
-        vertices.set(vertex, figure.vertices.get(vertex).move(dX, dY));
-
-        // Try BFS traversal and move the vertices until the target is reached
-        try {
-            bfsExceptStart(
-                    figure.edges,
-                    vertex,
-                    current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) > ACCEPTABLE_SUM_LENGTH_DIFF);
-            return new Figure(vertices, figure.edges);
-        } catch (IllegalStateException e) {
-            System.err.println("Can't reach the goal. Rolling back.");
-            return figure;
-        }
+        this.targetX = targetX;
+        this.targetY = targetY;
     }
 
     private static double moveToLocalOptimumAndReturnDiff(
@@ -89,21 +61,26 @@ public class PushVertexAction implements Action {
         return best;
     }
 
-    enum Direction {
-        UP(0, -1),
-        RIGHT(1, 0),
-        UP_RIGHT(1, -1),
-        DOWN(0, 1),
-        DOWN_RIGHT(1, 1),
-        LEFT(-1, 0),
-        UP_LEFT(-1, -1),
-        DOWN_LEFT(-1, 1);
+    @Override
+    public Figure apply(State state, Figure figure) {
+        // Calculate target invariant
+        final double[] targetEdgeSquareLengths = ScoringUtils.edgeLengthsFrom(figure.vertices, figure.edges);
 
-        final int dx, dy;
+        // Allocate mutable vertices and replace the touched vertex
+        final List<Vertex> vertices = new ArrayList<>(figure.vertices);
+        // Now the target is violated
+        vertices.set(vertex, new Vertex(targetX, targetY));
 
-        Direction(final int dx, final int dy) {
-            this.dx = dx;
-            this.dy = dy;
+        // Try BFS traversal and move the vertices until the target is reached
+        try {
+            bfsExceptStart(
+                    figure.edges,
+                    vertex,
+                    current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) > ACCEPTABLE_SUM_LENGTH_DIFF);
+            return new Figure(vertices, figure.edges);
+        } catch (IllegalStateException e) {
+            System.err.println("Can't reach the goal. Rolling back.");
+            return figure;
         }
     }
 
@@ -149,6 +126,24 @@ public class PushVertexAction implements Action {
 
     @Override
     public String toString() {
-        return "PushVertex[" + vertex + "," + dX + "," + dY + "]";
+        return "PushVertex[" + vertex + "," + targetX + "," + targetY + "]";
+    }
+
+    enum Direction {
+        UP(0, -1),
+        RIGHT(1, 0),
+        UP_RIGHT(1, -1),
+        DOWN(0, 1),
+        DOWN_RIGHT(1, 1),
+        LEFT(-1, 0),
+        UP_LEFT(-1, -1),
+        DOWN_LEFT(-1, 1);
+
+        final int dx, dy;
+
+        Direction(final int dx, final int dy) {
+            this.dx = dx;
+            this.dy = dy;
+        }
     }
 }

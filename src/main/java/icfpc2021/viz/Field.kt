@@ -250,8 +250,7 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishPushMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
-        val v = state.man.figure.vertices[state.selectedVertex!!]
-        val action = PushVertexAction(state.selectedVertex!!, (realX - v.x).roundToInt(), (realY - v.y).roundToInt())
+        val action = PushVertexAction(state.selectedVertex!!, realX.roundToInt(), realY.roundToInt())
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()
