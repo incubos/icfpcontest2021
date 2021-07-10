@@ -33,22 +33,21 @@ public class AutoFoldAction implements Action {
         }
         var minArea = area(convexHull);
         FoldAction minFoldAction = null;
-        // This is still to loong...
-        for (int i = 0; i < figure.vertices.size(); i++) {
-            for (int j = i + 1; j < figure.vertices.size(); j++) {
-                for (int k = 0; k < figure.vertices.size(); k++) {
-                    if (k != i && k != j &&
-                            !(convexHullEdges.contains(Pair.create(i, j)) ||
-                                    convexHullEdges.contains(Pair.create(j, i))) &&
-                            checkCorrect(i, j, k, figure.edges)) {
-                        FoldAction fa = new FoldAction(i, j, k);
-                        var newFigure = fa.apply(state, figure);
-                        if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
-                            var newArea = area(convexHull(newFigure.vertices));
-                            if (newArea < minArea) {
-                                minArea = newArea;
-                                minFoldAction = fa;
-                            }
+        for (int eI = 0; eI < figure.edges.size(); eI++) {
+            for (int k = 0; k < figure.vertices.size(); k++) {
+                var i = figure.edges.get(eI).start;
+                var j = figure.edges.get(eI).end;
+                if (k != i && k != j &&
+                        !(convexHullEdges.contains(Pair.create(i, j)) ||
+                                convexHullEdges.contains(Pair.create(j, i))) &&
+                        checkCorrect(i, j, k, figure.edges)) {
+                    FoldAction fa = new FoldAction(i, j, k);
+                    var newFigure = fa.apply(state, figure);
+                    if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
+                        var newArea = area(convexHull(newFigure.vertices));
+                        if (newArea < minArea) {
+                            minArea = newArea;
+                            minFoldAction = fa;
                         }
                     }
                 }
