@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoKutuzoffStrategy implements Strategy {
-    private static final int CYCLES = 10;
+    private static final int CYCLES = 3;
     private static final int FOLDS = 10;
     private static final int ROTATES = 5;
-    private static final int MOVE_DELTA = 20;
+    private static final int MOVE_DELTA = 10;
 
     @Override
     public List<Action> apply(State state, Figure figure) {
