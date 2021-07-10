@@ -1,5 +1,6 @@
 package icfpc2021.actions;
 
+import icfpc2021.ScoringUtils;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
@@ -31,23 +32,26 @@ public class AutoFoldAction implements Action {
                             figure.vertices.indexOf(convexHull.get((i + 1) % convexHull.size())))
             );
         }
-        var minArea = area(convexHull);
         FoldAction minFoldAction = null;
-        for (int i = 0; i < figure.vertices.size(); i++) {
-            for (int k = 0; k < figure.vertices.size(); k++) {
-                for (int j = 0; j < figure.vertices.size(); j++) {
-                    if (k != i && k != j &&
-                            !(convexHullEdges.contains(Pair.create(i, j)) ||
-                                    convexHullEdges.contains(Pair.create(j, i))) &&
-                            checkCorrect(i, j, k, figure.edges)) {
-                        FoldAction fa = new FoldAction(i, j, k);
-                        var newFigure = fa.apply(state, figure);
-                        if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
-                            var newArea = area(convexHull(newFigure.vertices));
-                            if (newArea < minArea) {
-                                minArea = newArea;
-                                minFoldAction = fa;
-                            }
+        var notFitting = ScoringUtils.listNotFitting(figure, state.getHole());
+        if (notFitting.isEmpty()) {
+            return figure;
+        }
+        var i = notFitting.get(0);
+        var numNotFitting = notFitting.size();
+        for (int k = 0; k < figure.vertices.size(); k++) {
+            for (int j = 0; j < figure.vertices.size(); j++) {
+                if (k != i && k != j &&
+                        !(convexHullEdges.contains(Pair.create(k, j)) ||
+                                convexHullEdges.contains(Pair.create(j, k))) &&
+                        checkCorrect(j, k, i, figure.edges)) {
+                    FoldAction fa = new FoldAction(j, k, i);
+                    var newFigure = fa.apply(state, figure);
+                    if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
+                        var newNotFitting = ScoringUtils.listNotFitting(newFigure, state.getHole());
+                        if (newNotFitting.size() < numNotFitting) {
+                            numNotFitting = newNotFitting.size();
+                            minFoldAction = fa;
                         }
                     }
                 }

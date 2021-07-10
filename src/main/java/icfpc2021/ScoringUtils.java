@@ -7,7 +7,11 @@ import icfpc2021.model.Vertex;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ScoringUtils {
     private static final double COORDINATE_PRECISION = 0.001;
@@ -21,6 +25,19 @@ public class ScoringUtils {
         var area = new Area(figurePath);
         area.subtract(new Area(holePath));
         return area.isEmpty();
+    }
+
+    public static List<Integer> listNotFitting(Figure figure, Hole hole) {
+        var holePath = verticesToPath(hole.vertices);
+        var area = new Area(holePath);
+        ArrayList<Integer> notFitting = new ArrayList<>();
+        for (int i = 0; i < figure.vertices.size(); i++) {
+            Vertex vertex = figure.vertices.get(i);
+            if (!area.contains(vertex.x, vertex.y)) {
+                notFitting.add(i);
+            }
+        }
+        return notFitting;
     }
 
     private static Path2D verticesToPath(List<Vertex> vertices) {
