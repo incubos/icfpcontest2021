@@ -14,7 +14,7 @@ class ActionsTest {
     fun testMoveEmpty() {
         val figure = Figure(listOf(), listOf())
         val action = MoveAction(1.0, 1.0)
-        val actual = action.apply(figure)
+        val actual = action.apply(null, figure)
         val expected = Figure(listOf(), listOf())
         Assert.assertEquals(expected, actual)
     }
@@ -36,7 +36,7 @@ class ActionsTest {
             ),
         )
         val action = MoveAction(1.0, 1.0)
-        val actual = action.apply(figure)
+        val actual = action.apply(null, figure)
         val expected = Figure(
             listOf(
                 Vertex(1.0, 1.0),
@@ -71,7 +71,7 @@ class ActionsTest {
                 ),
         )
         val action = FoldAction(0,3,2)
-        val actual = action.apply(figure)
+        val actual = action.apply(null, figure)
         val expected = Figure(
                 listOf(
                         Vertex(0.0, 0.0),
@@ -106,7 +106,7 @@ class ActionsTest {
                 ),
         )
         val action = FoldAction(0,1,2)
-        val actual = action.apply(figure)
+        val actual = action.apply(null, figure)
         val expected = Figure(
                 listOf(
                         Vertex(0.0, 0.0),
@@ -141,7 +141,7 @@ class ActionsTest {
                 ),
         )
         val action = FoldAction(0,1,2)
-        val actual = action.apply(figure)
+        val actual = action.apply(null, figure)
         val expected = Figure(
                 listOf(
                         Vertex(0.0, 1.0),
@@ -176,7 +176,7 @@ class ActionsTest {
             ),
         )
         val action = RotateAction(0.0, 0.0, 90.0)
-        val actual = action.apply(figure)
+        val actual = action.apply(null, figure)
         val expected = Figure(
             listOf(
                 Vertex(0.0, 0.0),
