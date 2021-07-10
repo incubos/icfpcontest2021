@@ -10,6 +10,8 @@ import java.awt.geom.Path2D;
 import java.util.List;
 
 public class ScoringUtils {
+    private static final double COORDINATE_PRECISION = 0.001;
+
     /**
      * Returns true if the figure completely fits with the hole.
      */
@@ -41,7 +43,7 @@ public class ScoringUtils {
         final double[] edgesLength = edgeSquareLengthsFrom(figure.vertices, figure.edges);
         final double threshold = epsilon / 1_000_000.0;
         for (int i = 0; i < originalEdgesLength.length; i++) {
-            final double score = Math.abs(originalEdgesLength[i] / edgesLength[i] - 1.0);
+            final double score = Math.abs(edgesLength[i] / originalEdgesLength[i] - 1.0);
             if (score > threshold) {
                 return false;
             }
@@ -88,13 +90,91 @@ public class ScoringUtils {
         return result;
     }
 
-    public static double maxDiffRatio(double[] a, double[] b) {
-        double result = 0.0;
-        for (int i = 0; i < a.length; i++) {
-            assert a[i] > 0.0;
-            assert b[i] > 0.0;
-            result = Math.max(result, Math.abs(a[i] / b[i] - 1.0));
+    public static boolean isIntegerCoordinates(Vertex vertex) {
+        return Math.abs(Math.round(vertex.x) - vertex.x) < COORDINATE_PRECISION
+                && Math.abs(Math.round(vertex.y) - vertex.y) < COORDINATE_PRECISION;
+    }
+
+    public static Vertex round(int i, Vertex vertex, Figure originalFigure) {
+        Vertex bestCandidate = vertex;
+        double bestEpsilon = Double.MAX_VALUE;
+
+        // Check all possible roundings from floor() to ceil()
+        // 0 1
+        //  v
+        // 3 2
+
+        {
+            // 0
+            Vertex candidate = new Vertex(Math.floor(vertex.x), Math.floor(vertex.y));
+            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            if (bestEpsilon > score) {
+                bestEpsilon = score;
+                bestCandidate = candidate;
+            }
         }
-        return result;
+
+        {
+            // 1
+            Vertex candidate = new Vertex(Math.ceil(vertex.x), Math.floor(vertex.y));
+            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            if (bestEpsilon > score) {
+                bestEpsilon = score;
+                bestCandidate = candidate;
+            }
+        }
+
+        {
+            // 2
+            Vertex candidate = new Vertex(Math.ceil(vertex.x), Math.ceil(vertex.y));
+            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            if (bestEpsilon > score) {
+                bestEpsilon = score;
+                bestCandidate = candidate;
+            }
+        }
+
+        {
+            // 3
+            Vertex candidate = new Vertex(Math.floor(vertex.x), Math.ceil(vertex.y));
+            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            if (bestEpsilon > score) {
+                bestEpsilon = score;
+                bestCandidate = candidate;
+            }
+        }
+
+        return bestCandidate;
+    }
+
+    public static double maxEpsilonIfReplace(int vertex, Vertex to, Figure at) {
+        double maxEpsilon = 0.0;
+        for (final Edge edge : at.edges) {
+            if (edge.start != vertex && edge.end != vertex) {
+                // Skip
+                continue;
+            }
+
+            final Vertex originalStart = at.vertices.get(edge.start);
+            final Vertex originalEnd = at.vertices.get(edge.end);
+            final double originalSquareLength = squareLength(originalStart, originalEnd);
+            final double newSquareLength;
+            if (edge.start == vertex) {
+                newSquareLength = squareLength(to, originalEnd);
+            } else {
+                newSquareLength = squareLength(originalStart, to);
+            }
+
+            final double epsilon = Math.abs(newSquareLength / originalSquareLength - 1.0);
+            maxEpsilon = Math.max(maxEpsilon, epsilon);
+        }
+
+        return maxEpsilon;
+    }
+
+    private static double squareLength(Vertex start, Vertex end) {
+        final double dx = end.x - start.x;
+        final double dy = end.y - start.y;
+        return dx * dx + dy * dy;
     }
 }
