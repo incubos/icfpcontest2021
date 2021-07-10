@@ -32,7 +32,7 @@ public class AutoFoldAction implements Action {
                             figure.vertices.indexOf(convexHull.get((i + 1) % convexHull.size())))
             );
         }
-        FoldAction minFoldAction = null;
+        Action minFoldAction = null;
         var notFitting = ScoringUtils.listNotFitting(figure, state.getHole());
         if (notFitting.isEmpty()) {
             return figure;
@@ -45,7 +45,7 @@ public class AutoFoldAction implements Action {
                         !(convexHullEdges.contains(Pair.create(k, j)) ||
                                 convexHullEdges.contains(Pair.create(j, k))) &&
                         checkCorrect(j, k, i, figure.edges)) {
-                    FoldAction fa = new FoldAction(j, k, i);
+                    Action fa = Action.checked(new FoldAction(j, k, i));
                     var newFigure = fa.apply(state, figure);
                     if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
                         var newNotFitting = ScoringUtils.listNotFitting(newFigure, state.getHole());

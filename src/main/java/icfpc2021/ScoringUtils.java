@@ -112,7 +112,12 @@ public class ScoringUtils {
                 && Math.abs(Math.round(vertex.y) - vertex.y) < COORDINATE_PRECISION;
     }
 
-    public static Vertex round(int i, Vertex vertex, Figure originalFigure) {
+    public static Vertex round(
+            int i,
+            Vertex vertex,
+            List<Vertex> vertices,
+            List<Edge> edges,
+            Figure originalFigure) {
         Vertex bestCandidate = vertex;
         double bestEpsilon = Double.MAX_VALUE;
 
@@ -124,7 +129,7 @@ public class ScoringUtils {
         {
             // 0
             Vertex candidate = new Vertex(Math.floor(vertex.x), Math.floor(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
             if (bestEpsilon > score) {
                 bestEpsilon = score;
                 bestCandidate = candidate;
@@ -134,7 +139,7 @@ public class ScoringUtils {
         {
             // 1
             Vertex candidate = new Vertex(Math.ceil(vertex.x), Math.floor(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
             if (bestEpsilon > score) {
                 bestEpsilon = score;
                 bestCandidate = candidate;
@@ -144,7 +149,7 @@ public class ScoringUtils {
         {
             // 2
             Vertex candidate = new Vertex(Math.ceil(vertex.x), Math.ceil(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
             if (bestEpsilon > score) {
                 bestEpsilon = score;
                 bestCandidate = candidate;
@@ -154,7 +159,7 @@ public class ScoringUtils {
         {
             // 3
             Vertex candidate = new Vertex(Math.floor(vertex.x), Math.ceil(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, originalFigure);
+            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
             if (bestEpsilon > score) {
                 bestEpsilon = score;
                 bestCandidate = candidate;
@@ -164,22 +169,27 @@ public class ScoringUtils {
         return bestCandidate;
     }
 
-    public static double maxEpsilonIfReplace(int vertex, Vertex to, Figure at) {
+    public static double maxEpsilonIfReplace(
+            int vertex,
+            Vertex to,
+            List<Vertex> vertices,
+            List<Edge> edges,
+            Figure original) {
         double maxEpsilon = 0.0;
-        for (final Edge edge : at.edges) {
+        for (final Edge edge : edges) {
             if (edge.start != vertex && edge.end != vertex) {
                 // Skip
                 continue;
             }
 
-            final Vertex originalStart = at.vertices.get(edge.start);
-            final Vertex originalEnd = at.vertices.get(edge.end);
+            final Vertex originalStart = original.vertices.get(edge.start);
+            final Vertex originalEnd = original.vertices.get(edge.end);
             final double originalSquareLength = squareLength(originalStart, originalEnd);
             final double newSquareLength;
             if (edge.start == vertex) {
-                newSquareLength = squareLength(to, originalEnd);
+                newSquareLength = squareLength(to, vertices.get(edge.end));
             } else {
-                newSquareLength = squareLength(originalStart, to);
+                newSquareLength = squareLength(vertices.get(edge.start), to);
             }
 
             final double epsilon = Math.abs(newSquareLength / originalSquareLength - 1.0);

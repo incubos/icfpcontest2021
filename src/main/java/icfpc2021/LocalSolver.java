@@ -1,6 +1,7 @@
 package icfpc2021;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import icfpc2021.actions.Action;
 import icfpc2021.actions.PosifyAction;
 import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
@@ -48,7 +49,7 @@ public class LocalSolver {
                     "; Man vertices " + lambdaMan.figure.vertices.size() +
                     "; Man edges " + lambdaMan.figure.edges.size() +
                     "; Epsilon " + lambdaMan.epsilon);
-            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 4000) {
+            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 10000) {
                 System.out.println("TOO LARGE");
                 continue;
             }
@@ -56,7 +57,7 @@ public class LocalSolver {
             state.applyStrategy(strategy);
             Figure figure = state.getMan().figure;
 
-            figure = new PosifyAction().apply(state, figure);
+            figure = Action.checked(new PosifyAction()).apply(state, figure);
 
             boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
             if (correct) {

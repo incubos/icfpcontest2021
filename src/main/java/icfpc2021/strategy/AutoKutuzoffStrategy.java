@@ -22,7 +22,7 @@ public class AutoKutuzoffStrategy implements Strategy {
         }
         // Folde
         for (int i = 0; i < 10; i++) {
-            Action a = new AutoFoldAction();
+            Action a = Action.checked(new AutoFoldAction());
             var newFigure = a.apply(state, currentFigure);
             if (!newFigure.equals(currentFigure)) {
                 currentFigure = newFigure;
@@ -36,7 +36,7 @@ public class AutoKutuzoffStrategy implements Strategy {
             }
         }
         for (int i = 0; i < 5; i++) {
-            Action a = new AutoRotateAction();
+            Action a = Action.checked(new AutoRotateAction());
             var newFigure = a.apply(state, currentFigure);
             if (!newFigure.equals(currentFigure)) {
                 currentFigure = newFigure;
@@ -49,7 +49,7 @@ public class AutoKutuzoffStrategy implements Strategy {
                 break;
             }
         }
-        final Action autoCenterAction = new AutoCenterAction();
+        final Action autoCenterAction = Action.checked(new AutoCenterAction());
         currentFigure = autoCenterAction.apply(state, currentFigure);
         actions.add(autoCenterAction);
 
@@ -61,7 +61,7 @@ public class AutoKutuzoffStrategy implements Strategy {
         // Slightly move to fit if we can
         for (int x = -slightlyMoveDelta; x <= slightlyMoveDelta; x++) {
             for (int y = -slightlyMoveDelta; y <= slightlyMoveDelta; y++) {
-                MoveAction moveAction = new MoveAction(x, y);
+                Action moveAction = Action.checked(new MoveAction(x, y));
                 Figure slightlyMoved = moveAction.apply(state, currentFigure);
                 if (ScoringUtils.fitsWithinHole(slightlyMoved, state.getHole())) {
                     actions.add(moveAction);

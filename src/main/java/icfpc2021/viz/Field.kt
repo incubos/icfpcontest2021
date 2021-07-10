@@ -3,6 +3,7 @@ package icfpc2021.viz
 import com.fasterxml.jackson.databind.ObjectMapper
 import icfpc2021.ScoringUtils
 import icfpc2021.actions.*
+import icfpc2021.actions.Action
 import icfpc2021.convexHull
 import icfpc2021.model.Pose
 import icfpc2021.model.Vertex
@@ -200,7 +201,7 @@ class Field(val state: State) : JPanel() {
                 0
             }
             val v = state.man.figure.vertices[state.selectedVertex!!]
-            val action = RotateAction(v.x, v.y, degrees.toDouble())
+            val action = Action.checked(RotateAction(v.x, v.y, degrees.toDouble()))
             state.applyAction(action)
             actionsPanel.status.text = "$state Rotated to $degrees"
         }
@@ -211,7 +212,7 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishPosifyAction(actionsPanel: ActionsPanel) {
-        val action = PosifyAction()
+        val action = Action.checked(PosifyAction())
         state.applyAction(action)
         repaint()
     }
@@ -244,7 +245,7 @@ class Field(val state: State) : JPanel() {
             } catch (e: Exception) {
                 Pair(0, 0)
             }
-            val action = FoldAction(state.selectedVertex!!, second, subFigure)
+            val action = Action.checked(FoldAction(state.selectedVertex!!, second, subFigure))
             state.applyAction(action)
         }
         state.selectedVertex = null
@@ -255,14 +256,14 @@ class Field(val state: State) : JPanel() {
 
     private fun finishMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
         val v = state.man.figure.vertices[state.selectedVertex!!]
-        val action = MoveAction(realX - v.x, realY - v.y)
+        val action = Action.checked(MoveAction(realX - v.x, realY - v.y))
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()
     }
 
     private fun finishPushMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
-        val action = PushVertexAction(state.selectedVertex!!, realX.roundToInt(), realY.roundToInt())
+        val action = Action.checked(PushVertexAction(state.selectedVertex!!, realX.roundToInt(), realY.roundToInt()))
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()
@@ -276,21 +277,21 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishAutoCenterAction(actionsPanel: ActionsPanel) {
-        val action = AutoCenterAction()
+        val action = Action.checked(AutoCenterAction())
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()
     }
 
     private fun finishAutoRotateAction(actionsPanel: ActionsPanel) {
-        val action = AutoRotateAction()
+        val action = Action.checked(AutoRotateAction())
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()
     }
 
     private fun finishAutoFoldAction(actionsPanel: ActionsPanel) {
-        val action = AutoFoldAction()
+        val action = Action.checked(AutoFoldAction())
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()

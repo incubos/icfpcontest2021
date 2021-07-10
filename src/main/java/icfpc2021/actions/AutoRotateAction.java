@@ -17,12 +17,12 @@ public class AutoRotateAction implements Action {
             var pcaFigure = principalComponents(figureConvexHull);
             var mainDirectionHole = pcaHole.get(0);
             var mainDirectionFigure = pcaFigure.get(0);
-            double cos = mainDirectionFigure.x * mainDirectionHole.x +  mainDirectionFigure.y * mainDirectionHole.y /
+            double cos = (mainDirectionFigure.x * mainDirectionHole.x + mainDirectionFigure.y * mainDirectionHole.y) /
                     (length(mainDirectionHole) * length(mainDirectionFigure));
-            var rads = Math.acos(cos);
+            var rads = Math.acos(Math.min(1.0, Math.max(-1.0, cos)));
             var degrees = Math.toDegrees(rads);
             Vertex centerVertex = figureCenter(figure.vertices);
-            return new RotateAction(centerVertex.x, centerVertex.y, -degrees).apply(state, figure);
+            return Action.checked(new RotateAction(centerVertex.x, centerVertex.y, -degrees)).apply(state, figure);
         } catch (Exception e) {
             // Ignore
             return figure;

@@ -17,7 +17,7 @@ public class AutoCenterAction implements Action {
         var holeCenterCoords = figureCenter(state.getHoleConvexHull());
         var dx = holeCenterCoords.x - figureCenterCoords.x;
         var dy = holeCenterCoords.y - figureCenterCoords.y;
-        return new MoveAction(dx, dy).apply(state, figure);
+        return Action.checked(new MoveAction(dx, dy)).apply(state, figure);
     }
 
     public static Vertex figureCenter(List<Vertex> vertices) {
