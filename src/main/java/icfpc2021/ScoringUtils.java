@@ -58,11 +58,36 @@ public class ScoringUtils {
         return result;
     }
 
+    public static double[] edgeSquareLengthsFrom(
+            List<Vertex> vertices,
+            List<Edge> edges) {
+        double[] result = new double[edges.size()];
+        for (int i = 0; i < edges.size(); i++) {
+            Edge edge = edges.get(i);
+            Vertex start = vertices.get(edge.start);
+            Vertex end = vertices.get(edge.end);
+            double dx = end.x - start.x;
+            double dy = end.y - start.y;
+            result[i] = dx * dx + dy * dy;
+        }
+        return result;
+    }
+
     public static double absDiffSum(double[] a, double[] b) {
         double result = 0L;
         for (int i = 0; i < a.length; i++) {
             final double diff = a[i] - b[i];
             result += Math.abs(diff);
+        }
+        return result;
+    }
+
+    public static double maxDiffRatio(double[] a, double[] b) {
+        double result = 0.0;
+        for (int i = 0; i < a.length; i++) {
+            assert a[i] > 0.0;
+            assert b[i] > 0.0;
+            result = Math.max(result, Math.abs(a[i] / b[i] - 1.0));
         }
         return result;
     }
