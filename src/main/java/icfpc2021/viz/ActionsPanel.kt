@@ -45,6 +45,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val rollBackLastAction = createSmallButton("RollbackLast")
     val forwardButton = createSmallButton(">")
     val backButton = createSmallButton("<")
+    val restartButton = createSmallButton("↺")
 
     init {
         add(status, BorderLayout.LINE_START)
@@ -60,6 +61,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(backButton)
             add(forwardButton)
             add(printButton)
+            add(restartButton)
         }, BorderLayout.EAST)
     }
 }

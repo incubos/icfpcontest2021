@@ -143,6 +143,18 @@ class Field(val state: State) : JPanel() {
                 repaint()
             }
         }
+
+        actionsPanel.restartButton.addActionListener {
+            state.selectedVertex = null
+            state.actionInProcess = null
+            actionsPanel.disableActions()
+            state.actions.clear()
+            state.figures.removeIf { it != state.figures.first() }
+            state.current = 0
+            actionsPanel.status.text = "$state Restarted"
+            repaint()
+        }
+
     }
 
     fun keyPressed(e: KeyEvent, actionsPanel: ActionsPanel) {
