@@ -90,8 +90,8 @@ class Field(val state: State) : JPanel() {
             finishFoldAction(actionsPanel)
         }
 
-        actionsPanel.centerButton.addActionListener {
-            finishCenterAction(actionsPanel)
+        actionsPanel.autoCenterButton.addActionListener {
+            finishAutoCenterAction(actionsPanel)
         }
         actionsPanel.autorotateButton.addActionListener {
             finishAutoRotateAction(actionsPanel)
@@ -241,8 +241,8 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
-    private fun finishCenterAction(actionsPanel: ActionsPanel) {
-        val action = CenterAction(state.hole)
+    private fun finishAutoCenterAction(actionsPanel: ActionsPanel) {
+        val action = AutoCenterAction(state.hole)
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()

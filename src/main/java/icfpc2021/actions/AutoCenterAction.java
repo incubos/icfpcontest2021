@@ -5,8 +5,8 @@ import icfpc2021.model.Hole;
 
 import java.awt.geom.AffineTransform;
 
-public class CenterAction implements Action {
-    public CenterAction(Hole hole) {
+public class AutoCenterAction implements Action {
+    public AutoCenterAction(Hole hole) {
         this.hole = hole;
     }
 
@@ -23,6 +23,6 @@ public class CenterAction implements Action {
 
     @Override
     public String toString() {
-        return "Center action";
+        return "AutoCenter action";
     }
 }

@@ -1,7 +1,6 @@
 package icfpc2021.viz
 
 import java.awt.BorderLayout
-import java.awt.Color
 import java.awt.Dimension
 import java.awt.Insets
 import javax.swing.*
@@ -36,14 +35,14 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val foldSubFigureButton = createSmallButton("Fold").apply {
         isEnabled = false;
     }
-    val centerButton = createSmallButton("Center")
+    val autoCenterButton = createSmallButton("AutoCenter")
     val autorotateButton = createSmallButton("AutoRotate")
 
     val printButton = createSmallButton("Print").apply {
         isEnabled = true;
     }
 
-    val rollBackLastAction = createSmallButton("Rollback")
+    val rollBackLastAction = createSmallButton("RollbackLast")
     val forwardButton = createSmallButton(">")
     val backButton = createSmallButton("<")
 
@@ -51,7 +50,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
         add(status, BorderLayout.LINE_START)
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
-            add(centerButton)
+            add(autoCenterButton)
             add(autorotateButton)
             add(foldSubFigureButton)
             add(moveButton)
