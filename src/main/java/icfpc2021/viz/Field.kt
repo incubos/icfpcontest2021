@@ -93,6 +93,10 @@ class Field(val state: State) : JPanel() {
         actionsPanel.centerButton.addActionListener {
             finishCenterAction(actionsPanel)
         }
+        actionsPanel.autorotateButton.addActionListener {
+            finishAutoRotateAction(actionsPanel)
+        }
+
         actionsPanel.printButton.addActionListener {
             finishPrintAction(actionsPanel)
         }
@@ -239,6 +243,13 @@ class Field(val state: State) : JPanel() {
 
     private fun finishCenterAction(actionsPanel: ActionsPanel) {
         val action = CenterAction(state.hole)
+        state.applyAction(action)
+        actionsPanel.status.text = "$state $action applied successfully"
+        repaint()
+    }
+
+    private fun finishAutoRotateAction(actionsPanel: ActionsPanel) {
+        val action = AutoRotateAction(state.holeConvexHull)
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()

@@ -37,6 +37,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
         isEnabled = false;
     }
     val centerButton = createSmallButton("Center")
+    val autorotateButton = createSmallButton("AutoRotate")
 
     val printButton = createSmallButton("Print").apply {
         isEnabled = true;
@@ -51,6 +52,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             add(centerButton)
+            add(autorotateButton)
             add(foldSubFigureButton)
             add(moveButton)
             add(rotateButton)
