@@ -43,7 +43,7 @@ public class PushVertexAction implements Action {
                     Vertex v = vertices.get(vertex);
 
                     // Move
-                    vertices.set(vertex, v.move(direction.dx, direction.dy));
+                    vertices.set(vertex, direction.move(v));
                     estimate = ScoringUtils.absDiffSum(goal, ScoringUtils.edgeLengthsFrom(vertices, edges));
                     if (estimate >= best) {
                         // Rollback
@@ -140,6 +140,26 @@ public class PushVertexAction implements Action {
         DOWN_LEFT(-1, 1);
 
         final int dx, dy;
+
+        Vertex move(Vertex vertex) {
+            final double x;
+            if (dx == 0) {
+                x = vertex.x;
+            } else if (dx < 0) {
+                x = Math.ceil(vertex.x + dx);
+            } else {
+                x = Math.floor(vertex.x + dx);
+            }
+            final double y;
+            if (dy == 0) {
+                y = vertex.y;
+            } else if (dy < 0) {
+                y = Math.ceil(vertex.y + dy);
+            } else {
+                y = Math.floor(vertex.y + dy);
+            }
+            return new Vertex(x, y);
+        }
 
         Direction(final int dx, final int dy) {
             this.dx = dx;
