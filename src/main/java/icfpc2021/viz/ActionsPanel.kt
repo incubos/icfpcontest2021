@@ -52,7 +52,6 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val restartButton = createSmallButton("↺")
 
     init {
-        add(status, BorderLayout.LINE_START)
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             add(autoCenterButton)
@@ -67,7 +66,8 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(forwardButton)
             add(printButton)
             add(restartButton)
-        }, BorderLayout.EAST)
+        }, BorderLayout.CENTER)
+        add(status, BorderLayout.PAGE_END)
     }
 }
 
