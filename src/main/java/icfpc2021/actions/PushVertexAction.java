@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.function.Function;
 
 public class PushVertexAction implements Action {
+    private static final double ACCEPTABLE_SUM_LENGTH_DIFF = 0.01;
+
     public int vertex;
     public int dX;
     public int dY;
@@ -36,12 +38,16 @@ public class PushVertexAction implements Action {
         vertices.set(vertex, figure.vertices.get(vertex).move(dX, dY));
 
         // Try BFS traversal and move the vertices until the target is reached
-        bfsExceptStart(
-                figure.edges,
-                vertex,
-                current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) > 0.001);
-
-        return new Figure(vertices, figure.edges);
+        try {
+            bfsExceptStart(
+                    figure.edges,
+                    vertex,
+                    current -> moveToLocalOptimumAndReturnDiff(figure.edges, vertices, current, targetEdgeSquareLengths) > ACCEPTABLE_SUM_LENGTH_DIFF);
+            return new Figure(vertices, figure.edges);
+        } catch (IllegalStateException e) {
+            System.err.println("Can't reach the goal. Rolling back.");
+            return figure;
+        }
     }
 
     private static double moveToLocalOptimumAndReturnDiff(
@@ -60,7 +66,7 @@ public class PushVertexAction implements Action {
             advanced = false;
             for (final Direction direction : Direction.values()) {
                 double estimate;
-                while (best > 0.001) {
+                while (best > ACCEPTABLE_SUM_LENGTH_DIFF) {
                     // Remember to be able to rollback
                     Vertex v = vertices.get(vertex);
 
@@ -104,7 +110,7 @@ public class PushVertexAction implements Action {
     private void bfsExceptStart(
             List<Edge> edges,
             int startVertex,
-            Function<Integer, Boolean> processVertexAndContinue) {
+            Function<Integer, Boolean> processVertexAndContinue) throws IllegalStateException {
         Set<Integer> visited = new HashSet<>();
         // Do not process start vertex
         visited.add(startVertex);
@@ -138,7 +144,7 @@ public class PushVertexAction implements Action {
             }
         }
 
-        //throw new IllegalStateException("Can't reach the goal");
+        throw new IllegalStateException("Can't reach the goal");
     }
 
     @Override
