@@ -3,7 +3,9 @@ package icfpc2021.viz
 import com.fasterxml.jackson.databind.ObjectMapper
 import icfpc2021.ScoringUtils
 import icfpc2021.actions.*
+import icfpc2021.convexHull
 import icfpc2021.model.Pose
+import icfpc2021.model.Vertex
 import java.awt.*
 import java.awt.event.*
 import java.nio.file.Path
@@ -263,19 +265,23 @@ class Field(val state: State) : JPanel() {
             hole.vertices.map { screenY(it.y) }.toIntArray(),
             hole.vertices.size
         )
+        g2d.color = Color.DARK_GRAY.brighter()
+        g2d.stroke = BasicStroke(1f)
+        drawVertices(g2d, convexHull(hole.vertices))
         g2d.color = Color.DARK_GRAY
-        g2d.stroke = BasicStroke(2f)
-        hole.vertices.forEachIndexed { i, v1 ->
-            val v2 = hole.vertices[(i + 1).mod(hole.vertices.size)]
-            g2d.drawLine(screenX(v1.x), screenY(v1.y), screenX(v2.x), screenY(v2.y))
-        }
+        g2d.stroke = BasicStroke(3f)
+        drawVertices(g2d, hole.vertices)
         g2d.color = Color.BLACK
         hole.vertices.forEachIndexed { i, v ->
             drawString(g2d, i.toString(), screenX(v.x), screenY(v.y))
         }
 
         // Draw man
-        g2d.color = if (ScoringUtils.fitsWithinHole(man.figure, hole)) Color.GREEN else Color.RED
+        val manColor = if (ScoringUtils.fitsWithinHole(man.figure, hole)) Color.GREEN else Color.RED
+        g2d.color = manColor.brighter()
+        g2d.stroke = BasicStroke(1f)
+        drawVertices(g2d, convexHull(man.figure.vertices))
+        g2d.color = manColor
         g2d.stroke = BasicStroke(5f)
         man.figure.edges.forEach { e ->
             val p1 = man.figure.vertices[e.start]
@@ -289,6 +295,13 @@ class Field(val state: State) : JPanel() {
             drawString(g2d, i.toString(), screenX(v.x), screenY(v.y), color)
         }
         g2d.font = defaultFont
+    }
+
+    private fun drawVertices(g2d: Graphics2D, vertices: List<Vertex>) {
+        vertices.forEachIndexed { i, v1 ->
+            val v2 = vertices[(i + 1).mod(vertices.size)]
+            g2d.drawLine(screenX(v1.x), screenY(v1.y), screenX(v2.x), screenY(v2.y))
+        }
     }
 
     private fun drawString(g: Graphics, string: String, x: Int, y: Int, color: Color = Color.BLACK) {

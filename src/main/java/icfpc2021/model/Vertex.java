@@ -1,6 +1,8 @@
 package icfpc2021.model;
 
-public class Vertex {
+import org.jetbrains.annotations.NotNull;
+
+public class Vertex implements Comparable<Vertex> {
     public final double x;
     public final double y;
     public Vertex(double x, double y) {
@@ -27,5 +29,14 @@ public class Vertex {
                 "x=" + x +
                 ", y=" + y +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NotNull Vertex o) {
+        var cx = Double.compare(x, o.x);
+        if (cx != 0) {
+            return cx;
+        }
+        return Double.compare(y, o.y);
     }
 }
