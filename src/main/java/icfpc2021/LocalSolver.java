@@ -48,7 +48,7 @@ public class LocalSolver {
                     "; Man vertices " + lambdaMan.figure.vertices.size() +
                     "; Man edges " + lambdaMan.figure.edges.size() +
                     "; Epsilon " + lambdaMan.epsilon);
-            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 10000) {
+            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 4000) {
                 System.out.println("TOO LARGE");
                 continue;
             }
@@ -63,8 +63,16 @@ public class LocalSolver {
                 correctValues += 1;
             }
             System.out.println("Problem " + i);
-            System.out.println("Original lengths: " + Arrays.toString(ScoringUtils.edgeSquareLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges)));
-            System.out.println("Our lengths: " + Arrays.toString(ScoringUtils.edgeSquareLengthsFrom(figure.vertices, figure.edges)));
+            final double[] originalSquareLengths = ScoringUtils.edgeSquareLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges);
+            System.out.println("Original lengths: " + Arrays.toString(originalSquareLengths));
+            final double[] ourSquareLengths = ScoringUtils.edgeSquareLengthsFrom(figure.vertices, figure.edges);
+            System.out.println("Our lengths: " + Arrays.toString(ourSquareLengths));
+            final int[] epsilons = new int[figure.edges.size()];
+            for (int a = 0; a < epsilons.length; a++) {
+                epsilons[a] = (int) Math.ceil(Math.abs(ourSquareLengths[a] / originalSquareLengths[a] - 1.0) * 1_000_000);
+            }
+            System.out.println("Epsilons: " + Arrays.toString(epsilons));
+
             boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
             if (fits) {
                 fitted += 1;
