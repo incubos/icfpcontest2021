@@ -49,4 +49,11 @@ public class Figure {
         }
         return new Figure(result, edges);
     }
+
+    public double[] center() {
+        return new double[] {
+                vertices.stream().mapToDouble(v -> v.x).average().getAsDouble(),
+                vertices.stream().mapToDouble(v -> v.y).average().getAsDouble()
+        };
+    }
 }

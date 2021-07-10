@@ -1,8 +1,12 @@
 package icfpc2021.actions;
 
 import icfpc2021.model.Figure;
+import icfpc2021.model.Vertex;
 
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.DoubleStream;
 
 public class MoveAction implements Action {
     public MoveAction(double dX, double dY) {

@@ -8,4 +8,12 @@ public class Hole {
     public Hole(List<Vertex> vertices) {
         this.vertices = vertices;
     }
+
+    public double[] center() {
+        return new double[] {
+                vertices.stream().mapToDouble(v -> v.x).average().getAsDouble(),
+                vertices.stream().mapToDouble(v -> v.y).average().getAsDouble()
+        };
+    }
+
 }
