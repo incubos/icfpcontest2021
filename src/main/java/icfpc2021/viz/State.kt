@@ -7,6 +7,7 @@ import icfpc2021.model.Figure
 import icfpc2021.model.Hole
 import icfpc2021.model.LambdaMan
 import icfpc2021.model.Vertex
+import icfpc2021.strategy.Strategy
 import java.nio.file.Path
 import kotlin.math.max
 import kotlin.math.min
@@ -37,6 +38,12 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         current = figures.size - 1
         selectedVertex = null
         actionInProcess = null
+    }
+
+    fun applyStrategy(strategy: Strategy) {
+        strategy.apply(this, man.figure).forEach { action ->
+            applyAction(action)
+        }
     }
 
     fun minX() = min(man.figure.vertices.minOf { it.x }, hole.vertices.minOf { it.x })

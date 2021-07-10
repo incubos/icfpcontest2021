@@ -6,6 +6,7 @@ import icfpc2021.actions.*
 import icfpc2021.convexHull
 import icfpc2021.model.Pose
 import icfpc2021.model.Vertex
+import icfpc2021.strategy.AutoKutuzoffStrategy
 import java.awt.*
 import java.awt.event.*
 import java.nio.file.Path
@@ -88,6 +89,10 @@ class Field(val state: State) : JPanel() {
 
         actionsPanel.foldSubFigureButton.addActionListener {
             finishFoldAction(actionsPanel)
+        }
+
+        actionsPanel.autoKutuzoffButton.addActionListener {
+            finishAutoKutuzoffStrategy(actionsPanel)
         }
 
         actionsPanel.autoCenterButton.addActionListener {
@@ -256,6 +261,13 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
+    private fun finishAutoKutuzoffStrategy(actionsPanel: ActionsPanel) {
+        val strategy = AutoKutuzoffStrategy()
+        state.applyStrategy(strategy)
+        actionsPanel.status.text = "$state $strategy applied successfully"
+        repaint()
+    }
+
     private fun finishAutoCenterAction(actionsPanel: ActionsPanel) {
         val action = AutoCenterAction()
         state.applyAction(action)
@@ -378,6 +390,7 @@ class Field(val state: State) : JPanel() {
 
     private val MARGINX = 10 + (width - minWH()) / 2
     private val MARGINY = 10 + (height - minWH()) / 2
+
     // Use these values to keep X / Y ratio constant
     private val MARGIN = 20
     fun minCs() = min(state.minX(), state.minY()) - MARGIN
