@@ -7,6 +7,7 @@ import icfpc2021.viz.State;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class FoldAction implements Action {
     static class Axis {
@@ -98,16 +99,45 @@ public class FoldAction implements Action {
             // invalid action
             return figure;
         }
-
-        // can only flip around an edge
-        if (figure.edges.stream().noneMatch(o -> (o.start == vertex1 && o.end == vertex2) ||
-                (o.start == vertex2 && o.end == vertex1))) {
+        final List<Edge> edges = new ArrayList<>(figure.edges).stream()
+                .filter(o -> !(o.start == vertex1 || o.start == vertex2))
+                .filter(o -> !(o.end == vertex1 || o.end == vertex2)).collect(Collectors.toList());
+        if (!canApply(edges, figure.vertices.size() - 2, subFigureVertex)) {
             return figure;
         }
+
         final List<Vertex> vertices = new ArrayList<>(figure.vertices);
         bfsSubFigure(figure.edges, vertices, subFigureVertex, vertex1, vertex2);
         return new Figure(vertices, figure.edges);
+    }
 
+    private boolean canApply(
+            List<Edge> edges,
+            int numVertices,
+            int startVertex) {
+        Set<Integer> visited = new HashSet<>();
+
+        Deque<Integer> queue = new LinkedList<>();
+        queue.add(startVertex);
+        while (!queue.isEmpty()) {
+            int vertex = queue.removeFirst();
+            // Expand neighbours
+            edges.forEach(edge -> {
+                if (edge.start == vertex && !visited.contains(edge.end)) {
+                    queue.addLast(edge.end);
+                } else if (edge.end == vertex && !visited.contains(edge.start)) {
+                    queue.addLast(edge.start);
+                }
+            });
+
+            // Skip visited
+            if (visited.contains(vertex)) {
+                continue;
+            }
+
+            visited.add(vertex);
+        }
+        return visited.size() < numVertices;
     }
 
     private void bfsSubFigure(
