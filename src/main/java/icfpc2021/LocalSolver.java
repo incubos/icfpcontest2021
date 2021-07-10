@@ -31,6 +31,11 @@ public class LocalSolver {
                 continue;
             }
             String taskName = String.format("%03d.json", i);
+            Path solutionPath = Path.of("solutions", taskName);
+            if (Files.exists(solutionPath)) {
+                System.out.println("ALREADY Solved");
+                continue;
+            }
             Path problemPath = Path.of("problems", taskName);
             var task = Task.fromJsonFile(problemPath);
             LambdaMan lambdaMan = new LambdaMan();
@@ -41,7 +46,7 @@ public class LocalSolver {
                     "; Man vertices " + lambdaMan.figure.vertices.size() +
                     "; Man edges " + lambdaMan.figure.edges.size() +
                     "; Epsilon " + lambdaMan.epsilon);
-            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 3000) {
+            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 10000) {
                 System.out.println("TOO LARGE");
                 continue;
             }
@@ -60,8 +65,7 @@ public class LocalSolver {
                 solved += 1;
                 Pose pose = Pose.fromVertices(state.getMan().figure.vertices);
                 String json = objectMapper.writeValueAsString(pose);
-                Path path = Path.of("solutions", taskName);
-                Files.writeString(path, json);
+                Files.writeString(solutionPath, json);
             }
             System.out.println("Correct " + correct + "; Fits " + fits);
         }
