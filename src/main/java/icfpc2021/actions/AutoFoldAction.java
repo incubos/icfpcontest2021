@@ -11,6 +11,7 @@ import java.util.List;
 import static icfpc2021.ConvexHullKt.area;
 import static icfpc2021.ConvexHullKt.convexHull;
 import static icfpc2021.ScoringUtils.checkFigure;
+import static icfpc2021.actions.FoldAction.checkCorrect;
 
 public class AutoFoldAction implements Action {
 
@@ -32,12 +33,14 @@ public class AutoFoldAction implements Action {
         }
         var minArea = area(convexHull);
         FoldAction minFoldAction = null;
+        // This is still to loong...
         for (int i = 0; i < figure.vertices.size(); i++) {
             for (int j = i + 1; j < figure.vertices.size(); j++) {
                 for (int k = 0; k < figure.vertices.size(); k++) {
                     if (k != i && k != j &&
                             !(convexHullEdges.contains(Pair.create(i, j)) ||
-                                    convexHullEdges.contains(Pair.create(j, i)))) {
+                                    convexHullEdges.contains(Pair.create(j, i))) &&
+                            checkCorrect(i, j, k, figure.edges)) {
                         FoldAction fa = new FoldAction(i, j, k);
                         var newFigure = fa.apply(state, figure);
                         if (checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {

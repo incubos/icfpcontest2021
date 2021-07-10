@@ -148,4 +148,40 @@ public class FoldAction implements Action {
         //throw new IllegalStateException("Can't reach the goal");
     }
 
+    /**
+     * If all the vertices are accessible from subFigureVertex while removing v1 and v2, then incorrect.
+     */
+    public static boolean checkCorrect(int vertex1, int vertex2, int subFigureVertex, List<Edge> edges) {
+        if (vertex1 == vertex2 || vertex1 == subFigureVertex || vertex2 == subFigureVertex) {
+            return false;
+        }
+        Set<Integer> visited = new HashSet<>();
+        Deque<Integer> queue = new LinkedList<>();
+        queue.add(subFigureVertex);
+        while (!queue.isEmpty()) {
+            int vertex = queue.removeFirst();
+            // Skip visited
+            if (visited.contains(vertex)) {
+                continue;
+            } else {
+                visited.add(vertex);
+            }
+            if (vertex == vertex1 || vertex == vertex2) {
+                continue;
+            }
+
+            // Expand neighbours
+            edges.forEach(edge -> {
+                if (edge.start == vertex && !visited.contains(edge.end) &&
+                        edge.end != vertex1 && edge.end != vertex2) {
+                    queue.addLast(edge.end);
+                } else if (edge.end == vertex && !visited.contains(edge.start) &&
+                        edge.start != vertex1 && edge.start != vertex2) {
+                    queue.addLast(edge.start);
+                }
+            });
+        }
+        // Check that not everything is accessible
+        return visited.size() < edges.size() - 2;
+    }
 }
