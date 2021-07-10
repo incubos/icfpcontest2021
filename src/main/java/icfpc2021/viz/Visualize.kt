@@ -12,10 +12,11 @@ import java.nio.file.Path
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.WindowConstants
+import kotlin.io.path.name
 
-class Visualize(hole: Hole, man: LambdaMan) {
+class Visualize(hole: Hole, man: LambdaMan, name: String, problemPath: Path) {
     private val frame: JFrame by lazy { JFrame("Visualizator") }
-    private val state = State(hole, man)
+    private val state = State(hole, man, name, problemPath)
     private val actionsPanel = ActionsPanel()
     lateinit var field: Field
 
@@ -48,12 +49,14 @@ class Visualize(hole: Hole, man: LambdaMan) {
             if (args.size != 1) {
                 error("Usage: Visualize <path-to-problem-json>")
             }
-            val task = Task.fromJsonFile(Path.of(args[0]))
+            val problemPath = Path.of(args[0])
+            val task = Task.fromJsonFile(problemPath)
+            val taskName = problemPath.name
             val man = LambdaMan().apply {
                 figure = task.figure
                 epsilon = task.epsilon.toDouble()
             }
-            Visualize(task.hole, man).show()
+            Visualize(task.hole, man, taskName, problemPath).show()
             Runtime.getRuntime().addShutdownHook(object : Thread() {
                 override fun run() {
                     println("Shutdown hook")

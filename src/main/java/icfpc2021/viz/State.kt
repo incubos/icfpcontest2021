@@ -5,11 +5,12 @@ import icfpc2021.model.Figure
 import icfpc2021.model.Hole
 import icfpc2021.model.LambdaMan
 import icfpc2021.model.Vertex
+import java.nio.file.Path
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-class State(val hole: Hole, var originalMan: LambdaMan) {
+class State(val hole: Hole, var originalMan: LambdaMan, val taskName: String, val problemPath: Path) {
     val figures = arrayListOf<Figure>(originalMan.figure)
     val actions = arrayListOf<Action>()
     // Used for scroll

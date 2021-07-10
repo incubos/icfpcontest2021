@@ -1,4 +1,4 @@
-package icfpc2020;
+package icfpc2021;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

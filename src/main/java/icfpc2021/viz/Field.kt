@@ -1,14 +1,20 @@
 package icfpc2021.viz
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import icfpc2021.ScoringUtils
 import icfpc2021.actions.*
 import icfpc2021.actions.Action
+import icfpc2021.model.Pose
 import java.awt.*
 import java.awt.event.*
+import java.nio.file.Path
 import javax.swing.*
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.writeText
 import kotlin.math.roundToInt
 
 class Field(val state: State) : JPanel() {
+    val objectMapper = ObjectMapper()
 
     fun position(e: MouseEvent): String {
         val realX = realX(e.x)
@@ -92,6 +98,9 @@ class Field(val state: State) : JPanel() {
 
         actionsPanel.foldSubFigureButton.addActionListener {
             finishFoldAction(actionsPanel)
+        }
+        actionsPanel.printButton.addActionListener {
+            finishPrintAction(actionsPanel)
         }
 
         actionsPanel.rollBackLastAction.addActionListener {
@@ -180,6 +189,13 @@ class Field(val state: State) : JPanel() {
         state.actionInProcess = null
         actionsPanel.disableButtons()
         repaint()
+    }
+
+    private fun finishPrintAction(actionsPanel: ActionsPanel) {
+        val pose = Pose.fromVertices(state.figures[state.current].vertices)
+        val json = objectMapper.writeValueAsString(pose)
+        val of = Path.of(state.problemPath.parent.absolutePathString(), "solutions", state.taskName)
+        of.writeText(json)
     }
 
     private fun finishFoldAction(actionsPanel: ActionsPanel) {
