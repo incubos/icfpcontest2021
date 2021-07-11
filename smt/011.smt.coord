@@ -1,0 +1,52 @@
+; Datatypes
+(declare-datatype Coord ((at (x Int) (y Int))))
+
+; Hole
+
+(define-fun h0 () Coord (at 10 0))
+(define-fun h1 () Coord (at 10 10))
+(define-fun h2 () Coord (at 0 10))
+
+; Vertices
+
+(declare-const v0 Coord)
+(declare-const v1 Coord)
+(declare-const v2 Coord)
+
+; Edge lengths
+
+(define-fun squareLength
+    ((a Coord) (b Coord)) Int
+    (+
+        (*
+            (- (x a) (x b))
+            (- (x a) (x b)))
+        (*
+            (- (y a) (y b))
+            (- (y a) (y b)))))
+
+(assert (= 100 (squareLength v0 v1) ))
+(assert (= 100 (squareLength v1 v2) ))
+(assert (= 200 (squareLength v0 v2) ))
+
+; Inside hole
+
+; v0
+;(assert (>= 200 (squareLength h0 v0) ))
+;(assert (>= 200 (squareLength h1 v0) ))
+;(assert (>= 200 (squareLength h2 v0) ))
+
+; v1
+;(assert (>= 200 (squareLength h0 v1) ))
+;(assert (>= 200 (squareLength h1 v1) ))
+;(assert (>= 200 (squareLength h2 v1) ))
+
+; v2
+;(assert (>= 200 (squareLength h0 v2) ))
+;(assert (>= 200 (squareLength h1 v2) ))
+;(assert (>= 200 (squareLength h2 v2) ))
+
+; Solve
+
+(check-sat)
+(get-model)

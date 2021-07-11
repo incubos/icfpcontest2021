@@ -9,11 +9,10 @@ import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Pose;
 import icfpc2021.model.Task;
-import icfpc2021.strategy.AutoCenterStrategy;
-import icfpc2021.strategy.AutoKutuzoffStrategy;
-import icfpc2021.strategy.PosifyEdges;
-import icfpc2021.strategy.Strategy;
+import icfpc2021.strategy.*;
 import icfpc2021.viz.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +23,8 @@ import java.util.Set;
 
 public class LocalSolver {
 
-    public static final List<Strategy> STRATEGIES = List.of(new AutoCenterStrategy(), new AutoKutuzoffStrategy());
+    public static final List<Strategy> STRATEGIES = List.of(new SolverStrategy(), new AutoCenterStrategy(), new AutoKutuzoffStrategy());
+    private static final Logger log = LoggerFactory.getLogger(LocalSolver.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     // Ignore for now
@@ -66,10 +66,15 @@ public class LocalSolver {
 
             Figure figure = state.getOriginalMan().figure;
 
-            for (Strategy strategy : STRATEGIES) {
+            skip: for (Strategy strategy : STRATEGIES) {
                 figure = state.getOriginalMan().figure;
                 for (Action action : strategy.apply(state, figure)) {
-                    figure = action.apply(state, figure);
+                    final Figure next = action.apply(state, figure);
+                    if (next == figure) {
+                        log.warn("Skipping strategy {}", strategy);
+                        continue skip;
+                    }
+                    figure = next;
                 }
                 figure = Action.checked(new WiggleAction()).apply(state, figure);
 
