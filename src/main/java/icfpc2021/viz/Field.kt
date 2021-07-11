@@ -446,11 +446,13 @@ class Field(val state: State) : JPanel() {
 
     private fun minWH() = min(width, height)
 
-    private val MARGINX = 10 + (width - minWH()) / 2
-    private val MARGINY = 10 + (height - minWH()) / 2
+    private val MARGINX
+        get() = 10 + (width - minWH()) / 2
+    private val MARGINY
+        get() = 10 + (height - minWH()) / 2
 
     // Use these values to keep X / Y ratio constant
-    private val MARGIN = 10
+    private val MARGIN = 5
     fun minCs() = min(state.minX(), state.minY()) - MARGIN
     fun maxCs() = max(state.maxX(), state.maxY()) + MARGIN
 
