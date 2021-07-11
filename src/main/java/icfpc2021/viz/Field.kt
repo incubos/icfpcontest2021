@@ -330,12 +330,6 @@ class Field(val state: State) : JPanel() {
         g2d.color = Color.LIGHT_GRAY
         g2d.fillRect(0, 0, width, height)
 
-        // Show field size
-        val minCoords = "${minCs()},${minCs()}"
-        drawString(g2d, minCoords, MARGIN, MARGIN + g2d.fontMetrics.height)
-        val maxCoords = "${maxCs()},${maxCs()}"
-        drawString(g2d, maxCoords, width - MARGIN - g2d.fontMetrics.stringWidth(maxCoords), height - MARGIN)
-
         // Draw hole
         g2d.color = Color.WHITE
         g2d.fillPolygon(
