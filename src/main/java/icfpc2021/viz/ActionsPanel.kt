@@ -46,14 +46,14 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val printButton = createSmallButton("Print").apply {
         isEnabled = true;
     }
-    val posifyButton = createSmallButton("Assume position").apply {
+    val posifyButton = createSmallButton("Pose").apply {
         isEnabled = true;
     }
 
     val rollBackLastAction = createSmallButton("RollbackLast")
     val forwardButton = createSmallButton(">")
     val backButton = createSmallButton("<")
-    val restartButton = createSmallButton("↺")
+    val restartButton = createSmallButton("Reset")
 
     init {
         add(JPanel().apply {
