@@ -1,5 +1,6 @@
 package icfpc2021.actions;
 
+import icfpc2021.geom.TriangleIdx;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
@@ -13,8 +14,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Uses external solver.
@@ -63,13 +64,19 @@ public class SMTSolverAction implements Action {
                                 edge.end));
             }
 
-            if (state.getHole().vertices.size() != 3) {
-                throw new UnsupportedOperationException("Triangulate the hole first!");
-            }
-
             builder.append("; Inside hole\n");
+            final List<TriangleIdx> triangles = state.getHoleTriangulation();
             for (int v = 0; v < state.getOriginalMan().figure.vertices.size(); v++) {
-                builder.append(String.format("(assert (insideTriangle h0x h0y h1x h1y h2x h2y v%dx v%dy))\n", v, v));
+                final List<String> clauses = new ArrayList<>(triangles.size());
+                for (final TriangleIdx triangle : triangles) {
+                    clauses.add(String.format(
+                            "(insideTriangle h%dx h%dy h%dx h%dy h%dx h%dy v%dx v%dy)\n",
+                            triangle.component1(), triangle.component1(),
+                            triangle.component2(), triangle.component2(),
+                            triangle.component3(), triangle.component3(),
+                            v, v));
+                }
+                builder.append(String.format("(assert %s)\n", or(clauses)));
             }
 
             builder.append("; Solve\n");
@@ -87,6 +94,22 @@ public class SMTSolverAction implements Action {
         }
     }
 
+    private static String or(final Collection<String> clauses) {
+        if (clauses.isEmpty()) {
+            throw new IllegalArgumentException("No clauses");
+        }
+
+        final Deque<String> ored = new LinkedList<>(clauses);
+        while (ored.size() > 1) {
+            final String left = ored.removeFirst();
+            final String right = ored.removeFirst();
+            final String result = String.format("(or %s %s)", left, right);
+            ored.addLast(result);
+        }
+
+        return ored.iterator().next();
+    }
+
     @Override
     public Figure apply(final State state, final Figure figure) {
         final String smt;
@@ -101,7 +124,7 @@ public class SMTSolverAction implements Action {
 
         try {
             ProcessBuilder builder = new ProcessBuilder();
-            builder.command("z3", "-in");
+            builder.command("z3", "sat.threads=4", "smt.threads=4", "sat.local_search_threads=4", "-in");
             builder.redirectError(new File("build/z3.stderr"));
 
             final Process process = builder.start();
@@ -109,7 +132,11 @@ public class SMTSolverAction implements Action {
             process.getOutputStream().close();
 
             // TODO: Should we terminate the process?
-            //process.waitFor(1, TimeUnit.MINUTES);
+            if (!process.waitFor(1, TimeUnit.MINUTES)) {
+                log.error("SAT solver timed out");
+                process.destroyForcibly();
+                return figure;
+            }
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 final String line = reader.readLine();
