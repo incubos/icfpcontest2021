@@ -344,10 +344,6 @@ class Field(val state: State) : JPanel() {
         g2d.font = font
 
 
-        g2d.color = Color.DARK_GRAY.brighter()
-        g2d.stroke = BasicStroke(1f)
-
-        drawVertices(g2d, state.holeConvexHull)
         g2d.color = Color.DARK_GRAY
         g2d.stroke = BasicStroke(3f)
         drawVertices(g2d, hole.vertices)
@@ -358,9 +354,6 @@ class Field(val state: State) : JPanel() {
 
         // Draw man
         val manColor = if (ScoringUtils.fitsWithinHole(man.figure, hole)) Color.GREEN else Color.RED
-        g2d.color = manColor.brighter()
-        g2d.stroke = BasicStroke(1f)
-        drawVertices(g2d, convexHull(man.figure.vertices))
         g2d.color = manColor
         man.figure.edges.forEachIndexed { i, e ->
             val p1 = man.figure.vertices[e.start]
