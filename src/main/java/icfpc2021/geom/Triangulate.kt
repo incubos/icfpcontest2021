@@ -55,7 +55,8 @@ class Triangulate {
                     }
                 }
             }
-            return triangulation
+            // Ignore bad triangles on a line
+            return triangulation.filter { abs(triangleArea(polygon[it.a], polygon[it.b], polygon[it.c])) >= EPSILON }
         }
     }
 }
