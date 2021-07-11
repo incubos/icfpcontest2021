@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This action tries to assume position pushing all nodes to nearest integer coordiates.
+ * This action tries to assume position pushing all nodes to nearest integer coordinates one by one.
  */
 public class PosifyAction implements Action {
     @Override

@@ -14,6 +14,10 @@ public class Figure {
         this.edges = List.copyOf(edges);
     }
 
+    public Figure withVertices(List<Vertex> vertices) {
+        return new Figure(vertices, edges);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

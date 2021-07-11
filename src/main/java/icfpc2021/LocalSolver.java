@@ -2,6 +2,7 @@ package icfpc2021;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icfpc2021.actions.Action;
+import icfpc2021.actions.FullPosifyAction;
 import icfpc2021.actions.PosifyAction;
 import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
@@ -59,6 +60,7 @@ public class LocalSolver {
             state.applyStrategy(strategy);
             Figure figure = state.getMan().figure;
 
+            figure = Action.checked(new FullPosifyAction()).apply(state, figure);
             figure = Action.checked(new PosifyAction()).apply(state, figure);
 
             boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
