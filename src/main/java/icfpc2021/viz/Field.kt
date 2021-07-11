@@ -8,7 +8,7 @@ import icfpc2021.model.Pose
 import icfpc2021.model.Vertex
 import icfpc2021.strategy.AutoCenterStrategy
 import icfpc2021.strategy.AutoKutuzoffStrategy
-import icfpc2021.strategy.PosifyDebug
+import icfpc2021.strategy.PosifyEdges
 import java.awt.*
 import java.awt.event.*
 import java.nio.file.Path
@@ -228,7 +228,7 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishPosifyAction(actionsPanel: ActionsPanel) {
-        val strategy = PosifyDebug()
+        val strategy = PosifyEdges()
         state.applyStrategy(strategy)
         actionsPanel.status.text = "$state $strategy applied successfully"
         repaint()

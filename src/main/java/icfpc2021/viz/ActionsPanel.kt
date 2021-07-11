@@ -50,13 +50,8 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val autoRotateButton = createSmallButton("AutoRotate")
     val autoFoldButton = createSmallButton("AutoFold")
 
-    val printButton = createSmallButton("Print").apply {
-        isEnabled = true;
-    }
-    val posifyButton = createSmallButton("PosifyDebug").apply {
-        isEnabled = true;
-    }
-
+    val printButton = createSmallButton("Print")
+    val posifyButton = createSmallButton("PosifyEdges")
     val rollBackLastAction = createSmallButton("RollbackLast")
     val forwardButton = createSmallButton(">")
     val backButton = createSmallButton("<")

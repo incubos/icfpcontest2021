@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import icfpc2021.actions.Action;
 import icfpc2021.actions.FullPosifyAction;
 import icfpc2021.actions.PosifyAction;
+import icfpc2021.actions.WiggleAction;
 import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Pose;
 import icfpc2021.model.Task;
 import icfpc2021.strategy.AutoKutuzoffStrategy;
+import icfpc2021.strategy.PosifyEdges;
 import icfpc2021.viz.State;
 
 import java.io.IOException;
@@ -59,9 +61,18 @@ public class LocalSolver {
             AutoKutuzoffStrategy strategy = new AutoKutuzoffStrategy();
             state.applyStrategy(strategy);
             Figure figure = state.getMan().figure;
+            figure = Action.checked(new WiggleAction()).apply(state, figure);
 
             figure = Action.checked(new FullPosifyAction()).apply(state, figure);
+            figure = Action.checked(new WiggleAction()).apply(state, figure);
+
             figure = Action.checked(new PosifyAction()).apply(state, figure);
+            figure = Action.checked(new WiggleAction()).apply(state, figure);
+
+            for (Action action : new PosifyEdges().apply(state, figure)) {
+                figure = action.apply(state, figure);
+            }
+            figure = Action.checked(new WiggleAction()).apply(state, figure);
 
             boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
             if (correct) {
