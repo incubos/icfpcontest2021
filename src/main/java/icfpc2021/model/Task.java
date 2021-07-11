@@ -1,5 +1,6 @@
 package icfpc2021.model;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class Task {
 
     public static Task fromJsonFile(Path path) throws IOException {
         var mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         var rawTask = mapper.readValue(Files.readString(path), RawTask.class);
         return Task.fromRaw(rawTask);
     }

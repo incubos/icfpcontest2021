@@ -10,13 +10,31 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FoldAction implements Action {
+
+    public static final ArrayList<Integer> EMPTY_ARRAY = new ArrayList<>();
+
     static class Axis {
-        Vertex start;
-        Vertex end;
+        final Vertex start;
+        final Vertex end;
+
+        double x0;
+
+        double x1;
+        double y0;
+        double y1;
+        // y = ax + b;
+        double a;
+        double b;
 
         public Axis(Vertex start, Vertex end) {
             this.start = start;
             this.end = end;
+            x0 = start.x;
+            x1 = end.x;
+            y0 = start.y;
+            y1 = end.y;
+            a = (y0 - y1) / (x0 - x1);
+            b = y0 - a * x0;
         }
     }
 
@@ -69,13 +87,8 @@ public class FoldAction implements Action {
             return new Vertex(vertex.x - 2 * (vertex.x - axis.start.x), vertex.y);
         }
 
-        double x0 = axis.start.x;
-        double x1 = axis.end.x;
-        double y0 = axis.start.y;
-        double y1 = axis.end.y;
-        // y = ax + b;
-        double a = (y0 - y1) / (x0 - x1);
-        double b = y0 - a * x0;
+        double a = axis.a;
+        double b = axis.b;
 
         // orthogonal line coefficient = -1/a
         double aPrime = -1 / a;
@@ -99,20 +112,30 @@ public class FoldAction implements Action {
             // invalid action
             return figure;
         }
-        final List<Edge> edges = new ArrayList<>(figure.edges).stream()
-                .filter(o -> !(o.start == vertex1 || o.start == vertex2))
-                .filter(o -> !(o.end == vertex1 || o.end == vertex2)).collect(Collectors.toList());
-        if (!canApply(edges, figure.vertices.size() - 2, subFigureVertex)) {
+        Axis axis = new Axis(figure.vertices.get(vertex1), figure.vertices.get(vertex2));
+
+        Set<Integer> excludedNodes = new HashSet<>();
+        excludedNodes.add(vertex1);
+        excludedNodes.add(vertex2);
+        for (int i = 0; i < figure.vertices.size(); i++) {
+            Vertex vertex = figure.vertices.get(i);
+            if (axis.a * vertex.x + axis.b == vertex.y) {
+                excludedNodes.add(i);
+            }
+        }
+
+        if (!canApply(state.getAdjacencyList(), excludedNodes, figure.vertices.size() - excludedNodes.size(), subFigureVertex)) {
             return figure;
         }
 
         final List<Vertex> vertices = new ArrayList<>(figure.vertices);
-        bfsSubFigure(figure.edges, vertices, subFigureVertex, vertex1, vertex2);
+        bfsSubFigure(state.getAdjacencyList(), vertices, axis, subFigureVertex, excludedNodes);
         return new Figure(vertices, figure.edges);
     }
 
     private boolean canApply(
-            List<Edge> edges,
+            Map<Integer, List<Integer>> edges,
+            Set<Integer> excludedNodes,
             int numVertices,
             int startVertex) {
         Set<Integer> visited = new HashSet<>();
@@ -122,11 +145,9 @@ public class FoldAction implements Action {
         while (!queue.isEmpty()) {
             int vertex = queue.removeFirst();
             // Expand neighbours
-            edges.forEach(edge -> {
-                if (edge.start == vertex && !visited.contains(edge.end)) {
-                    queue.addLast(edge.end);
-                } else if (edge.end == vertex && !visited.contains(edge.start)) {
-                    queue.addLast(edge.start);
+            edges.getOrDefault(vertex, EMPTY_ARRAY).forEach(edge -> {
+                if (!excludedNodes.contains(edge) && !visited.contains(edge)) {
+                    queue.addLast(edge);
                 }
             });
 
@@ -141,27 +162,25 @@ public class FoldAction implements Action {
     }
 
     private void bfsSubFigure(
-            List<Edge> edges,
+            Map<Integer, List<Integer>> edges,
             List<Vertex> vertices,
+            Axis axis,
             int startVertex,
-            int endVertex1,
-            int endVertex2) {
+            Set<Integer> excludedNodes) {
         Set<Integer> visited = new HashSet<>();
 
         Deque<Integer> queue = new LinkedList<>();
         queue.add(startVertex);
         while (!queue.isEmpty()) {
             int vertex = queue.removeFirst();
-            if (endVertex1 == vertex || endVertex2 == vertex) {
+            if (excludedNodes.contains(vertex)) {
                 continue;
             }
 
             // Expand neighbours
-            edges.forEach(edge -> {
-                if (edge.start == vertex && !visited.contains(edge.end)) {
-                    queue.addLast(edge.end);
-                } else if (edge.end == vertex && !visited.contains(edge.start)) {
-                    queue.addLast(edge.start);
+            edges.getOrDefault(vertex, EMPTY_ARRAY).forEach(edge -> {
+                if (!excludedNodes.contains(edge) && !visited.contains(edge)) {
+                    queue.addLast(edge);
                 }
             });
 
@@ -171,7 +190,7 @@ public class FoldAction implements Action {
             }
 
             // Process
-            vertices.set(vertex, fold(vertices.get(vertex), new Axis(vertices.get(vertex1), vertices.get(vertex2))));
+            vertices.set(vertex, fold(vertices.get(vertex), axis));
             visited.add(vertex);
         }
 

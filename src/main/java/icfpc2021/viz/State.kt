@@ -3,12 +3,10 @@ package icfpc2021.viz
 import icfpc2021.actions.Action
 import icfpc2021.area
 import icfpc2021.convexHull
-import icfpc2021.model.Figure
-import icfpc2021.model.Hole
-import icfpc2021.model.LambdaMan
-import icfpc2021.model.Vertex
+import icfpc2021.model.*
 import icfpc2021.strategy.Strategy
 import java.nio.file.Path
+import java.util.HashMap
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -16,6 +14,18 @@ import kotlin.math.sqrt
 class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, val problemPath: Path) {
     val figures = arrayListOf<Figure>(originalMan.figure)
     val actions = arrayListOf<Action>()
+    val adjacencyList = run {
+        val map = HashMap<Int, MutableList<Int>>()
+        originalMan.figure.edges.forEach { elem ->
+            val start = map.getOrDefault(elem.start, arrayListOf())
+            start.add(elem.end)
+            map[elem.start] = start
+            val end = map.getOrDefault(elem.end, arrayListOf())
+            end.add(elem.start)
+            map[elem.end] = end
+        }
+        map
+    }
     // Used for scroll
     var current: Int = 0
 
