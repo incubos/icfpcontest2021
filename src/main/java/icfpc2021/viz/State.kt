@@ -1,8 +1,8 @@
 package icfpc2021.viz
 
 import icfpc2021.actions.Action
-import icfpc2021.area
 import icfpc2021.convexHull
+import icfpc2021.geom.Triangulate
 import icfpc2021.model.*
 import icfpc2021.strategy.Strategy
 import java.nio.file.Path
@@ -14,18 +14,8 @@ import kotlin.math.sqrt
 class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, val problemPath: Path) {
     val figures = arrayListOf<Figure>(originalMan.figure)
     val actions = arrayListOf<Action>()
-    val adjacencyList = run {
-        val map = HashMap<Int, MutableList<Int>>()
-        originalMan.figure.edges.forEach { elem ->
-            val start = map.getOrDefault(elem.start, arrayListOf())
-            start.add(elem.end)
-            map[elem.start] = start
-            val end = map.getOrDefault(elem.end, arrayListOf())
-            end.add(elem.start)
-            map[elem.end] = end
-        }
-        map
-    }
+    // Invariant
+    val adjacencyList = computeAdjacencyList(originalMan.figure)
 
     // Used for scroll
     var current: Int = 0
@@ -37,6 +27,7 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         }
 
     val holeConvexHull = convexHull(hole.vertices)
+    val holeTriangulation = Triangulate.triangulate(hole.vertices)
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
@@ -83,5 +74,20 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         return "[#${current + 1}/${figures.size}]" +
                 "[LA ${if (current >= 1) actions[current - 1].toString() else "-"}]" +
                 "[Process ${actionInProcess}][Selection ${selectedVertex}]"
+    }
+
+    companion object {
+        fun computeAdjacencyList(figure: Figure): HashMap<Int, MutableList<Int>> {
+            val map = HashMap<Int, MutableList<Int>>()
+            figure.edges.forEach { elem ->
+                val start = map.getOrDefault(elem.start, arrayListOf())
+                start.add(elem.end)
+                map[elem.start] = start
+                val end = map.getOrDefault(elem.end, arrayListOf())
+                end.add(elem.start)
+                map[elem.end] = end
+            }
+            return map
+        }
     }
 }
