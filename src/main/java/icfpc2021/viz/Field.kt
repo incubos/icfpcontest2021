@@ -14,9 +14,7 @@ import java.awt.event.*
 import java.nio.file.Path
 import javax.swing.*
 import kotlin.io.path.*
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 class Field(val state: State) : JPanel() {
     val objectMapper = ObjectMapper()
@@ -320,6 +318,31 @@ class Field(val state: State) : JPanel() {
             hole.vertices.map { screenY(it.y) }.toIntArray(),
             hole.vertices.size
         )
+
+        // Draw int grid
+        val minX = ceil(state.minX())
+        val maxX = ceil(state.maxX())
+        val minY = floor(state.minY())
+        val maxY = ceil(state.maxY())
+        font = g2d.font
+        g2d.font = font.deriveFont(7f)
+        for (x in minX.toInt() until maxX.toInt() + 1) {
+            g2d.color = Color(10, 10, 10, 40)
+            g2d.stroke = BasicStroke(0.5f)
+            g2d.drawLine(screenX(x.toDouble()), screenY(minY), screenX(x.toDouble()), screenY(maxY))
+            g2d.color = Color.BLACK
+            g2d.drawString(x.toString(), screenX(x.toDouble()), screenY(minY) - 5)
+        }
+        for (y in minY.toInt() until maxY.toInt() + 1) {
+            g2d.color = Color(10, 10, 10, 40)
+            g2d.stroke = BasicStroke(0.5f)
+            g2d.drawLine(screenX(minX), screenY(y.toDouble()), screenX(maxX), screenY(y.toDouble()))
+            g2d.color = Color.BLACK
+            g2d.drawString(y.toString(), screenX(minX)-15, screenY(y.toDouble()))
+        }
+        g2d.font = font
+
+
         g2d.color = Color.DARK_GRAY.brighter()
         g2d.stroke = BasicStroke(1f)
 
@@ -403,7 +426,7 @@ class Field(val state: State) : JPanel() {
     private val MARGINY = 10 + (height - minWH()) / 2
 
     // Use these values to keep X / Y ratio constant
-    private val MARGIN = 20
+    private val MARGIN = 10
     fun minCs() = min(state.minX(), state.minY()) - MARGIN
     fun maxCs() = max(state.maxX(), state.maxY()) + MARGIN
 
