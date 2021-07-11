@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import icfpc2021.ScoringUtils
 import icfpc2021.actions.*
 import icfpc2021.actions.Action
-import icfpc2021.convexHull
 import icfpc2021.model.Pose
 import icfpc2021.model.Vertex
 import icfpc2021.strategy.AutoKutuzoffStrategy
@@ -31,6 +30,12 @@ class Field(val state: State) : JPanel() {
                     finishMoveAction(actionsPanel, realX, realY)
                     return
                 }
+
+                if (state.actionInProcess == MoveVertexToGridAction::class.simpleName) {
+                    finishMoveVertexToGridAction(actionsPanel, realX, realY)
+                    return
+                }
+
 
                 if (state.actionInProcess == PushVertexAction::class.simpleName) {
                     finishPushMoveAction(actionsPanel, realX, realY)
@@ -73,6 +78,12 @@ class Field(val state: State) : JPanel() {
 
         actionsPanel.moveButton.addActionListener {
             state.actionInProcess = MoveAction::class.simpleName
+            actionsPanel.status.text = "$state Select point to move"
+            actionsPanel.disableActions()
+        }
+
+        actionsPanel.moveVertexToGridButton.addActionListener {
+            state.actionInProcess = MoveVertexToGridAction::class.simpleName
             actionsPanel.status.text = "$state Select point to move"
             actionsPanel.disableActions()
         }
@@ -259,6 +270,19 @@ class Field(val state: State) : JPanel() {
     private fun finishMoveAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
         val v = state.man.figure.vertices[state.selectedVertex!!]
         val action = Action.checked(MoveAction(realX - v.x, realY - v.y))
+        state.applyAction(action)
+        actionsPanel.status.text = "$state $action applied successfully"
+        repaint()
+    }
+
+    private fun finishMoveVertexToGridAction(actionsPanel: ActionsPanel, realX: Double, realY: Double) {
+        val action = Action.checked(
+            MoveVertexToGridAction(
+                state.selectedVertex!!,
+                realX.roundToInt(),
+                realY.roundToInt()
+            )
+        )
         state.applyAction(action)
         actionsPanel.status.text = "$state $action applied successfully"
         repaint()

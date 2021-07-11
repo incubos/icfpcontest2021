@@ -13,6 +13,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
 
     fun disableActions() {
         moveButton.isEnabled = false
+        moveVertexToGridButton.isEnabled = false
         rotateButton.isEnabled = false
         pushVertexButton.isEnabled = false
         foldSubFigureButton.isEnabled = false
@@ -20,6 +21,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
 
     fun enableActions() {
         moveButton.isEnabled = true
+        moveVertexToGridButton.isEnabled = true
         rotateButton.isEnabled = true
         pushVertexButton.isEnabled = true
         foldSubFigureButton.isEnabled = true
@@ -29,6 +31,10 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val moveButton = createSmallButton("Move").apply {
         isEnabled = false
     }
+    val moveVertexToGridButton = createSmallButton("MoveVertexToGrid").apply {
+        isEnabled = false
+    }
+
     val rotateButton = createSmallButton("Rotate").apply {
         isEnabled = false;
     }
@@ -64,6 +70,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(autoFoldButton)
             add(foldSubFigureButton)
             add(moveButton)
+            add(moveVertexToGridButton)
             add(rotateButton)
             add(pushVertexButton)
             add(rollBackLastAction)
