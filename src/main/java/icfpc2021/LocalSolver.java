@@ -22,6 +22,7 @@ public class LocalSolver {
 
     // Ignore for now
     private static Set<Integer> IGNORED = Set.of(7);
+    public static final int LARGE_FIGURE = 20000;
 
     public static void main(String[] args) throws IOException {
         int correctValues = 0;
@@ -50,7 +51,7 @@ public class LocalSolver {
                     "; Man vertices " + lambdaMan.figure.vertices.size() +
                     "; Man edges " + lambdaMan.figure.edges.size() +
                     "; Epsilon " + lambdaMan.epsilon);
-            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > 10000) {
+            if (lambdaMan.figure.vertices.size() * lambdaMan.figure.edges.size() > LARGE_FIGURE) {
                 System.out.println("TOO LARGE");
                 continue;
             }
