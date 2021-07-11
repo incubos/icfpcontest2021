@@ -351,6 +351,7 @@ class Field(val state: State) : JPanel() {
             g2d.drawLine(screenX(x.toDouble()), screenY(minY), screenX(x.toDouble()), screenY(maxY))
             g2d.color = Color.BLACK
             g2d.drawString(x.toString(), screenX(x.toDouble()), screenY(minY) - 5)
+            g2d.drawString(x.toString(), screenX(x.toDouble()), screenY(maxY) + 15)
         }
         for (y in minY.toInt() until maxY.toInt() + 1) {
             g2d.color = Color(10, 10, 10, 40)
@@ -358,6 +359,7 @@ class Field(val state: State) : JPanel() {
             g2d.drawLine(screenX(minX), screenY(y.toDouble()), screenX(maxX), screenY(y.toDouble()))
             g2d.color = Color.BLACK
             g2d.drawString(y.toString(), screenX(minX) - 15, screenY(y.toDouble()))
+            g2d.drawString(y.toString(), screenX(maxX) + 15, screenY(y.toDouble()))
         }
         g2d.font = font
 
@@ -388,7 +390,10 @@ class Field(val state: State) : JPanel() {
         val defaultFont = g2d.font
         man.figure.vertices.forEachIndexed { i, v ->
             val color = if (i == state.selectedVertex) Color.BLUE else Color.BLACK
-            g2d.font = if (i == state.selectedVertex) defaultFont.deriveFont(30f) else defaultFont
+            if (i == state.selectedVertex) {
+                g2d.color = Color.BLUE
+                g2d.drawOval(screenX(v.x) - 3, screenY(v.y) - 3, 6, 6)
+            }
             drawString(g2d, i.toString(), screenX(v.x), screenY(v.y), color)
         }
         g2d.font = defaultFont
