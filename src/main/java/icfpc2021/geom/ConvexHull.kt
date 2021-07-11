@@ -35,10 +35,10 @@ fun convexHull(pO: List<Vertex>): List<Vertex> {
 const val EPSILON = 1e-6
 
 /* ccw returns true if the three points make a counter-clockwise turn */
-fun counterClockWise(a: Vertex, b: Vertex, c: Vertex) =
-    (a.x * b.y - a.y * b.x + a.y * c.x - a.x * c.y + b.x * c.y - c.x * b.y) / 2.0 < -EPSILON
+fun counterClockWise(a: Vertex, b: Vertex, c: Vertex) = triangleArea(a, b, c) < -EPSILON
 
-
+fun triangleArea(a: Vertex, b: Vertex, c: Vertex) =
+    (a.x * b.y - a.y * b.x + a.y * c.x - a.x * c.y + b.x * c.y - c.x * b.y) / 2.0
 
 fun area(convexHull: List<Vertex>): Double {
     return abs(0.5 * (convexHull.indices.sumOf { convexHull[it].x * convexHull[(it + 1).mod(convexHull.size)].y } -

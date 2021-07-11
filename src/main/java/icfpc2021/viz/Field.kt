@@ -356,6 +356,15 @@ class Field(val state: State) : JPanel() {
             g2d.drawLine(screenX(vA.x), screenY(vA.y), screenX(vC.x), screenY(vC.y))
             g2d.drawLine(screenX(vC.x), screenY(vC.y), screenX(vB.x), screenY(vB.y))
         }
+        g2d.color = Color.BLUE
+        for (triangleIdx in state.holesInHoleTriangulation) {
+            val vA = hole.vertices[triangleIdx.a]
+            val vB = hole.vertices[triangleIdx.b]
+            val vC = hole.vertices[triangleIdx.c]
+            g2d.drawLine(screenX(vA.x), screenY(vA.y), screenX(vB.x), screenY(vB.y))
+            g2d.drawLine(screenX(vA.x), screenY(vA.y), screenX(vC.x), screenY(vC.y))
+            g2d.drawLine(screenX(vC.x), screenY(vC.y), screenX(vB.x), screenY(vB.y))
+        }
 
         // Draw int grid
         val minX = ceil(state.minX())

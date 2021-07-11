@@ -3,6 +3,7 @@ package icfpc2021.viz
 import icfpc2021.actions.Action
 import icfpc2021.convexHull
 import icfpc2021.geom.Triangulate
+import icfpc2021.geom.triangulateHolesInHole
 import icfpc2021.model.*
 import icfpc2021.strategy.Strategy
 import java.nio.file.Path
@@ -28,6 +29,7 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
 
     val holeConvexHull = convexHull(hole.vertices)
     val holeTriangulation = Triangulate.triangulate(hole.vertices)
+    val holesInHoleTriangulation = triangulateHolesInHole(hole, holeConvexHull)
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!

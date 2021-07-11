@@ -1,7 +1,9 @@
 package icfpc2021.geom
 
-import icfpc2021.counterClockWise
+import icfpc2021.*
+import icfpc2021.model.Hole
 import icfpc2021.model.Vertex
+import java.lang.Math.abs
 
 data class Triangle(val a: Vertex, val b: Vertex, val c: Vertex)
 
@@ -45,4 +47,44 @@ class Triangulate {
             return triangulation
         }
     }
+}
+
+fun triangulateHolesInHole(hole: Hole,
+                           holeConvexHull: List<Vertex> = convexHull(hole.vertices)): List<TriangleIdx> {
+    val result = arrayListOf<TriangleIdx>()
+    for (i in holeConvexHull.indices) {
+        val next = (i + 1) % holeConvexHull.size
+        val chVertex = hole.vertices.indexOf(holeConvexHull[i])
+        val nextChVertex = hole.vertices.indexOf(holeConvexHull[next])
+        // Some vertices are missing in convex hole
+        if ((abs(nextChVertex - chVertex) + hole.vertices.size) % hole.vertices.size != 1) {
+            // Find direction
+            val missingEdges = (nextChVertex - chVertex + hole.vertices.size) % hole.vertices.size
+            val step = if (missingEdges < hole.vertices.size / 2) 1 else -1
+            val holeVerticesIndexes = arrayListOf<Int>()
+            var currentVertex = chVertex
+            while (currentVertex != (nextChVertex + step + hole.vertices.size) % hole.vertices.size) {
+                holeVerticesIndexes.add(currentVertex)
+                currentVertex = (currentVertex + step + hole.vertices.size) % hole.vertices.size
+            }
+            val polygon = holeVerticesIndexes.map { hole.vertices[it] }.toMutableList()
+            // Some vertices might lie on a single line
+            while (polygon.size >= 4 && abs(triangleArea(polygon.first(), polygon[1], polygon.last())) < EPSILON) {
+                polygon.removeFirst()
+                holeVerticesIndexes.removeFirst()
+            }
+            while (polygon.size >= 4 && abs(triangleArea(polygon.first(), polygon[polygon.size - 2], polygon.last())) < EPSILON) {
+                polygon.removeLast()
+                holeVerticesIndexes.removeLast()
+            }
+            val triangles = Triangulate.triangulate(polygon)
+            for (triangle in triangles) {
+               result.add(TriangleIdx(
+                   holeVerticesIndexes[triangle.a],
+                   holeVerticesIndexes[triangle.b],
+                   holeVerticesIndexes[triangle.c]))
+            }
+        }
+    }
+    return result
 }
