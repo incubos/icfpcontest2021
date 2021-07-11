@@ -6,6 +6,7 @@ import icfpc2021.actions.*
 import icfpc2021.actions.Action
 import icfpc2021.model.Pose
 import icfpc2021.model.Vertex
+import icfpc2021.strategy.AutoCenterStrategy
 import icfpc2021.strategy.AutoKutuzoffStrategy
 import icfpc2021.strategy.PosifyDebug
 import java.awt.*
@@ -105,6 +106,10 @@ class Field(val state: State) : JPanel() {
 
         actionsPanel.autoKutuzoffButton.addActionListener {
             finishAutoKutuzoffStrategy(actionsPanel)
+        }
+
+        actionsPanel.autoCenterStrategyButton.addActionListener {
+            finishAutoCenterStrategy(actionsPanel)
         }
 
         actionsPanel.autoCenterButton.addActionListener {
@@ -302,6 +307,13 @@ class Field(val state: State) : JPanel() {
         repaint()
     }
 
+    private fun finishAutoCenterStrategy(actionsPanel: ActionsPanel) {
+        val strategy = AutoCenterStrategy()
+        state.applyStrategy(strategy)
+        actionsPanel.status.text = "$state $strategy applied successfully"
+        repaint()
+    }
+
     private fun finishAutoCenterAction(actionsPanel: ActionsPanel) {
         val action = Action.checked(AutoCenterAction())
         state.applyAction(action)
@@ -389,12 +401,13 @@ class Field(val state: State) : JPanel() {
         }
         val defaultFont = g2d.font
         man.figure.vertices.forEachIndexed { i, v ->
-            val color = if (i == state.selectedVertex) Color.BLUE else Color.BLACK
+            g2d.color = if (ScoringUtils.isIntegerCoordinates(v)) Color.GREEN else Color.RED
             if (i == state.selectedVertex) {
-                g2d.color = Color.BLUE
-                g2d.drawOval(screenX(v.x) - 3, screenY(v.y) - 3, 6, 6)
+                g2d.fillOval(screenX(v.x) - 10, screenY(v.y) - 10, 20, 20)
+            } else {
+                g2d.fillOval(screenX(v.x) - 5, screenY(v.y) - 5, 10, 10)
             }
-            drawString(g2d, i.toString(), screenX(v.x), screenY(v.y), color)
+            drawString(g2d, i.toString(), screenX(v.x), screenY(v.y), Color.BLACK)
         }
         g2d.font = defaultFont
     }

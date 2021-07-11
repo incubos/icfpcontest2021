@@ -45,6 +45,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
         isEnabled = false;
     }
     val autoKutuzoffButton = createSmallButton("Strategy AutoKutuzoff")
+    val autoCenterStrategyButton = createSmallButton("Strategy Autocenter")
     val autoCenterButton = createSmallButton("AutoCenter")
     val autoRotateButton = createSmallButton("AutoRotate")
     val autoFoldButton = createSmallButton("AutoFold")
@@ -65,6 +66,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
         add(JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             add(autoKutuzoffButton)
+            add(autoCenterStrategyButton)
             add(autoCenterButton)
             add(autoRotateButton)
             add(autoFoldButton)

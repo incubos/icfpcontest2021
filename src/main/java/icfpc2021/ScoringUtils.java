@@ -5,6 +5,7 @@ import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Hole;
 import icfpc2021.model.Vertex;
+import org.apache.commons.math3.util.Pair;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -15,6 +16,8 @@ import static icfpc2021.ConvexHullKt.counterClockWise;
 
 public class ScoringUtils {
     private static final double COORDINATE_PRECISION = 0.001;
+    public static final Pair<GridDirection, GridDirection> STAY_IN_GREED =
+            Pair.create(GridDirection.IN_GRID, GridDirection.IN_GRID);
 
     /**
      * Returns true if the figure completely fits with the hole.
@@ -158,7 +161,7 @@ public class ScoringUtils {
         double bestEpsilon = Double.MAX_VALUE;
 
         // Check all possible roundings from floor() to ceil()
-        for (GridDirection gridDirection : GridDirection.values()) {
+        for (GridDirection gridDirection : GridDirection.variants(false)) {
             Vertex candidate = gridDirection.move(vertex);
             double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
             if (bestEpsilon > score) {
@@ -204,4 +207,27 @@ public class ScoringUtils {
         final double dy = end.y - start.y;
         return dx * dx + dy * dy;
     }
+
+    public static List<Pair<GridDirection, GridDirection>> getEdgeCorrectRounds(Vertex vStart, Vertex vEnd,
+                                                                                double originalSquareLength, double threshold) {
+        boolean nonGridStart = !ScoringUtils.isIntegerCoordinates(vStart);
+        boolean nonGridEnd = !ScoringUtils.isIntegerCoordinates(vEnd);
+        ArrayList<Pair<GridDirection, GridDirection>> variants = new ArrayList<>();
+        if (nonGridStart || nonGridEnd) {
+            // Iterate over decart product and check valid variants
+            for (GridDirection startVariant : GridDirection.variants(!nonGridStart)) {
+                var newStart = startVariant.move(vStart);
+                for (GridDirection endVariant : GridDirection.variants(!nonGridEnd)) {
+                    var newEnd = endVariant.move(vEnd);
+                    if (Math.abs(squareLength(newStart, newEnd) / originalSquareLength - 1.0) < threshold) {
+                        variants.add(Pair.create(startVariant, endVariant));
+                    }
+                }
+            }
+        } else {
+            variants.add(STAY_IN_GREED);
+        }
+        return variants;
+    }
+
 }
