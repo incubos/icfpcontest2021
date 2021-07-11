@@ -41,7 +41,7 @@ public class AutoFoldAreaAction implements Action {
                                     convexHullEdges.contains(Pair.create(j, i)))) {
                         Action fa = Action.checked(new FoldAction(i, j, k));
                         var newFigure = fa.apply(state, figure);
-                        if (newFigure != figure && checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
+                        if (!newFigure.equals(figure) && checkFigure(state.getOriginalMan().figure, newFigure, state.getOriginalMan().epsilon)) {
                             var newArea = area(convexHull(newFigure.vertices));
                             if (newArea < minArea) {
                                 minArea = newArea;
