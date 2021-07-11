@@ -1,5 +1,6 @@
 package icfpc2021;
 
+import icfpc2021.geom.GridDirection;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Hole;
@@ -8,10 +9,7 @@ import icfpc2021.model.Vertex;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static icfpc2021.ConvexHullKt.counterClockWise;
 
@@ -160,50 +158,14 @@ public class ScoringUtils {
         double bestEpsilon = Double.MAX_VALUE;
 
         // Check all possible roundings from floor() to ceil()
-        // 0 1
-        //  v
-        // 3 2
-
-        {
-            // 0
-            Vertex candidate = new Vertex(Math.floor(vertex.x), Math.floor(vertex.y));
+        for (GridDirection gridDirection : GridDirection.values()) {
+            Vertex candidate = gridDirection.move(vertex);
             double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
             if (bestEpsilon > score) {
                 bestEpsilon = score;
                 bestCandidate = candidate;
             }
         }
-
-        {
-            // 1
-            Vertex candidate = new Vertex(Math.ceil(vertex.x), Math.floor(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
-            if (bestEpsilon > score) {
-                bestEpsilon = score;
-                bestCandidate = candidate;
-            }
-        }
-
-        {
-            // 2
-            Vertex candidate = new Vertex(Math.ceil(vertex.x), Math.ceil(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
-            if (bestEpsilon > score) {
-                bestEpsilon = score;
-                bestCandidate = candidate;
-            }
-        }
-
-        {
-            // 3
-            Vertex candidate = new Vertex(Math.floor(vertex.x), Math.ceil(vertex.y));
-            double score = maxEpsilonIfReplace(i, candidate, vertices, edges, originalFigure);
-            if (bestEpsilon > score) {
-                bestEpsilon = score;
-                bestCandidate = candidate;
-            }
-        }
-
         return bestCandidate;
     }
 

@@ -18,7 +18,9 @@ public class PosifyDebug implements Strategy {
     @Override
     public List<Action> apply(State state, Figure figure) {
         List<Action> actions = new ArrayList<>();
+
         List<Vertex> vertices = new ArrayList<>(figure.vertices);
+
         for (int i = 0; i < figure.vertices.size(); i++) {
             Vertex vertex = figure.vertices.get(i);
             if (!ScoringUtils.isIntegerCoordinates(vertex)) {
