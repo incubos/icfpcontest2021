@@ -2,6 +2,7 @@ package icfpc2021.viz
 
 import icfpc2021.actions.Action
 import icfpc2021.convexHull
+import icfpc2021.geom.TriangleIdx
 import icfpc2021.geom.Triangulate
 import icfpc2021.geom.triangulateHolesInHole
 import icfpc2021.model.*
@@ -15,6 +16,7 @@ import kotlin.math.sqrt
 class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, val problemPath: Path) {
     val figures = arrayListOf<Figure>(originalMan.figure)
     val actions = arrayListOf<Action>()
+
     // Invariant
     val adjacencyList = computeAdjacencyList(originalMan.figure)
 
@@ -28,8 +30,8 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         }
 
     val holeConvexHull = convexHull(hole.vertices)
-    val holeTriangulation = Triangulate.triangulate(hole.vertices)
-    val holesInHoleTriangulation = triangulateHolesInHole(hole, holeConvexHull)
+    val holeTriangulation: List<TriangleIdx> by lazy { Triangulate.triangulate(hole.vertices) }
+    val holesInHoleTriangulation: List<TriangleIdx> by lazy { triangulateHolesInHole(hole, holeConvexHull) }
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
