@@ -8,6 +8,7 @@ import icfpc2021.convexHull
 import icfpc2021.model.Pose
 import icfpc2021.model.Vertex
 import icfpc2021.strategy.AutoKutuzoffStrategy
+import icfpc2021.strategy.PosifyDebug
 import java.awt.*
 import java.awt.event.*
 import java.nio.file.Path
@@ -212,10 +213,12 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishPosifyAction(actionsPanel: ActionsPanel) {
-        val action = Action.checked(PosifyAction())
-        state.applyAction(action)
+        val strategy = PosifyDebug()
+        state.applyStrategy(strategy)
+        actionsPanel.status.text = "$state $strategy applied successfully"
         repaint()
     }
+
     private fun finishPrintAction(actionsPanel: ActionsPanel) {
         val pose = Pose.fromVertices(state.figures[state.current].vertices)
         val json = objectMapper.writeValueAsString(pose)

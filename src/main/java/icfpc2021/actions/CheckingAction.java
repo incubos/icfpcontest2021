@@ -39,4 +39,9 @@ public class CheckingAction implements Action {
 */
         return result;
     }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
 }

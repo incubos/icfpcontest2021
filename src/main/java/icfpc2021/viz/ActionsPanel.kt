@@ -46,7 +46,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val printButton = createSmallButton("Print").apply {
         isEnabled = true;
     }
-    val posifyButton = createSmallButton("Pose").apply {
+    val posifyButton = createSmallButton("PosifyDebug").apply {
         isEnabled = true;
     }
 

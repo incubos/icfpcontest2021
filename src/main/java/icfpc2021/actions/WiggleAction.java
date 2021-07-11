@@ -26,4 +26,9 @@ public class WiggleAction implements Action {
         }
         return figure;
     }
+
+    @Override
+    public String toString() {
+       return "Wiggle";
+    }
 }

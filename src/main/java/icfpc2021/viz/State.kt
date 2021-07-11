@@ -26,6 +26,7 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         }
         map
     }
+
     // Used for scroll
     var current: Int = 0
 
@@ -36,7 +37,6 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         }
 
     val holeConvexHull = convexHull(hole.vertices)
-    val holeConvexHullArea = area(holeConvexHull)
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
@@ -63,18 +63,18 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
     fun maxY() = max(man.figure.vertices.maxOf { it.y }, hole.vertices.maxOf { it.y })
 
     fun findVertex(vertices: List<Vertex>, realX: Double, realY: Double, precision: Double = 2.0): Int? {
-         return vertices.indices.map {
-             val x = vertices[it].x
-             val y = vertices[it].y
-             it to sqrt((realX - x) * (realX - x) + (realY - y) * (realY - y))
-         }.filter { it.second < precision }.minByOrNull { it.second }?.first
+        return vertices.indices.map {
+            val x = vertices[it].x
+            val y = vertices[it].y
+            it to sqrt((realX - x) * (realX - x) + (realY - y) * (realY - y))
+        }.filter { it.second < precision }.minByOrNull { it.second }?.first
     }
 
     fun printMan() = man.figure.vertices.joinToString(",") { "(${it.x.toInt()}, ${it.y.toInt()})" }
 
     override fun toString(): String {
         return "[#${current + 1}/${figures.size}]" +
-                "[HArea $holeConvexHullArea][MArea ${area(convexHull(man.figure.vertices))}]" +
-                "[Action ${actionInProcess}][Selection ${selectedVertex}]"
+                "[LA ${if (current >= 1) actions[current - 1].toString() else "-"}]" +
+                "[Process ${actionInProcess}][Selection ${selectedVertex}]"
     }
 }
