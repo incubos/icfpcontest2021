@@ -4,6 +4,7 @@ import icfpc2021.*
 import icfpc2021.model.Hole
 import icfpc2021.model.Vertex
 import java.lang.Math.abs
+import java.lang.RuntimeException
 
 data class Triangle(val a: Vertex, val b: Vertex, val c: Vertex)
 
@@ -36,12 +37,19 @@ class Triangulate {
             }
             val triangulation = arrayListOf<TriangleIdx>()
             var i = polygon.size - 1
+            var attemps = 0
             while (triangulation.size < polygon.size - 2) {
                 i = r[i]
                 if (checkIsEar(l[i], i, r[i], polygon)) {
                     triangulation.add(TriangleIdx(l[i], i, r[i]))
                     l[r[i]] = l[i]
                     r[l[i]] = r[i]
+                    attemps = 0
+                } else {
+                    attemps += 1
+                    if (attemps > polygon.size) {
+                        throw RuntimeException("Failed to process triangulate due to edge cases")
+                    }
                 }
             }
             return triangulation
