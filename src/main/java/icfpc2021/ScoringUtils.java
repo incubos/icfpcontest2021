@@ -19,6 +19,10 @@ public class ScoringUtils {
     public static final Pair<GridDirection, GridDirection> STAY_IN_GREED =
             Pair.create(GridDirection.IN_GRID, GridDirection.IN_GRID);
 
+    public static boolean isEmpty(List<Vertex> vertices) {
+        return new Area(verticesToPath(vertices)).isEmpty();
+    }
+
     /**
      * Returns true if the figure completely fits with the hole.
      */

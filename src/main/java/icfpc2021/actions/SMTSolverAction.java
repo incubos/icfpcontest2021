@@ -1,5 +1,6 @@
 package icfpc2021.actions;
 
+import icfpc2021.ScoringUtils;
 import icfpc2021.geom.Triangle;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
@@ -64,11 +65,19 @@ public class SMTSolverAction implements Action {
                                 edge.end));
             }
 
-            builder.append("; Inside hole\n");
+            builder.append("; Vertices inside hole\n");
             final List<Triangle> triangles = state.getHoleTriangulation();
-            for (int v = 0; v < state.getOriginalMan().figure.vertices.size(); v++) {
+            for (int v = 0; v < state.getHole().vertices.size(); v++) {
                 final List<String> clauses = new ArrayList<>(triangles.size());
                 for (final Triangle triangle : triangles) {
+                    if (ScoringUtils.isEmpty(
+                            List.of(
+                                    state.getHole().vertices.get(triangle.getA()),
+                                    state.getHole().vertices.get(triangle.getB()),
+                                    state.getHole().vertices.get(triangle.getC())))) {
+                        continue;
+                    }
+
                     clauses.add(String.format(
                             "(insideTriangle h%dx h%dy h%dx h%dy h%dx h%dy v%dx v%dy)\n",
                             triangle.component1(), triangle.component1(),
@@ -77,6 +86,31 @@ public class SMTSolverAction implements Action {
                             v, v));
                 }
                 builder.append(String.format("(assert %s)\n", or(clauses)));
+            }
+
+            builder.append("; Edges inside hole\n");
+            final List<Triangle> blockedTriangles = state.getHolesInHoleTriangulation();
+            for (final Edge edge : state.getOriginalMan().figure.edges) {
+                for (final Triangle triangle : blockedTriangles) {
+                    if (ScoringUtils.isEmpty(
+                            List.of(
+                                    state.getHole().vertices.get(triangle.getA()),
+                                    state.getHole().vertices.get(triangle.getB()),
+                                    state.getHole().vertices.get(triangle.getC())))) {
+                        continue;
+                    }
+
+                    builder.append(
+                            String.format(
+                                    "(assert (not (edgeIntersectsTriangle h%dx h%dy h%dx h%dy h%dx h%dy v%dx v%dy v%dx v%dy) ))\n",
+                                    triangle.component1(), triangle.component1(),
+                                    triangle.component2(), triangle.component2(),
+                                    triangle.component3(), triangle.component3(),
+                                    edge.start,
+                                    edge.start,
+                                    edge.end,
+                                    edge.end));
+                }
             }
 
             builder.append("; Solve\n");

@@ -23,7 +23,7 @@ import java.util.Set;
 
 public class LocalSolver {
 
-    public static final List<Strategy> STRATEGIES = List.of(new SolverStrategy(), new AutoCenterStrategy(), new AutoKutuzoffStrategy());
+    public static final List<Strategy> STRATEGIES = List.of(new AutoCenterStrategy(), new AutoKutuzoffStrategy(), new SolverStrategy());
     private static final Logger log = LoggerFactory.getLogger(LocalSolver.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -36,8 +36,7 @@ public class LocalSolver {
         int inHoles = 0;
         int inGrids = 0;
         int solved = 0;
-        for (int i = 1; i <= 106; i++) {
-
+        for (int i = 1; i <= 132; i++) {
             System.out.println("Problem " + i);
             if (IGNORED.contains(i)) {
                 System.out.println("IGNORED");
