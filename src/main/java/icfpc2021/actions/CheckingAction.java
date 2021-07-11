@@ -4,8 +4,6 @@ import icfpc2021.ScoringUtils;
 import icfpc2021.model.Figure;
 import icfpc2021.viz.State;
 
-import java.util.Arrays;
-
 /**
  * Checks that delegate {@link Action} doesn't break invariants.
  */

@@ -33,7 +33,8 @@ public class LocalSolver {
 
     public static void main(String[] args) throws IOException {
         int correctValues = 0;
-        int fitted = 0;
+        int inHoles = 0;
+        int inGrids = 0;
         int solved = 0;
         for (int i = 1; i <= 106; i++) {
 
@@ -84,19 +85,24 @@ public class LocalSolver {
                 figure = Action.checked(new WiggleAction()).apply(state, figure);
 
                 boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
-                boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
-                if (correct && fits) {
+                boolean inHole = ScoringUtils.fitsWithinHole(figure, state.getHole());
+                boolean inGrid = ScoringUtils.isFigureInGrid(figure);
+                if (correct && inHole && inGrid) {
                     break;
                 }
             }
 
             boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
-            boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
+            boolean inHole = ScoringUtils.fitsWithinHole(figure, state.getHole());
+            boolean inGrid = ScoringUtils.isFigureInGrid(figure);
             if (correct) {
                 correctValues += 1;
             }
-            if (fits) {
-                fitted += 1;
+            if (inHole) {
+                inHoles += 1;
+            }
+            if (inGrid) {
+                inGrids += 1;
             }
             System.out.println("Solution " + i);
             final double[] originalSquareLengths = ScoringUtils.edgeSquareLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges);
@@ -109,14 +115,15 @@ public class LocalSolver {
             }
             System.out.println("Epsilons: " + Arrays.toString(epsilons));
 
-            if (correct && fits) {
+            if (correct && inHole && inGrid) {
                 solved += 1;
                 Pose pose = Pose.fromVertices(figure.vertices);
                 String json = objectMapper.writeValueAsString(pose);
                 Files.writeString(solutionPath, json);
             }
-            System.out.println("Correct " + correct + "; Fits " + fits);
+            System.out.println("Correct " + correct + "; Fits " + inHole + "; In grid " + inGrid);
         }
-        System.out.println("Total correct " + correctValues + "; Total fits " + fitted + "; Total solved " + solved);
+        System.out.println("Total solved " + solved +
+                "; Total correct " + correctValues + "; Total fits " + inHoles + "; Total in grid " + inGrids);
     }
 }

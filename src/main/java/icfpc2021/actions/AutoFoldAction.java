@@ -6,15 +6,11 @@ import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
 import org.apache.commons.math3.util.Pair;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static icfpc2021.ConvexHullKt.area;
 import static icfpc2021.ConvexHullKt.convexHull;
 import static icfpc2021.ScoringUtils.checkFigure;
-import static icfpc2021.actions.FoldAction.checkCorrect;
 
 public class AutoFoldAction implements Action {
 

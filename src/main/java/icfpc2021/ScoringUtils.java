@@ -230,4 +230,12 @@ public class ScoringUtils {
         return variants;
     }
 
+    public static boolean isFigureInGrid(Figure figure) {
+        for (Vertex vertex : figure.vertices) {
+            if (!ScoringUtils.isIntegerCoordinates(vertex)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

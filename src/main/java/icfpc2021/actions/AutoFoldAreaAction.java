@@ -11,7 +11,6 @@ import java.util.List;
 import static icfpc2021.ConvexHullKt.area;
 import static icfpc2021.ConvexHullKt.convexHull;
 import static icfpc2021.ScoringUtils.checkFigure;
-import static icfpc2021.actions.FoldAction.checkCorrect;
 
 public class AutoFoldAreaAction implements Action {
 
