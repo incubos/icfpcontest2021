@@ -9,23 +9,27 @@ import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Pose;
 import icfpc2021.model.Task;
+import icfpc2021.strategy.AutoCenterStrategy;
 import icfpc2021.strategy.AutoKutuzoffStrategy;
 import icfpc2021.strategy.PosifyEdges;
+import icfpc2021.strategy.Strategy;
 import icfpc2021.viz.State;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public class LocalSolver {
 
+    public static final List<Strategy> STRATEGIES = List.of(new AutoCenterStrategy(), new AutoKutuzoffStrategy());
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     // Ignore for now
     private static Set<Integer> IGNORED = Set.of(7);
-    public static final int LARGE_FIGURE = 20000;
+    public static final int LARGE_FIGURE = 10000;
 
     public static void main(String[] args) throws IOException {
         int correctValues = 0;
@@ -33,7 +37,7 @@ public class LocalSolver {
         int solved = 0;
         for (int i = 1; i <= 106; i++) {
 
-            System.out.println("Task " + i);
+            System.out.println("Problem " + i);
             if (IGNORED.contains(i)) {
                 System.out.println("IGNORED");
                 continue;
@@ -58,27 +62,43 @@ public class LocalSolver {
                 System.out.println("TOO LARGE");
                 continue;
             }
-            AutoKutuzoffStrategy strategy = new AutoKutuzoffStrategy();
-            state.applyStrategy(strategy);
-            Figure figure = state.getMan().figure;
-            figure = Action.checked(new WiggleAction()).apply(state, figure);
 
-            figure = Action.checked(new FullPosifyAction()).apply(state, figure);
-            figure = Action.checked(new WiggleAction()).apply(state, figure);
+            Figure figure = state.getOriginalMan().figure;
 
-            figure = Action.checked(new PosifyAction()).apply(state, figure);
-            figure = Action.checked(new WiggleAction()).apply(state, figure);
+            for (Strategy strategy : STRATEGIES) {
+                figure = state.getOriginalMan().figure;
+                for (Action action : strategy.apply(state, figure)) {
+                    figure = action.apply(state, figure);
+                }
+                figure = Action.checked(new WiggleAction()).apply(state, figure);
 
-            for (Action action : new PosifyEdges().apply(state, figure)) {
-                figure = action.apply(state, figure);
+                figure = Action.checked(new FullPosifyAction()).apply(state, figure);
+                figure = Action.checked(new WiggleAction()).apply(state, figure);
+
+                figure = Action.checked(new PosifyAction()).apply(state, figure);
+                figure = Action.checked(new WiggleAction()).apply(state, figure);
+
+                for (Action action : new PosifyEdges().apply(state, figure)) {
+                    figure = action.apply(state, figure);
+                }
+                figure = Action.checked(new WiggleAction()).apply(state, figure);
+
+                boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
+                boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
+                if (correct && fits) {
+                    break;
+                }
             }
-            figure = Action.checked(new WiggleAction()).apply(state, figure);
 
             boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
+            boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
             if (correct) {
                 correctValues += 1;
             }
-            System.out.println("Problem " + i);
+            if (fits) {
+                fitted += 1;
+            }
+            System.out.println("Solution " + i);
             final double[] originalSquareLengths = ScoringUtils.edgeSquareLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges);
             System.out.println("Original lengths: " + Arrays.toString(originalSquareLengths));
             final double[] ourSquareLengths = ScoringUtils.edgeSquareLengthsFrom(figure.vertices, figure.edges);
@@ -89,10 +109,6 @@ public class LocalSolver {
             }
             System.out.println("Epsilons: " + Arrays.toString(epsilons));
 
-            boolean fits = ScoringUtils.fitsWithinHole(figure, state.getHole());
-            if (fits) {
-                fitted += 1;
-            }
             if (correct && fits) {
                 solved += 1;
                 Pose pose = Pose.fromVertices(figure.vertices);

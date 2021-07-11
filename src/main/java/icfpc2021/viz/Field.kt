@@ -177,9 +177,7 @@ class Field(val state: State) : JPanel() {
             state.selectedVertex = null
             state.actionInProcess = null
             actionsPanel.disableActions()
-            state.actions.clear()
-            state.figures.removeIf { it != state.figures.first() }
-            state.current = 0
+            state.reset()
             actionsPanel.status.text = "$state Restarted"
             repaint()
         }

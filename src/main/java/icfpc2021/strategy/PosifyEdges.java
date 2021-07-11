@@ -32,7 +32,7 @@ public class PosifyEdges implements Strategy {
     public List<Action> apply(State state, Figure figure) {
         Map<Integer, List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = collectFixes(state, figure);
         if (nonGridEdgeFixes == null) {
-            // Cannot fix it!
+            System.out.println("Non fixable edge found");
             return Collections.emptyList();
         }
         if (nonGridEdgeFixes.isEmpty()) {
@@ -42,6 +42,7 @@ public class PosifyEdges implements Strategy {
 
         if (nonGridEdgeFixes.size() > THRESHOLD) {
             // Too many fixes
+            System.out.println("Too big size for spotify edges");
             return Collections.emptyList();
         }
 
@@ -63,6 +64,7 @@ public class PosifyEdges implements Strategy {
                 searchVerticesFixes(edgesOrder, 0, nonGridEdgeFixes, Collections.emptyMap(), figure.edges);
         // Nothing found
         if (verticesFixes == null) {
+            System.out.println("Spotify edges failed to find combination");
             return Collections.emptyList();
         }
         return verticesFixes.entrySet().stream().map(entry -> {

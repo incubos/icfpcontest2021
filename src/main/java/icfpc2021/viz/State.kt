@@ -41,6 +41,13 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
 
+    fun reset() {
+        actions.clear()
+        figures.clear()
+        figures.add(originalMan.figure)
+        current = 0
+    }
+
     fun applyAction(action: Action) {
         val newFigure = action.apply(this, man.figure)
         actions.add(action)
