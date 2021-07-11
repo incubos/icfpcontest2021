@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoCenterStrategy implements Strategy {
-    private static final int MOVE_DELTA = 10;
 
     public List<Action> apply(State state, Figure figure) {
         var currentFigure = figure;
@@ -23,18 +22,7 @@ public class AutoCenterStrategy implements Strategy {
             return actions;
         }
 
-        for (int x = -MOVE_DELTA; x <= MOVE_DELTA; x++) {
-            for (int y = -MOVE_DELTA; y <= MOVE_DELTA; y++) {
-                Action moveAction = Action.checked(new MoveAction(x, y));
-                Figure slightlyMoved = moveAction.apply(state, currentFigure);
-                if (ScoringUtils.fitsWithinHole(slightlyMoved, state.getHole())) {
-                    actions.add(moveAction);
-                    return actions;
-                }
-            }
-        }
-
+        actions.add(new WiggleAction());
         return actions;
-
     }
 }

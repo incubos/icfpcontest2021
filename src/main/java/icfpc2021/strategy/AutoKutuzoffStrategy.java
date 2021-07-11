@@ -12,14 +12,13 @@ public class AutoKutuzoffStrategy implements Strategy {
     private static final int CYCLES = 3;
     private static final int FOLDS = 10;
     private static final int ROTATES = 5;
-    private static final int MOVE_DELTA = 10;
 
     @Override
     public List<Action> apply(State state, Figure figure) {
         var currentFigure = figure;
         var actions = new ArrayList<Action>();
-        var givenUp = false;
         for (int count = 0; count < CYCLES; count++) {
+            var cycleStartFigure = currentFigure;
             // Check
             if (ScoringUtils.fitsWithinHole(currentFigure, state.getHole())) {
                 return actions;
@@ -63,24 +62,24 @@ public class AutoKutuzoffStrategy implements Strategy {
             }
 
             // Slightly move to fit if we can
-            for (int x = -MOVE_DELTA; x <= MOVE_DELTA; x++) {
-                for (int y = -MOVE_DELTA; y <= MOVE_DELTA; y++) {
-                    Action moveAction = Action.checked(new MoveAction(x, y));
-                    Figure slightlyMoved = moveAction.apply(state, currentFigure);
-                    if (ScoringUtils.fitsWithinHole(slightlyMoved, state.getHole())) {
-                        actions.add(moveAction);
-                        return actions;
-                    }
-                }
+            Action wa = Action.checked(new WiggleAction());
+            var wFigure = wa.apply(state, currentFigure);
+            if (!wFigure.equals(currentFigure)) {
+                currentFigure = wFigure;
+                actions.add(wa);
             }
+
 
             Action a = Action.checked(new AutoFoldAreaAction());
-            var newFigure = a.apply(state, currentFigure);
-            if (!newFigure.equals(currentFigure)) {
-                currentFigure = newFigure;
+            var fFigure = a.apply(state, currentFigure);
+            if (!fFigure.equals(currentFigure)) {
+                currentFigure = fFigure;
                 actions.add(a);
             }
-
+            // Give up if actions are useless
+            if (cycleStartFigure.equals(currentFigure)) {
+                break;
+            }
         }
         return actions;
     }
