@@ -2,7 +2,7 @@ package icfpc2021.viz
 
 import icfpc2021.actions.Action
 import icfpc2021.convexHull
-import icfpc2021.geom.TriangleIdx
+import icfpc2021.geom.Triangle
 import icfpc2021.geom.Triangulate
 import icfpc2021.geom.triangulateHolesInHole
 import icfpc2021.model.*
@@ -30,8 +30,8 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
         }
 
     val holeConvexHull = convexHull(hole.vertices)
-    val holeTriangulation: List<TriangleIdx> by lazy { Triangulate.triangulate(hole.vertices) }
-    val holesInHoleTriangulation: List<TriangleIdx> by lazy { triangulateHolesInHole(hole, holeConvexHull) }
+    val holeTriangulation: List<Triangle> by lazy { Triangulate.triangulate(hole.vertices) }
+    val holesInHoleTriangulation: List<Triangle> by lazy { triangulateHolesInHole(hole, holeConvexHull) }
 
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!

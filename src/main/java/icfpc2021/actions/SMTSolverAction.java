@@ -1,6 +1,6 @@
 package icfpc2021.actions;
 
-import icfpc2021.geom.TriangleIdx;
+import icfpc2021.geom.Triangle;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
@@ -65,10 +65,10 @@ public class SMTSolverAction implements Action {
             }
 
             builder.append("; Inside hole\n");
-            final List<TriangleIdx> triangles = state.getHoleTriangulation();
+            final List<Triangle> triangles = state.getHoleTriangulation();
             for (int v = 0; v < state.getOriginalMan().figure.vertices.size(); v++) {
                 final List<String> clauses = new ArrayList<>(triangles.size());
-                for (final TriangleIdx triangle : triangles) {
+                for (final Triangle triangle : triangles) {
                     clauses.add(String.format(
                             "(insideTriangle h%dx h%dy h%dx h%dy h%dx h%dy v%dx v%dy)\n",
                             triangle.component1(), triangle.component1(),

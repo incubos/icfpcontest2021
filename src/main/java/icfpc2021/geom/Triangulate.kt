@@ -6,42 +6,45 @@ import icfpc2021.model.Vertex
 import java.lang.Math.abs
 import java.lang.RuntimeException
 
-data class Triangle(val a: Vertex, val b: Vertex, val c: Vertex)
-
-data class TriangleIdx(val a: Int, val b: Int, val c: Int)
+data class Triangle(val a: Int, val b: Int, val c: Int)
 
 class Triangulate {
     companion object {
 
-        private fun pointInTriangle(p: Vertex, t: Triangle): Boolean {
-            if (counterClockWise(t.a, t.b, p)) return false
-            if (counterClockWise(t.b, t.c, p)) return false
-            return !counterClockWise(t.c, t.a, p)
+        private fun pointInTriangle(p: Vertex, a: Vertex, b: Vertex, c: Vertex): Boolean {
+            if (counterClockWise(a, b, p)) return false
+            if (counterClockWise(b, c, p)) return false
+            return !counterClockWise(c, a, p)
         }
 
         private fun checkIsEar(i: Int, j: Int, k: Int, polygon: List<Vertex>): Boolean {
-            val t = Triangle(polygon[i], polygon[j], polygon[k])
-            if (counterClockWise(t.a, t.b, t.c)) return false
+            val a = polygon[i]
+            val b = polygon[j]
+            val c = polygon[k]
+            if (abs(triangleArea(a, b, c)) < EPSILON) {
+                return false
+            }
+            if (counterClockWise(a, b, c)) return false
             for (m in polygon.indices) {
-                if (m != i && m != j && m != k && pointInTriangle(polygon[m], t)) return false
+                if (m != i && m != j && m != k && pointInTriangle(polygon[m], a, b, c)) return false
             }
             return true
         }
 
-        fun triangulate(polygon: List<Vertex>): List<TriangleIdx> {
+        fun triangulate(polygon: List<Vertex>): List<Triangle> {
             val l = IntArray(polygon.size)
             val r = IntArray(polygon.size)
             for (i in polygon.indices) {
                 l[i] = (i - 1 + polygon.size) % polygon.size
                 r[i] = (i + 1 + polygon.size) % polygon.size
             }
-            val triangulation = arrayListOf<TriangleIdx>()
+            val triangulation = arrayListOf<Triangle>()
             var i = polygon.size - 1
             var attemps = 0
             while (triangulation.size < polygon.size - 2) {
                 i = r[i]
                 if (checkIsEar(l[i], i, r[i], polygon)) {
-                    triangulation.add(TriangleIdx(l[i], i, r[i]))
+                    triangulation.add(Triangle(l[i], i, r[i]))
                     l[r[i]] = l[i]
                     r[l[i]] = r[i]
                     attemps = 0
@@ -57,9 +60,11 @@ class Triangulate {
     }
 }
 
-fun triangulateHolesInHole(hole: Hole,
-                           holeConvexHull: List<Vertex> = convexHull(hole.vertices)): List<TriangleIdx> {
-    val result = arrayListOf<TriangleIdx>()
+fun triangulateHolesInHole(
+    hole: Hole,
+    holeConvexHull: List<Vertex> = convexHull(hole.vertices)
+): List<Triangle> {
+    val result = arrayListOf<Triangle>()
     for (i in holeConvexHull.indices) {
         val next = (i + 1) % holeConvexHull.size
         val chVertex = hole.vertices.indexOf(holeConvexHull[i])
@@ -69,28 +74,52 @@ fun triangulateHolesInHole(hole: Hole,
             // Find direction
             val missingEdges = (nextChVertex - chVertex + hole.vertices.size) % hole.vertices.size
             val step = if (missingEdges < hole.vertices.size / 2) 1 else -1
-            val holeVerticesIndexes = arrayListOf<Int>()
+            var holeVerticesIdx: MutableList<Int> = arrayListOf<Int>()
             var currentVertex = chVertex
             while (currentVertex != (nextChVertex + step + hole.vertices.size) % hole.vertices.size) {
-                holeVerticesIndexes.add(currentVertex)
+                holeVerticesIdx.add(currentVertex)
                 currentVertex = (currentVertex + step + hole.vertices.size) % hole.vertices.size
             }
-            val polygon = holeVerticesIndexes.map { hole.vertices[it] }.toMutableList()
+            var polygon = holeVerticesIdx.map { hole.vertices[it] }.toMutableList()
             // Some vertices might lie on a single line
             while (polygon.size >= 4 && abs(triangleArea(polygon.first(), polygon[1], polygon.last())) < EPSILON) {
                 polygon.removeFirst()
-                holeVerticesIndexes.removeFirst()
+                holeVerticesIdx.removeFirst()
             }
-            while (polygon.size >= 4 && abs(triangleArea(polygon.first(), polygon[polygon.size - 2], polygon.last())) < EPSILON) {
+            while (polygon.size >= 4 && abs(
+                    triangleArea(
+                        polygon.first(),
+                        polygon[polygon.size - 2],
+                        polygon.last()
+                    )
+                ) < EPSILON
+            ) {
                 polygon.removeLast()
-                holeVerticesIndexes.removeLast()
+                holeVerticesIdx.removeLast()
             }
-            val triangles = Triangulate.triangulate(polygon)
-            for (triangle in triangles) {
-               result.add(TriangleIdx(
-                   holeVerticesIndexes[triangle.a],
-                   holeVerticesIndexes[triangle.b],
-                   holeVerticesIndexes[triangle.c]))
+            while (polygon.size >= 4) {
+                var onLine = false
+                for (k in 1..polygon.size - 2) {
+                    // Single line
+                    if (!onLine) {
+                        if (abs(triangleArea(polygon.first(), polygon[k], polygon.last())) < EPSILON) {
+                            for (t in Triangulate.triangulate(polygon.subList(0, k + 1))) {
+                                result.add(Triangle(holeVerticesIdx[t.a], holeVerticesIdx[t.b], holeVerticesIdx[t.c]))
+                            }
+                            polygon = polygon.subList(k, polygon.size)
+                            holeVerticesIdx = holeVerticesIdx.subList(k, holeVerticesIdx.size).toMutableList()
+                            onLine = true
+                        }
+                    }
+                }
+                if (!onLine) {
+                    break
+                }
+            }
+            if (polygon.size >= 3) {
+                for (t in Triangulate.triangulate(polygon)) {
+                    result.add(Triangle(holeVerticesIdx[t.a], holeVerticesIdx[t.b], holeVerticesIdx[t.c]))
+                }
             }
         }
     }
