@@ -94,6 +94,18 @@ public class ScoringUtils {
         return true;
     }
 
+    public static boolean checkEdge(Figure figure, Figure originalFigure, double epsilon, int i) {
+        final double[] originalEdgesLength = edgeSquareLengthsFrom(originalFigure.vertices, originalFigure.edges);
+        final double[] edgesLength = edgeSquareLengthsFrom(figure.vertices, figure.edges);
+        final double threshold = epsilon / 1_000_000.0;
+        final double score = Math.abs(edgesLength[i] / originalEdgesLength[i] - 1.0);
+        if (score > threshold) {
+            return false;
+        }
+        return true;
+    }
+
+
     public static double[] edgeLengthsFrom(
             List<Vertex> vertices,
             List<Edge> edges) {

@@ -16,6 +16,7 @@ import javax.swing.*
 import kotlin.io.path.*
 import kotlin.math.*
 
+
 class Field(val state: State) : JPanel() {
     val objectMapper = ObjectMapper()
 
@@ -338,7 +339,7 @@ class Field(val state: State) : JPanel() {
             g2d.stroke = BasicStroke(0.5f)
             g2d.drawLine(screenX(minX), screenY(y.toDouble()), screenX(maxX), screenY(y.toDouble()))
             g2d.color = Color.BLACK
-            g2d.drawString(y.toString(), screenX(minX)-15, screenY(y.toDouble()))
+            g2d.drawString(y.toString(), screenX(minX) - 15, screenY(y.toDouble()))
         }
         g2d.font = font
 
@@ -361,10 +362,16 @@ class Field(val state: State) : JPanel() {
         g2d.stroke = BasicStroke(1f)
         drawVertices(g2d, convexHull(man.figure.vertices))
         g2d.color = manColor
-        g2d.stroke = BasicStroke(5f)
-        man.figure.edges.forEach { e ->
+        man.figure.edges.forEachIndexed { i, e ->
             val p1 = man.figure.vertices[e.start]
             val p2 = man.figure.vertices[e.end]
+            val stroke =
+                if (ScoringUtils.checkEdge(man.figure, state.originalMan.figure, state.originalMan.epsilon, i)) {
+                    BasicStroke(5f)
+                } else {
+                    BasicStroke(5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0f, floatArrayOf(9f), 0f)
+                }
+            g2d.stroke = stroke
             g2d.drawLine(screenX(p1.x), screenY(p1.y), screenX(p2.x), screenY(p2.y))
         }
         val defaultFont = g2d.font
