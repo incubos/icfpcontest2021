@@ -17,9 +17,15 @@ public class RawTask {
             this.vertices = vertices;
         }
     }
+    static class Bonus {
+        public List<Integer> position;
+        public String bonus;
+        public Integer problem;
+    }
     public List<List<Integer>> hole;
     public Figure figure;
     public int epsilon;
+    public List<Bonus> bonuses;
 
     @JsonCreator
     public RawTask(@JsonProperty("hole") List<List<Integer>> hole,
