@@ -1,6 +1,7 @@
 package icfpc2021
 
 import icfpc2021.ScoringUtils.edgeIntersectsTriangle
+import icfpc2021.geom.Triangle
 import icfpc2021.geom.Triangulate
 import icfpc2021.geom.Triangulate.Companion.pointInTriangle
 import icfpc2021.geom.triangulateHolesInHole
@@ -80,6 +81,7 @@ class TriangulateTest {
             )
         )
     }
+
     // Task 42 After Kutuzoff Figure edge 2, 6 intersects with outer boundary 2, 5, 4
     @Test
     fun testEdgeIntersectsTriangle2() {
@@ -95,6 +97,7 @@ class TriangulateTest {
             )
         )
     }
+
     // Figure edge 1(6.0, 0.0), 3(36.0, 8.0) intersects with outer boundary 2(34.0, 43.0), 4(43.0, 43.0), 3(36.0, 36.0)
     @Test
     fun testEdgeIntersectsTriangle3() {
@@ -111,4 +114,42 @@ class TriangulateTest {
         )
     }
 
+    @Test
+    fun testHolesInHoles42() {
+        val hv = listOf(
+            Vertex(15.0, 60.0),
+            Vertex(15.0, 25.0),
+            Vertex(5.0, 25.0),
+            Vertex(5.0, 5.0),
+            Vertex(15.0, 5.0),
+            Vertex(15.0, 10.0),
+            Vertex(25.0, 10.0),
+            Vertex(25.0, 5.0),
+            Vertex(35.0, 5.0),
+            Vertex(35.0, 10.0),
+            Vertex(45.0, 10.0),
+            Vertex(45.0, 5.0),
+            Vertex(55.0, 5.0),
+            Vertex(55.0, 10.0),
+            Vertex(65.0, 10.0),
+            Vertex(65.0, 5.0),
+            Vertex(75.0, 5.0),
+            Vertex(75.0, 25.0),
+            Vertex(65.0, 25.0),
+            Vertex(65.0, 60.0)
+        )
+        val holesInHole = triangulateHolesInHole(Hole(hv))
+        Assert.assertEquals(
+            listOf(
+                Triangle(a = 0, b = 2, c = 1),
+                Triangle(a = 17, b = 19, c = 18),
+                Triangle(a = 12, b = 15, c = 14),
+                Triangle(a = 12, b = 14, c = 13),
+                Triangle(a = 8, b = 11, c = 10),
+                Triangle(a = 8, b = 10, c = 9),
+                Triangle(a = 4, b = 7, c = 6),
+                Triangle(a = 4, b = 6, c = 5)
+            ), holesInHole
+        )
+    }
 }

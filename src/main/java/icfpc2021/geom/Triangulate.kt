@@ -66,39 +66,38 @@ fun triangulateHolesInHole(
     holeConvexHull: List<Vertex> = convexHull(hole.vertices)
 ): List<Triangle> {
     val result = arrayListOf<Triangle>()
+    val holeConvexHullIndx = holeConvexHull.map { hole.vertices.indexOf(it) }
+    val direction = if (holeConvexHull.indices.any { i ->
+            val next = (i + 1) % holeConvexHull.size
+            val chVertex = hole.vertices.indexOf(holeConvexHull[i])
+            val nextChVertex = hole.vertices.indexOf(holeConvexHull[next])
+            chVertex + 1 == nextChVertex
+        }) 1 else -1
     for (i in holeConvexHull.indices) {
         val next = (i + 1) % holeConvexHull.size
         val chVertex = hole.vertices.indexOf(holeConvexHull[i])
         val nextChVertex = hole.vertices.indexOf(holeConvexHull[next])
-        // Some vertices are missing in convex hole
-        if ((abs(nextChVertex - chVertex) + hole.vertices.size) % hole.vertices.size != 1) {
-            // Find direction
-            val missingEdges = (nextChVertex - chVertex + hole.vertices.size) % hole.vertices.size
-            val step = if (missingEdges < hole.vertices.size / 2) 1 else -1
+        // Check not neighbour vertices
+        if (!(abs(nextChVertex - chVertex) == 1 || setOf(chVertex, nextChVertex) == setOf(0, hole.vertices.size - 1))) {
             var holeVerticesIdx: MutableList<Int> = arrayListOf<Int>()
             var currentVertex = chVertex
-            while (currentVertex != (nextChVertex + step + hole.vertices.size) % hole.vertices.size) {
+            while (currentVertex != (nextChVertex + direction + hole.vertices.size) % hole.vertices.size) {
                 holeVerticesIdx.add(currentVertex)
-                currentVertex = (currentVertex + step + hole.vertices.size) % hole.vertices.size
+                currentVertex = (currentVertex + direction + hole.vertices.size) % hole.vertices.size
             }
             var polygon = holeVerticesIdx.map { hole.vertices[it] }.toMutableList()
-            // Some vertices might lie on a single line
-            while (polygon.size >= 4 && abs(triangleArea(polygon.first(), polygon[1], polygon.last())) < EPSILON) {
-                polygon.removeFirst()
-                holeVerticesIdx.removeFirst()
-            }
-            while (polygon.size >= 4 && abs(
-                    triangleArea(
-                        polygon.first(),
-                        polygon[polygon.size - 2],
-                        polygon.last()
-                    )
-                ) < EPSILON
-            ) {
-                polygon.removeLast()
-                holeVerticesIdx.removeLast()
-            }
+
             while (polygon.size >= 4) {
+                // Some vertices might lie on a single line
+                if (abs(triangleArea(polygon.first(), polygon[1], polygon.last())) < EPSILON) {
+                    polygon.removeFirst()
+                    holeVerticesIdx.removeFirst()
+                    continue
+                }
+                if (abs(triangleArea(polygon.first(), polygon[polygon.size - 2], polygon.last())) < EPSILON) {
+                    polygon.removeLast()
+                    holeVerticesIdx.removeLast()
+                }
                 var onLine = false
                 for (k in 1..polygon.size - 2) {
                     // Single line
