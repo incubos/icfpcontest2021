@@ -54,10 +54,21 @@ public class SMTSolverAction implements Action {
                 final long dy = endY - startY;
                 final long squareLength = dx * dx + dy * dy;
 
+                // +- epsilon
+                final long epsilon = (long) (squareLength * state.getOriginalMan().epsilon / 1_000_000.0);
                 builder.append(
                         String.format(
-                                "(assert (= %d (squareLength v%dx v%dy v%dx v%dy) ))\n",
-                                squareLength,
+                                "(assert (>= %d (squareLength v%dx v%dy v%dx v%dy) ))\n",
+                                squareLength + epsilon,
+                                edge.start,
+                                edge.start,
+                                edge.end,
+                                edge.end));
+
+                builder.append(
+                        String.format(
+                                "(assert (<= %d (squareLength v%dx v%dy v%dx v%dy) ))\n",
+                                squareLength - epsilon,
                                 edge.start,
                                 edge.start,
                                 edge.end,
@@ -148,7 +159,7 @@ public class SMTSolverAction implements Action {
             process.getOutputStream().write(smt.getBytes(StandardCharsets.UTF_8));
             process.getOutputStream().close();
 
-            if (!process.waitFor(10, TimeUnit.SECONDS)) {
+            if (!process.waitFor(1, TimeUnit.MINUTES)) {
                 log.error("SAT solver timed out");
                 process.destroy();
                 process.destroyForcibly();
