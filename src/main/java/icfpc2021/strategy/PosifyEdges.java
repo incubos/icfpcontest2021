@@ -79,8 +79,8 @@ public class PosifyEdges implements Strategy {
             System.out.println("Spotify edges failed to find combination");
             return Collections.emptyList();
         }
-        return verticesFixes.entrySet().stream().map(entry -> {
-            Integer v = entry.getKey();
+        return verticesFixes.int2ObjectEntrySet().stream().map(entry -> {
+            int v = entry.getIntKey();
             return new MoveVertexToGridAction(v, entry.getValue().move(figure.vertices.get(v)));
         }).collect(Collectors.toList());
     }
@@ -144,7 +144,7 @@ public class PosifyEdges implements Strategy {
                     return search;
                 }
             }
-            Int2ObjectArrayMap<GridDirection> newAssignment = new Int2ObjectArrayMap<>();
+            Int2ObjectArrayMap<GridDirection> newAssignment = new Int2ObjectArrayMap<>(verticesAssigned);
             newAssignment.put(edge.start, start);
             newAssignment.put(edge.end, end);
             Int2ObjectArrayMap<GridDirection> search = searchVerticesFixes(edgesOrder, i + 1, fixes, newAssignment, edges);
