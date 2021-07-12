@@ -9,6 +9,8 @@ import static icfpc2021.actions.AutoCenterAction.figureCenter;
 import static icfpc2021.geom.PCAKt.principalComponents;
 
 public class AutoRotateAction implements Action {
+    public static final int ANGLE = 5;
+
     @Override
     public Figure apply(State state, Figure figure) {
         try {
@@ -20,7 +22,7 @@ public class AutoRotateAction implements Action {
             double cos = (mainDirectionFigure.x * mainDirectionHole.x + mainDirectionFigure.y * mainDirectionHole.y) /
                     (length(mainDirectionHole) * length(mainDirectionFigure));
             var rads = Math.acos(Math.min(1.0, Math.max(-1.0, cos)));
-            var degrees = Math.toDegrees(rads);
+            var degrees = Math.floor(Math.toDegrees(rads) / ANGLE) * ANGLE;
             Vertex centerVertex = figureCenter(figure.vertices);
             return Action.checked(new RotateAction(centerVertex.x, centerVertex.y, -degrees)).apply(state, figure);
         } catch (Exception e) {

@@ -59,6 +59,8 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
     fun maxX() = max(man.figure.vertices.maxOf { it.x }, hole.vertices.maxOf { it.x })
     fun minY() = min(man.figure.vertices.minOf { it.y }, hole.vertices.minOf { it.y })
     fun maxY() = max(man.figure.vertices.maxOf { it.y }, hole.vertices.maxOf { it.y })
+    fun minCs() = min(minX(), minY())
+    fun maxCs() = max(maxX(), maxY())
 
     fun findVertex(vertices: List<Vertex>, realX: Double, realY: Double, precision: Double = 2.0): Int? {
         return vertices.indices.map {
