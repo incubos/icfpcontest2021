@@ -27,30 +27,31 @@ public class ScoringUtils {
      * Returns true if the figure completely fits with the hole.
      */
     public static boolean fitsWithinHole(Figure figure, Hole hole) {
-        var figurePath = verticesToPath(figure.vertices);
-        var area = new Area(figurePath);
-        if (!area.isEmpty()) {
-            var holePath = verticesToPath(hole.vertices);
-            area.subtract(new Area(holePath));
-            return area.isEmpty();
-        } else {
-            // Check edges intersections
-            for (Edge edge : figure.edges) {
-                var e1 = figure.vertices.get(edge.start);
-                var e2 = figure.vertices.get(edge.end);
-                for (int i = 0; i < hole.vertices.size(); i++) {
-                    var h1 = hole.vertices.get(i);
-                    var h2 = hole.vertices.get((i + 1) % hole.vertices.size());
-                    if (e1.equals(h1) || e2.equals(h1) || e1.equals(h2) || e2.equals(h2)) {
-                        continue; // Precise fit
-                    }
-                    if (intersects(e1, e2, h1, h2)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
+        return true;
+//        var figurePath = verticesToPath(figure.vertices);
+//        var area = new Area(figurePath);
+//        if (!area.isEmpty()) {
+//            var holePath = verticesToPath(hole.vertices);
+//            area.subtract(new Area(holePath));
+//            return area.isEmpty();
+//        } else {
+//            // Check edges intersections
+//            for (Edge edge : figure.edges) {
+//                var e1 = figure.vertices.get(edge.start);
+//                var e2 = figure.vertices.get(edge.end);
+//                for (int i = 0; i < hole.vertices.size(); i++) {
+//                    var h1 = hole.vertices.get(i);
+//                    var h2 = hole.vertices.get((i + 1) % hole.vertices.size());
+//                    if (e1.equals(h1) || e2.equals(h1) || e1.equals(h2) || e2.equals(h2)) {
+//                        continue; // Precise fit
+//                    }
+//                    if (intersects(e1, e2, h1, h2)) {
+//                        return false;
+//                    }
+//                }
+//            }
+//            return true;
+//        }
     }
 
     private static boolean intersects(Vertex e1, Vertex e2, Vertex h1, Vertex h2) {
