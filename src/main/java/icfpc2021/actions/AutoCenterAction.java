@@ -1,6 +1,5 @@
 package icfpc2021.actions;
 
-import icfpc2021.ScoringUtils;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
@@ -14,7 +13,7 @@ public class AutoCenterAction implements Action {
     @Override
     public Figure apply(State state, Figure figure) {
         var figureCenterCoords = figureCenter(convexHull(figure.vertices));
-        var holeCenterCoords = figureCenter(state.getHoleConvexHull());
+        var holeCenterCoords = figureCenter(state.getHole().holeConvexHull());
         var dx = holeCenterCoords.x - figureCenterCoords.x;
         var dy = holeCenterCoords.y - figureCenterCoords.y;
         return Action.checked(new MoveAction(dx, dy)).apply(state, figure);

@@ -63,10 +63,9 @@ class Triangulate {
 
 fun triangulateHolesInHole(
     hole: Hole,
-    holeConvexHull: List<Vertex> = convexHull(hole.vertices)
+    holeConvexHull: List<Vertex>
 ): List<Triangle> {
     val result = arrayListOf<Triangle>()
-    val holeConvexHullIndx = holeConvexHull.map { hole.vertices.indexOf(it) }
     val direction = if (holeConvexHull.indices.any { i ->
             val next = (i + 1) % holeConvexHull.size
             val chVertex = hole.vertices.indexOf(holeConvexHull[i])

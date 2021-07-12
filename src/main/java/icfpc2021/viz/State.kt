@@ -29,10 +29,6 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
             epsilon = originalMan.epsilon
         }
 
-    val holeConvexHull = convexHull(hole.vertices)
-    val holeTriangulation: List<Triangle> by lazy { Triangulate.triangulate(hole.vertices) }
-    val holesInHoleTriangulation: List<Triangle> by lazy { triangulateHolesInHole(hole, holeConvexHull) }
-
     var selectedVertex: Int? = null
     var actionInProcess: String? = null // TODO fix me!
 

@@ -37,7 +37,7 @@ class TriangulateTest {
             val taskName = String.format("%03d.json", i)
             val problemPath = Path.of("problems", taskName)
             val task = Task.fromJsonFile(problemPath)
-            triangulateHolesInHole(task.hole)
+            triangulateHolesInHole(task.hole, task.hole.holeConvexHull())
         }
         Assert.assertTrue(true)
     }
@@ -53,7 +53,8 @@ class TriangulateTest {
             Vertex(49.0, 16.0),
             Vertex(58.0, 0.0)
         )
-        triangulateHolesInHole(Hole(vertices))
+        val hole = Hole(vertices)
+        triangulateHolesInHole(hole, hole.holeConvexHull())
     }
 
     // Point on the edge
@@ -138,7 +139,8 @@ class TriangulateTest {
             Vertex(65.0, 25.0),
             Vertex(65.0, 60.0)
         )
-        val holesInHole = triangulateHolesInHole(Hole(hv))
+        val hole = Hole(hv)
+        val holesInHole = triangulateHolesInHole(hole, hole.holeConvexHull())
         Assert.assertEquals(
             listOf(
                 Triangle(a = 0, b = 2, c = 1),

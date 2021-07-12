@@ -12,7 +12,7 @@ public class AutoRotateAction implements Action {
     @Override
     public Figure apply(State state, Figure figure) {
         try {
-            var pcaHole = principalComponents(state.getHoleConvexHull());
+            var pcaHole = principalComponents(state.getHole().holeConvexHull());
             var figureConvexHull = convexHull(figure.vertices);
             var pcaFigure = principalComponents(figureConvexHull);
             var mainDirectionHole = pcaHole.get(0);

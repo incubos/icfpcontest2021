@@ -65,7 +65,7 @@ public class SMTSolverAction implements Action {
             }
 
             builder.append("; Vertices inside hole\n");
-            final List<Triangle> triangles = state.getHoleTriangulation();
+            final List<Triangle> triangles = state.getHole().holesInHoleTriangulation();
             for (int v = 0; v < state.getHole().vertices.size(); v++) {
                 final List<String> clauses = new ArrayList<>(triangles.size());
                 for (final Triangle triangle : triangles) {
@@ -80,7 +80,7 @@ public class SMTSolverAction implements Action {
             }
 
             builder.append("; Edges inside hole\n");
-            final List<Triangle> blockedTriangles = state.getHolesInHoleTriangulation();
+            final List<Triangle> blockedTriangles = state.getHole().holesInHoleTriangulation();
             for (final Edge edge : state.getOriginalMan().figure.edges) {
                 for (final Triangle triangle : blockedTriangles) {
                     builder.append(

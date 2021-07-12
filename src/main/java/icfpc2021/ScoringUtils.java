@@ -31,7 +31,7 @@ public class ScoringUtils {
             return false;
         }
         // Check holes in hole intersection
-        List<Triangle> holesInHoleTriangles = TriangulateKt.triangulateHolesInHole(hole, convexHull(hole.vertices));
+        List<Triangle> holesInHoleTriangles = hole.holesInHoleTriangulation();
         if (figure.edges.stream().anyMatch(e -> {
             Vertex x1 = figure.vertices.get(e.start);
             var x1x = x1.x;
@@ -101,7 +101,7 @@ public class ScoringUtils {
     }
 
     public static List<Integer> listNotFitting(Figure figure, Hole hole) {
-        List<Triangle> holesTriangles = Triangulate.Companion.triangulate(hole.vertices);
+        List<Triangle> holesTriangles =  hole.holeTriangulation();
         return IntStream.range(0, figure.vertices.size()).filter(
                 vI -> {
                     var v = figure.vertices.get(vI);
