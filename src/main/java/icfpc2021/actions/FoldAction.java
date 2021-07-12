@@ -4,14 +4,15 @@ import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
+import it.unimi.dsi.fastutil.ints.*;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class FoldAction implements Action {
 
-    public static final ArrayList<Integer> EMPTY_ARRAY = new ArrayList<>();
+    public static final IntList EMPTY_ARRAY = IntLists.EMPTY_LIST;
 
     static class Axis {
         final Vertex start;
@@ -114,7 +115,7 @@ public class FoldAction implements Action {
         }
         Axis axis = new Axis(figure.vertices.get(vertex1), figure.vertices.get(vertex2));
 
-        Set<Integer> excludedNodes = new HashSet<>();
+        IntSet excludedNodes = new IntOpenHashSet();
         excludedNodes.add(vertex1);
         excludedNodes.add(vertex2);
         for (int i = 0; i < figure.vertices.size(); i++) {
@@ -134,20 +135,20 @@ public class FoldAction implements Action {
     }
 
     private boolean canApply(
-            Map<Integer, List<Integer>> edges,
-            Set<Integer> excludedNodes,
+            Int2ObjectArrayMap<IntList> edges,
+            IntSet excludedNodes,
             int numVertices,
             int startVertex) {
-        Set<Integer> visited = new HashSet<>();
+        IntSet visited = new IntOpenHashSet();
 
-        Deque<Integer> queue = new LinkedList<>();
-        queue.add(startVertex);
+        IntArrayFIFOQueue queue = new IntArrayFIFOQueue();
+        queue.enqueue(startVertex);
         while (!queue.isEmpty()) {
-            int vertex = queue.removeFirst();
+            int vertex = queue.dequeueInt();
             // Expand neighbours
-            edges.getOrDefault(vertex, EMPTY_ARRAY).forEach(edge -> {
+            edges.getOrDefault(vertex, EMPTY_ARRAY).stream().forEach(edge -> {
                 if (!excludedNodes.contains(edge) && !visited.contains(edge)) {
-                    queue.addLast(edge);
+                    queue.enqueue(edge);
                 }
             });
 
@@ -162,25 +163,25 @@ public class FoldAction implements Action {
     }
 
     private void bfsSubFigure(
-            Map<Integer, List<Integer>> edges,
+            Int2ObjectArrayMap<IntList> edges,
             List<Vertex> vertices,
             Axis axis,
             int startVertex,
-            Set<Integer> excludedNodes) {
-        Set<Integer> visited = new HashSet<>();
+            IntSet excludedNodes) {
+        IntSet visited = new IntOpenHashSet();
 
-        Deque<Integer> queue = new LinkedList<>();
-        queue.add(startVertex);
+        IntArrayFIFOQueue queue = new IntArrayFIFOQueue();
+        queue.enqueue(startVertex);
         while (!queue.isEmpty()) {
-            int vertex = queue.removeFirst();
+            int vertex = queue.dequeueInt();
             if (excludedNodes.contains(vertex)) {
                 continue;
             }
 
             // Expand neighbours
-            edges.getOrDefault(vertex, EMPTY_ARRAY).forEach(edge -> {
+            edges.getOrDefault(vertex, EMPTY_ARRAY).stream().forEach(edge -> {
                 if (!excludedNodes.contains(edge) && !visited.contains(edge)) {
-                    queue.addLast(edge);
+                    queue.enqueue(edge);
                 }
             });
 
@@ -204,11 +205,11 @@ public class FoldAction implements Action {
         if (vertex1 == vertex2 || vertex1 == subFigureVertex || vertex2 == subFigureVertex) {
             return false;
         }
-        Set<Integer> visited = new HashSet<>();
-        Deque<Integer> queue = new LinkedList<>();
-        queue.add(subFigureVertex);
+        IntSet visited = new IntOpenHashSet();
+        IntArrayFIFOQueue queue = new IntArrayFIFOQueue();
+        queue.enqueue(subFigureVertex);
         while (!queue.isEmpty()) {
-            int vertex = queue.removeFirst();
+            int vertex = queue.dequeueInt();
             // Skip visited
             if (visited.contains(vertex)) {
                 continue;
@@ -223,10 +224,10 @@ public class FoldAction implements Action {
             edges.forEach(edge -> {
                 if (edge.start == vertex && !visited.contains(edge.end) &&
                         edge.end != vertex1 && edge.end != vertex2) {
-                    queue.addLast(edge.end);
+                    queue.enqueue(edge.end);
                 } else if (edge.end == vertex && !visited.contains(edge.start) &&
                         edge.start != vertex1 && edge.start != vertex2) {
-                    queue.addLast(edge.start);
+                    queue.enqueue(edge.start);
                 }
             });
         }

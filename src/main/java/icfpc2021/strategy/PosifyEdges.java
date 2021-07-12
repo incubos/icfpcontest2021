@@ -9,10 +9,15 @@ import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static icfpc2021.ScoringUtils.STAY_IN_GREED;
@@ -29,14 +34,15 @@ public class PosifyEdges implements Strategy {
 
     @Override
     public List<Action> apply(State state, Figure figure) {
-        HashMap<Integer, List<Integer>> adjacencyList = state.getAdjacencyList();
+        Int2ObjectArrayMap<IntList> adjacencyList = state.getAdjacencyList();
         LambdaMan originalMan = state.getOriginalMan();
         return new ArrayList<>(doApply(figure, adjacencyList, originalMan));
     }
 
     @NotNull
-    public List<MoveVertexToGridAction> doApply(Figure figure, HashMap<Integer, List<Integer>> adjacencyList, LambdaMan originalMan) {
-        Map<Integer, List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = collectFixes(figure, originalMan);
+    public List<MoveVertexToGridAction> doApply(Figure figure,
+                                                Int2ObjectArrayMap<IntList> adjacencyList, LambdaMan originalMan) {
+        Int2ObjectArrayMap<List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = collectFixes(figure, originalMan);
         if (nonGridEdgeFixes == null) {
             System.out.println("Non fixable edge found");
             return Collections.emptyList();
@@ -53,7 +59,7 @@ public class PosifyEdges implements Strategy {
         }
 
         // Exponential search, start with top connected edges
-        List<Integer> edgesOrder = nonGridEdgeFixes.keySet().stream().sorted((e1, e2) -> {
+        IntList edgesOrder = new IntArrayList(nonGridEdgeFixes.keySet().stream().sorted((e1, e2) -> {
             if (e1.equals(e2)) {
                 return 0;
             }
@@ -63,10 +69,11 @@ public class PosifyEdges implements Strategy {
                     adjacencyList.get(edge1.end).size()),
                     Math.max(adjacencyList.get(edge2.start).size(),
                             adjacencyList.get(edge2.end).size()));
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList()));
 
-        Map<Integer, GridDirection> verticesFixes =
-                searchVerticesFixes(edgesOrder, 0, nonGridEdgeFixes, Collections.emptyMap(), figure.edges);
+        Int2ObjectArrayMap<GridDirection> verticesFixes =
+                searchVerticesFixes(edgesOrder, 0, nonGridEdgeFixes,
+                        new Int2ObjectArrayMap<>(), figure.edges);
         // Nothing found
         if (verticesFixes == null) {
             System.out.println("Spotify edges failed to find combination");
@@ -82,9 +89,10 @@ public class PosifyEdges implements Strategy {
     /**
      * Returns null if some non-grid edges cannot be posified
      */
-    public static Map<Integer, List<Pair<GridDirection, GridDirection>>> collectFixes(Figure figure, LambdaMan originalMan) {
+    public static Int2ObjectArrayMap<List<Pair<GridDirection, GridDirection>>>
+    collectFixes(Figure figure, LambdaMan originalMan) {
         // Save all valid variants
-        HashMap<Integer, List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = new HashMap<>();
+        Int2ObjectArrayMap<List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = new Int2ObjectArrayMap<>();
 
         final double[] originalEdgesLength = ScoringUtils.edgeSquareLengthsFrom(
                 originalMan.figure.vertices, originalMan.figure.edges);
@@ -111,16 +119,16 @@ public class PosifyEdges implements Strategy {
     /**
      * Returns map vertex -> fix, or null if nothing found
      */
-    Map<Integer, GridDirection>
-    searchVerticesFixes(List<Integer> edgesOrder,
+    Int2ObjectArrayMap<GridDirection>
+    searchVerticesFixes(IntList edgesOrder,
                         int i,
-                        Map<Integer, List<Pair<GridDirection, GridDirection>>> fixes,
-                        Map<Integer, GridDirection> verticesAssigned,
+                        Int2ObjectArrayMap<List<Pair<GridDirection, GridDirection>>> fixes,
+                        Int2ObjectArrayMap<GridDirection> verticesAssigned,
                         List<Edge> edges) {
         if (i == edges.size()) {
             return verticesAssigned;
         }
-        Edge edge = edges.get(edgesOrder.get(i));
+        Edge edge = edges.get(edgesOrder.getInt(i));
         List<Pair<GridDirection, GridDirection>> edgeFixes = fixes.get(edgesOrder.get(i));
         for (Pair<GridDirection, GridDirection> edgeFix : edgeFixes) {
             GridDirection start = edgeFix.getFirst();
@@ -131,15 +139,15 @@ public class PosifyEdges implements Strategy {
                 continue;
             }
             if (startAssigned == start && endAssigned == end) {
-                Map<Integer, GridDirection> search = searchVerticesFixes(edgesOrder, i + 1, fixes, verticesAssigned, edges);
+                Int2ObjectArrayMap<GridDirection> search = searchVerticesFixes(edgesOrder, i + 1, fixes, verticesAssigned, edges);
                 if (search != null) {
                     return search;
                 }
             }
-            HashMap<Integer, GridDirection> newAssignment = new HashMap<>(verticesAssigned);
+            Int2ObjectArrayMap<GridDirection> newAssignment = new Int2ObjectArrayMap<GridDirection>();
             newAssignment.put(edge.start, start);
             newAssignment.put(edge.end, end);
-            Map<Integer, GridDirection> search = searchVerticesFixes(edgesOrder, i + 1, fixes, newAssignment, edges);
+            Int2ObjectArrayMap<GridDirection> search = searchVerticesFixes(edgesOrder, i + 1, fixes, newAssignment, edges);
             if (search != null) {
                 return search;
             }

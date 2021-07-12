@@ -5,6 +5,9 @@ import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 import java.util.*;
 import java.util.function.Function;
@@ -88,21 +91,21 @@ public class PushVertexAction implements Action {
             List<Edge> edges,
             int startVertex,
             Function<Integer, Boolean> processVertexAndContinue) throws IllegalStateException {
-        Set<Integer> visited = new HashSet<>();
+        IntSet visited = new IntOpenHashSet();
         // Do not process start vertex
         visited.add(startVertex);
 
-        Deque<Integer> queue = new LinkedList<>();
-        queue.add(startVertex);
+        IntArrayFIFOQueue queue = new IntArrayFIFOQueue();
+        queue.enqueue(startVertex);
         while (!queue.isEmpty()) {
-            int vertex = queue.removeFirst();
+            int vertex = queue.dequeueInt();
 
             // Expand neighbours
             edges.forEach(edge -> {
                 if (edge.start == vertex && !visited.contains(edge.end)) {
-                    queue.addLast(edge.end);
+                    queue.enqueue(edge.end);
                 } else if (edge.end == vertex && !visited.contains(edge.start)) {
-                    queue.addLast(edge.start);
+                    queue.enqueue(edge.start);
                 }
             });
 

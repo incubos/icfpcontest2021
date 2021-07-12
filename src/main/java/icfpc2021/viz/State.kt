@@ -1,14 +1,15 @@
 package icfpc2021.viz
 
 import icfpc2021.actions.Action
-import icfpc2021.convexHull
-import icfpc2021.geom.Triangle
-import icfpc2021.geom.Triangulate
-import icfpc2021.geom.triangulateHolesInHole
-import icfpc2021.model.*
+import icfpc2021.model.Figure
+import icfpc2021.model.Hole
+import icfpc2021.model.LambdaMan
+import icfpc2021.model.Vertex
 import icfpc2021.strategy.Strategy
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntList
 import java.nio.file.Path
-import java.util.HashMap
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -79,13 +80,13 @@ class State(val hole: Hole, val originalMan: LambdaMan, val taskName: String, va
     }
 
     companion object {
-        fun computeAdjacencyList(figure: Figure): HashMap<Int, MutableList<Int>> {
-            val map = HashMap<Int, MutableList<Int>>()
+        fun computeAdjacencyList(figure: Figure): Int2ObjectArrayMap<IntList> {
+            val map = Int2ObjectArrayMap<IntList>()
             figure.edges.forEach { elem ->
-                val start = map.getOrDefault(elem.start, arrayListOf())
+                val start = map.getOrDefault(elem.start, IntArrayList())
                 start.add(elem.end)
                 map[elem.start] = start
-                val end = map.getOrDefault(elem.end, arrayListOf())
+                val end = map.getOrDefault(elem.end, IntArrayList())
                 end.add(elem.start)
                 map[elem.end] = end
             }
