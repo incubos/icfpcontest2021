@@ -1,87 +1,123 @@
 package icfpc2021;
 
 import icfpc2021.geom.GridDirection;
+import icfpc2021.geom.Triangle;
+import icfpc2021.geom.Triangulate;
+import icfpc2021.geom.TriangulateKt;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Hole;
 import icfpc2021.model.Vertex;
 import org.apache.commons.math3.util.Pair;
 
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static icfpc2021.ConvexHullKt.counterClockWise;
+import static icfpc2021.ConvexHullKt.convexHull;
 
 public class ScoringUtils {
     private static final double COORDINATE_PRECISION = 0.001;
     public static final Pair<GridDirection, GridDirection> STAY_IN_GREED =
             Pair.create(GridDirection.IN_GRID, GridDirection.IN_GRID);
 
-    public static boolean isEmpty(List<Vertex> vertices) {
-        return new Area(verticesToPath(vertices)).isEmpty();
-    }
-
     /**
      * Returns true if the figure completely fits with the hole.
      */
     public static boolean fitsWithinHole(Figure figure, Hole hole) {
+        // Check all vertices in hole
+        if (!listNotFitting(figure, hole).isEmpty()) {
+            return false;
+        }
+        // Check holes in hole intersection
+        List<Triangle> holesInHoleTriangles = TriangulateKt.triangulateHolesInHole(hole, convexHull(hole.vertices));
+        if (figure.edges.stream().anyMatch(e -> {
+            Vertex x1 = figure.vertices.get(e.start);
+            var x1x = x1.x;
+            var x1y = x1.y;
+            Vertex x2 = figure.vertices.get(e.end);
+            var x2x = x2.x;
+            var x2y = x2.y;
+
+            return holesInHoleTriangles.stream().anyMatch(t -> {
+                        var a = hole.vertices.get(t.getA());
+                        var b = hole.vertices.get(t.getB());
+                        var c = hole.vertices.get(t.getC());
+                        var ax = a.x;
+                        var ay = a.y;
+                        var bx = b.x;
+                        var by = b.y;
+                        var cx = c.x;
+                        var cy = c.y;
+                        boolean intersectsTriangle = edgeIntersectsTriangle(ax, ay, bx, by, cx, cy, x1x, x1y, x2x, x2y);
+//                        if (intersectsTriangle) {
+//                            System.out.println("Figure edge " + e.start + "(" + x1x + ", " + x1y + "), " +
+//                                    e.end + "(" + x2x + ", " + x2y + ") " +
+//                                    "intersects with outer boundary " +
+//                                    t.getA() + "(" + ax + ", " + bx + "), " +
+//                                    t.getB() + "(" + bx + ", " + bx + "), " +
+//                                    t.getC() + "(" + cx + ", " + cx + ")");
+//                        }
+                        return intersectsTriangle;
+                    }
+            );
+        })) {
+            return false;
+        }
         return true;
-//        var figurePath = verticesToPath(figure.vertices);
-//        var area = new Area(figurePath);
-//        if (!area.isEmpty()) {
-//            var holePath = verticesToPath(hole.vertices);
-//            area.subtract(new Area(holePath));
-//            return area.isEmpty();
-//        } else {
-//            // Check edges intersections
-//            for (Edge edge : figure.edges) {
-//                var e1 = figure.vertices.get(edge.start);
-//                var e2 = figure.vertices.get(edge.end);
-//                for (int i = 0; i < hole.vertices.size(); i++) {
-//                    var h1 = hole.vertices.get(i);
-//                    var h2 = hole.vertices.get((i + 1) % hole.vertices.size());
-//                    if (e1.equals(h1) || e2.equals(h1) || e1.equals(h2) || e2.equals(h2)) {
-//                        continue; // Precise fit
-//                    }
-//                    if (intersects(e1, e2, h1, h2)) {
-//                        return false;
-//                    }
-//                }
-//            }
-//            return true;
-//        }
     }
 
-    private static boolean intersects(Vertex e1, Vertex e2, Vertex h1, Vertex h2) {
-        return counterClockWise(e1, e2, h1) != counterClockWise(e1, e2, h2) &&
-                counterClockWise(h1, h2, e1) != counterClockWise(h1, h2, e2);
+    /**
+     * The same formula as in header.smt
+     */
+    public static boolean edgeIntersectsTriangle(double ax, double ay,
+                                                 double bx, double by,
+                                                 double cx, double cy,
+                                                 double x1x, double x1y,
+                                                 double x2x, double x2y) {
+//        return
+//                direction(ax, ay, bx, by, x1x, x1y) < -EPSILON ^ direction(ax, ay, bx, by, x2x, x2y) < -EPSILON &&
+//                        direction(x1x, x1y, x2x, x2y, ax, ay) < -EPSILON ^ direction(x1x, x1y, x2x, x2y, bx, by) < -EPSILON
+//                        ||
+//                        direction(bx, by, cx, cy, x1x, x1y) < -EPSILON ^ direction(bx, by, cx, cy, x2x, x2y) < -EPSILON &&
+//                                direction(x1x, x1y, x2x, x2y, bx, by) < -EPSILON ^ direction(x1x, x1y, x2x, x2y, cx, cy) < -EPSILON
+//                        ||
+//                        direction(cx, cy, ax, ay, x1x, x1y) < -EPSILON ^ direction(cx, cy, ax, ay, x2x, x2y) < -EPSILON &&
+//                                direction(x1x, x1y, x2x, x2y, cx, cy) < -EPSILON ^ direction(x1x, x1y, x2x, x2y, ax, ay) < -EPSILON;
+        return
+                direction(ax, ay, bx, by, x1x, x1y) * direction(ax, ay, bx, by, x2x, x2y) < 0 &&
+                        direction(x1x, x1y, x2x, x2y, ax, ay) * direction(x1x, x1y, x2x, x2y, bx, by) < 0
+                        ||
+                        direction(bx, by, cx, cy, x1x, x1y) * direction(bx, by, cx, cy, x2x, x2y) < 0 &&
+                                direction(x1x, x1y, x2x, x2y, bx, by) * direction(x1x, x1y, x2x, x2y, cx, cy) < 0
+                        ||
+                        direction(cx, cy, ax, ay, x1x, x1y) * direction(cx, cy, ax, ay, x2x, x2y) < 0 &&
+                                direction(x1x, x1y, x2x, x2y, cx, cy) * direction(x1x, x1y, x2x, x2y, ax, ay) < 0;
+    }
+
+    private static double direction(double ax, double ay, double bx, double by, double cx, double cy) {
+        return ax * by - ay * bx + ay * cx - ax * cy + bx * cy - cx * by;
     }
 
     public static List<Integer> listNotFitting(Figure figure, Hole hole) {
-        var holePath = verticesToPath(hole.vertices);
-        var area = new Area(holePath);
-        ArrayList<Integer> notFitting = new ArrayList<>();
-        for (int i = 0; i < figure.vertices.size(); i++) {
-            Vertex vertex = figure.vertices.get(i);
-            if (!area.contains(vertex.x, vertex.y)) {
-                notFitting.add(i);
-            }
-        }
-        return notFitting;
-    }
-
-    private static Path2D verticesToPath(List<Vertex> vertices) {
-        var path = new Path2D.Double();
-        var firstVertex = vertices.get(0);
-        path.moveTo(firstVertex.x, firstVertex.y);
-        for (int i = 1; i < vertices.size(); i++) {
-            var vertex = vertices.get(i);
-            path.lineTo(vertex.x, vertex.y);
-        }
-        path.closePath();
-        return path;
+        List<Triangle> holesTriangles = Triangulate.Companion.triangulate(hole.vertices);
+        return IntStream.range(0, figure.vertices.size()).filter(
+                vI -> {
+                    var v = figure.vertices.get(vI);
+                    boolean found = holesTriangles.stream().anyMatch(
+                            t -> {
+                                Vertex a = hole.vertices.get(t.getA());
+                                Vertex b = hole.vertices.get(t.getB());
+                                Vertex c = hole.vertices.get(t.getC());
+                                return Triangulate.Companion.pointInTriangle(v, a, b, c);
+                            });
+//                    if (!found) {
+//                        System.out.println("Figure vertex " + figure.vertices.indexOf(v) +
+//                                " (" + v.x + ", " + v.y + ") out of any hole triangles");
+//                    }
+                    return !found;
+                }).boxed().collect(Collectors.toList());
     }
 
     /**

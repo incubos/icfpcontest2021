@@ -11,7 +11,7 @@ data class Triangle(val a: Int, val b: Int, val c: Int)
 class Triangulate {
     companion object {
 
-        private fun pointInTriangle(p: Vertex, a: Vertex, b: Vertex, c: Vertex): Boolean {
+        fun pointInTriangle(p: Vertex, a: Vertex, b: Vertex, c: Vertex): Boolean {
             if (counterClockWise(a, b, p)) return false
             if (counterClockWise(b, c, p)) return false
             return !counterClockWise(c, a, p)

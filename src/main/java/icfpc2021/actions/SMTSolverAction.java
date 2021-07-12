@@ -1,6 +1,5 @@
 package icfpc2021.actions;
 
-import icfpc2021.ScoringUtils;
 import icfpc2021.geom.Triangle;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
@@ -70,14 +69,6 @@ public class SMTSolverAction implements Action {
             for (int v = 0; v < state.getHole().vertices.size(); v++) {
                 final List<String> clauses = new ArrayList<>(triangles.size());
                 for (final Triangle triangle : triangles) {
-                    if (ScoringUtils.isEmpty(
-                            List.of(
-                                    state.getHole().vertices.get(triangle.getA()),
-                                    state.getHole().vertices.get(triangle.getB()),
-                                    state.getHole().vertices.get(triangle.getC())))) {
-                        continue;
-                    }
-
                     clauses.add(String.format(
                             "(insideTriangle h%dx h%dy h%dx h%dy h%dx h%dy v%dx v%dy)\n",
                             triangle.component1(), triangle.component1(),
@@ -92,14 +83,6 @@ public class SMTSolverAction implements Action {
             final List<Triangle> blockedTriangles = state.getHolesInHoleTriangulation();
             for (final Edge edge : state.getOriginalMan().figure.edges) {
                 for (final Triangle triangle : blockedTriangles) {
-                    if (ScoringUtils.isEmpty(
-                            List.of(
-                                    state.getHole().vertices.get(triangle.getA()),
-                                    state.getHole().vertices.get(triangle.getB()),
-                                    state.getHole().vertices.get(triangle.getC())))) {
-                        continue;
-                    }
-
                     builder.append(
                             String.format(
                                     "(assert (not (edgeIntersectsTriangle h%dx h%dy h%dx h%dy h%dx h%dy v%dx v%dy v%dx v%dy) ))\n",
