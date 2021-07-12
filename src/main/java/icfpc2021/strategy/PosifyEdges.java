@@ -125,11 +125,11 @@ public class PosifyEdges implements Strategy {
                         Int2ObjectArrayMap<List<Pair<GridDirection, GridDirection>>> fixes,
                         Int2ObjectArrayMap<GridDirection> verticesAssigned,
                         List<Edge> edges) {
-        if (i == edges.size()) {
+        if (i == edgesOrder.size()) {
             return verticesAssigned;
         }
         Edge edge = edges.get(edgesOrder.getInt(i));
-        List<Pair<GridDirection, GridDirection>> edgeFixes = fixes.get(edgesOrder.get(i));
+        List<Pair<GridDirection, GridDirection>> edgeFixes = fixes.get(edgesOrder.getInt(i));
         for (Pair<GridDirection, GridDirection> edgeFix : edgeFixes) {
             GridDirection start = edgeFix.getFirst();
             GridDirection end = edgeFix.getSecond();
@@ -144,7 +144,7 @@ public class PosifyEdges implements Strategy {
                     return search;
                 }
             }
-            Int2ObjectArrayMap<GridDirection> newAssignment = new Int2ObjectArrayMap<GridDirection>();
+            Int2ObjectArrayMap<GridDirection> newAssignment = new Int2ObjectArrayMap<>();
             newAssignment.put(edge.start, start);
             newAssignment.put(edge.end, end);
             Int2ObjectArrayMap<GridDirection> search = searchVerticesFixes(edgesOrder, i + 1, fixes, newAssignment, edges);
