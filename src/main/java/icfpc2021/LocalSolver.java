@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class LocalSolver {
 
-    public static final List<Strategy> STRATEGIES = List.of(new AutoCenterStrategy(), new AutoKutuzoffStrategy(), new SolverStrategy());
+    public static final List<Strategy> STRATEGIES = List.of(new AutoCenterStrategy(), new SolverStrategy(), new AutoKutuzoffStrategy());
     private static final Logger log = LoggerFactory.getLogger(LocalSolver.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
 

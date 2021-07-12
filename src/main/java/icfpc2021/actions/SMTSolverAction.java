@@ -148,7 +148,7 @@ public class SMTSolverAction implements Action {
             process.getOutputStream().write(smt.getBytes(StandardCharsets.UTF_8));
             process.getOutputStream().close();
 
-            if (!process.waitFor(1, TimeUnit.MINUTES)) {
+            if (!process.waitFor(10, TimeUnit.SECONDS)) {
                 log.error("SAT solver timed out");
                 process.destroy();
                 process.destroyForcibly();
