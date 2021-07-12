@@ -2,8 +2,10 @@ package icfpc2021.actions;
 
 import icfpc2021.ScoringUtils;
 import icfpc2021.model.Figure;
+import icfpc2021.model.Hole;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,12 @@ public class FullPosifyAction implements Action {
 
     @Override
     public Figure apply(State state, Figure figure) {
+        Hole hole = state.getHole();
+        return doApply(figure, hole);
+    }
+
+    @NotNull
+    public Figure doApply(Figure figure, Hole hole) {
         // Analyze avg fraction over all the vertices
         double dx = 0.0;
         double dy = 0.0;
@@ -54,7 +62,7 @@ public class FullPosifyAction implements Action {
 
             // Check that fits the hole
             final Figure result = figure.withVertices(vertices);
-            if (!ScoringUtils.fitsWithinHole(result, state.getHole())) {
+            if (!ScoringUtils.fitsWithinHole(result, hole)) {
                 continue;
             }
 

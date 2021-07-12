@@ -3,6 +3,7 @@ package icfpc2021.actions;
 import icfpc2021.model.Figure;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
@@ -24,6 +25,11 @@ public class MoveVertexToGridAction implements Action {
 
     @Override
     public Figure apply(State state, Figure figure) {
+        return doApply(figure);
+    }
+
+    @NotNull
+    public Figure doApply(Figure figure) {
         List<Vertex> vertices = new ArrayList<>(figure.vertices);
         vertices.set(v, gridVertex);
         return new Figure(vertices, figure.edges);

@@ -91,7 +91,7 @@ public class MousePickingInputHandler extends AbstractMouseInputHandler implemen
             }
 
             if (body != null) {
-                this.mouseHandle = new PinJoint<SimulationBody>(body, new Vector2(p.x, p.y), 8.0, 0.2, 1000);
+                this.mouseHandle = new PinJoint<SimulationBody>(body, new Vector2(p.x, p.y), 8.0, 0.2, 10000);
                 this.world.addJoint(this.mouseHandle);
                 return true;
             }

@@ -24,11 +24,17 @@
  */
 package icfpc2021.physics.framework;
 
-import icfpc2021.model.Edge;
-import icfpc2021.model.Task;
-import icfpc2021.model.Vertex;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import icfpc2021.ScoringUtils;
+import icfpc2021.actions.*;
+import icfpc2021.model.*;
+import icfpc2021.strategy.PosifyEdges;
+import icfpc2021.viz.State;
 import org.dyn4j.collision.AxisAlignedBounds;
+import org.dyn4j.dynamics.AbstractPhysicsBody;
 import org.dyn4j.dynamics.joint.Joint;
+import org.dyn4j.dynamics.joint.PinJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
@@ -38,10 +44,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -64,6 +70,8 @@ public class Ragdoll extends SimulationFrame {
     AtomicBoolean printKeyPressed = new AtomicBoolean(false);
     AtomicBoolean elasticRopes = new AtomicBoolean(false);
     AtomicBoolean rigidRopes = new AtomicBoolean(false);
+    AtomicBoolean superRigidRopes = new AtomicBoolean(false);
+    AtomicBoolean pacifyButton = new AtomicBoolean(false);
 
     Task task;
     Path problemPath;
@@ -83,6 +91,14 @@ public class Ragdoll extends SimulationFrame {
                 case KeyEvent.VK_R:
                     System.out.println(rigidRopes.get());
                     rigidRopes.set(true);
+                    break;
+                case KeyEvent.VK_S:
+                    System.out.println(superRigidRopes.get());
+                    superRigidRopes.set(true);
+                    break;
+                case KeyEvent.VK_A:
+                    System.out.println(pacifyButton.get());
+                    pacifyButton.set(!pacifyButton.get());
                     break;
             }
 
@@ -108,8 +124,8 @@ public class Ragdoll extends SimulationFrame {
     protected void render(Graphics2D g, double elapsedTime) {
         Color color = g.getColor();
         g.setColor(Color.GRAY);
-        g.fillPolygon(task.hole.vertices.stream().map(o -> o.x).map(o->this.camera.scale*o).mapToInt(o -> (int) o.intValue()).toArray(),
-                task.hole.vertices.stream().map(o -> o.y).map(o->this.camera.scale*o).mapToInt(o -> (int) o.intValue()).toArray(),
+        g.fillPolygon(task.hole.vertices.stream().map(o -> o.x).map(o -> this.camera.scale * o).mapToInt(o -> (int) o.intValue()).toArray(),
+                task.hole.vertices.stream().map(o -> o.y).map(o -> this.camera.scale * o).mapToInt(o -> (int) o.intValue()).toArray(),
                 task.hole.vertices.size());
         g.setColor(color);
         super.render(g, elapsedTime);
@@ -130,63 +146,89 @@ public class Ragdoll extends SimulationFrame {
         // the ragdoll
 
         // Head
-        Map<Integer,SimulationBody> bodies = new HashMap<>();
-        for (int i =0; i< task.figure.vertices.size();i++) {
+        Map<Integer, SimulationBody> bodies = new HashMap<>();
+        for (int i = 0; i < task.figure.vertices.size(); i++) {
             Vertex vertex = task.figure.vertices.get(i);
-            SimulationBody body = new SimulationBody(i+"", Color.ORANGE);
-            body.addFixture(Geometry.createCircle(0.25));
+            SimulationBody body = new SimulationBody(i, Color.ORANGE);
+            body.addFixture(Geometry.createCircle(0.5));
             body.setMass(MassType.NORMAL);
             body.translate(new Vector2(vertex.x, vertex.y));
             updateMass(body);
             world.addBody(body);
-            bodies.put(i,body);
+            bodies.put(i, body);
         }
-
-
         for (Edge edge : task.figure.edges) {
-            addJoint(bodies.get(edge.start),bodies.get(edge.end), task.epsilon);
+            addJoint(bodies.get(edge.start), bodies.get(edge.end), task.epsilon);
         }
 
         world.setBounds(new AxisAlignedBounds(1000, 1000));
-
-//        SimulationBody d1 = new SimulationBody("d1", Color.BLUE);
-//        d1.addFixture(Geometry.createCircle(0.25));
-//        d1.setMass(MassType.NORMAL);
-//        d1.translate(new Vector2(0, 0));
-//        updateMass(d1);
-//        world.addBody(d1);
-//
-//        SimulationBody d2 = new SimulationBody("d2", Color.BLACK);
-//        d2.addFixture(Geometry.createCircle(0.25));
-//        d2.translate(new Vector2(1, 0));
-//        d2.setMass(MassType.NORMAL);
-//        updateMass(d2);
-//        world.addBody(d2);
-//
-//
-//        SimulationBody d3 = new SimulationBody("d3", Color.GREEN);
-//        d3.addFixture(Geometry.createCircle(0.25));
-//        d3.translate(new Vector2(1, 1));
-//        d3.setMass(MassType.NORMAL);
-//        updateMass(d3);
-//        world.addBody(d3);
-//
-//        addJoint(d1, d2, 0.25);
-//        addJoint(d2, d3, 0.25);
-//        addJoint(d3, d1, 0.25);
     }
 
     public static int id = 0;
+    public static ObjectMapper objectMapper = new ObjectMapper();
 
     private void addJoint(SimulationBody d1, SimulationBody d2, double epsilon) {
         IdRopeJoint d1d2 = new IdRopeJoint(id++, d1, d2, d1.getTransform().getTranslation(), d2.getTransform().getTranslation());
         //dNEW <= (e/1_000_000 +1) * d
-        d1d2.setLowerLimit(Math.sqrt(d1d2.getAnchor1().distanceSquared(d1d2.getAnchor2()) * (1-(epsilon/1_000_000))));
-        d1d2.setUpperLimit(Math.sqrt(d1d2.getAnchor1().distanceSquared(d1d2.getAnchor2()) * (1+(epsilon/1_000_000))));
+        d1d2.setLowerLimit(Math.sqrt(d1d2.getAnchor1().distanceSquared(d1d2.getAnchor2()) * (1 - (epsilon / 1_000_000))));
+        d1d2.setUpperLimit(Math.sqrt(d1d2.getAnchor1().distanceSquared(d1d2.getAnchor2()) * (1 + (epsilon / 1_000_000))));
+        lowerJoints.put(d1d2.id, d1d2.getLowerLimit());
+        upperJoints.put(d1d2.id, d1d2.getUpperLimit());
+        strictJoints.put(d1d2.id, d1d2.getAnchor1().distance(d1d2.getAnchor2()));
         world.addJoint(d1d2);
     }
 
-    ConcurrentHashMap<Integer, Double> joints = new ConcurrentHashMap<Integer, Double>();
+    ConcurrentHashMap<Integer, Double> lowerJoints = new ConcurrentHashMap<Integer, Double>();
+    ConcurrentHashMap<Integer, Double> upperJoints = new ConcurrentHashMap<Integer, Double>();
+    ConcurrentHashMap<Integer, Double> strictJoints = new ConcurrentHashMap<Integer, Double>();
+
+
+    private void posify(List<Vertex> vertices) {
+        Figure figure = new Figure(vertices, this.task.figure.edges);
+        LambdaMan lambdaMan = new LambdaMan();
+        lambdaMan.figure = this.task.figure;
+        lambdaMan.epsilon = this.task.epsilon;
+
+        figure = new FullPosifyAction().doApply(figure,this.task.hole);
+
+        figure = new PosifyAction().doApply(figure, this.task.figure);
+
+        for (MoveVertexToGridAction action : new PosifyEdges().doApply(figure,State.Companion.computeAdjacencyList(task.figure), lambdaMan )) {
+            figure = action.doApply(figure);
+        }
+
+        boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
+        boolean inHole = ScoringUtils.fitsWithinHole(figure, this.task.hole);
+        boolean inGrid = ScoringUtils.isFigureInGrid(figure);
+        System.out.println("Solution " + name);
+        final double[] originalSquareLengths = ScoringUtils.edgeSquareLengthsFrom(lambdaMan.figure.vertices, lambdaMan.figure.edges);
+        System.out.println("Original lengths: " + Arrays.toString(originalSquareLengths));
+        final double[] ourSquareLengths = ScoringUtils.edgeSquareLengthsFrom(figure.vertices, figure.edges);
+        System.out.println("Our lengths: " + Arrays.toString(ourSquareLengths));
+        final int[] epsilons = new int[figure.edges.size()];
+        for (int a = 0; a < epsilons.length; a++) {
+            epsilons[a] = (int) Math.ceil(Math.abs(ourSquareLengths[a] / originalSquareLengths[a] - 1.0) * 1_000_000);
+        }
+        System.out.println("Epsilons: " + Arrays.toString(epsilons));
+        Path solutionPath = Path.of("solutions", name);
+        if (correct && inHole && inGrid) {
+            Pose pose = Pose.fromVertices(figure.vertices);
+            String json = null;
+            try {
+                json = objectMapper.writeValueAsString(pose);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                Files.writeString(solutionPath, json);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        System.out.println("Correct " + correct + "; Fits " + inHole + "; In grid " + inGrid);
+    }
+
+    Set<Joint<SimulationBody>> pinJoints = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
     protected void handleEvents() {
@@ -195,9 +237,13 @@ public class Ragdoll extends SimulationFrame {
         Font helvetica = new Font("Helvetica", Font.BOLD, 24);
         graphics2D.setFont(helvetica);
         if (printKeyPressed.compareAndSet(true, false)) {
+            Map<Integer, Vertex> vertices = new TreeMap<Integer, Vertex>();
             for (SimulationBody body : world.getBodies()) {
+                vertices.put(body.name, new Vertex(body.getTransform().getTranslation().x, body.getTransform().getTranslation().y));
                 System.out.println(body.name + " : " + "x: " + body.getTransform().getTranslation().x + ", y: " + body.getTransform().getTranslation().y);
             }
+            List<Vertex> collect = vertices.entrySet().stream().sorted(Comparator.comparing(o -> o.getKey())).map(o -> o.getValue()).collect(Collectors.toList());
+            posify(collect);
         }
         if (elasticRopes.compareAndSet(true, false)) {
             for (Joint<SimulationBody> joint : world.getJoints()) {
@@ -205,7 +251,6 @@ public class Ragdoll extends SimulationFrame {
                     continue;
                 }
                 IdRopeJoint rj = (IdRopeJoint) joint;
-                joints.put(rj.id, rj.getLowerLimit());
                 rj.setLowerLimit(0);
             }
         }
@@ -215,10 +260,45 @@ public class Ragdoll extends SimulationFrame {
                     continue;
                 }
                 IdRopeJoint rj = (IdRopeJoint) joint;
-                Double lowerLimit = joints.get(rj.id);
+                Double lowerLimit = lowerJoints.get(rj.id);
                 if (lowerLimit != null) {
                     rj.setLowerLimit(lowerLimit);
                 }
+            }
+        }
+        if (pacifyButton.get()) {
+            if (world.getBodies().stream().allMatch(AbstractPhysicsBody::isAtRest)) {
+                pinJoints.forEach(world::removeJoint);
+            } else {
+                for (SimulationBody body : world.getBodies()) {
+                    Vertex thisVertex = new Vertex(body.getTransform().getTranslationX(), body.getTransform().getTranslationY());
+                    List<Vertex> vertices = world.getBodies()
+                            .stream()
+                            .sorted(Comparator.comparing(o -> o.name))
+                            .map(o -> {
+                                return thisVertex;
+                            }).collect(Collectors.toList());
+                    Vertex round = ScoringUtils.round(body.name,
+                            new Vertex(body.getTransform().getTranslationX(),
+                                    body.getTransform().getTranslationY()),
+                            vertices, task.figure.edges, task.figure);
+                    PinJoint<SimulationBody> simulationBodyPinJoint = new PinJoint<>(body, new Vector2(thisVertex.x, thisVertex.y), 8.0, 0.2, 1000);
+                    this.world.addJoint(simulationBodyPinJoint);
+                    pinJoints.add(simulationBodyPinJoint);
+                    simulationBodyPinJoint.setTarget(new Vector2(round.x, round.y));
+
+                }
+            }
+        }
+        if (superRigidRopes.compareAndSet(true, false)) {
+            for (Joint<SimulationBody> joint : world.getJoints()) {
+                if (!(joint instanceof IdRopeJoint)) {
+                    continue;
+                }
+                IdRopeJoint rj = (IdRopeJoint) joint;
+                Double lowerLimit = strictJoints.get(rj.id);
+                rj.setLowerLimit(lowerLimit);
+                rj.setUpperLimit(lowerLimit);
             }
         }
     }

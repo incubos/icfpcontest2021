@@ -6,14 +6,13 @@ import icfpc2021.actions.MoveVertexToGridAction;
 import icfpc2021.geom.GridDirection;
 import icfpc2021.model.Edge;
 import icfpc2021.model.Figure;
+import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Vertex;
 import icfpc2021.viz.State;
 import org.apache.commons.math3.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static icfpc2021.ScoringUtils.STAY_IN_GREED;
@@ -30,7 +29,14 @@ public class PosifyEdges implements Strategy {
 
     @Override
     public List<Action> apply(State state, Figure figure) {
-        Map<Integer, List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = collectFixes(state, figure);
+        HashMap<Integer, List<Integer>> adjacencyList = state.getAdjacencyList();
+        LambdaMan originalMan = state.getOriginalMan();
+        return new ArrayList<>(doApply(figure, adjacencyList, originalMan));
+    }
+
+    @NotNull
+    public List<MoveVertexToGridAction> doApply(Figure figure, HashMap<Integer, List<Integer>> adjacencyList, LambdaMan originalMan) {
+        Map<Integer, List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = collectFixes(figure, originalMan);
         if (nonGridEdgeFixes == null) {
             System.out.println("Non fixable edge found");
             return Collections.emptyList();
@@ -47,7 +53,6 @@ public class PosifyEdges implements Strategy {
         }
 
         // Exponential search, start with top connected edges
-        HashMap<Integer, List<Integer>> adjacencyList = state.getAdjacencyList();
         List<Integer> edgesOrder = nonGridEdgeFixes.keySet().stream().sorted((e1, e2) -> {
             if (e1.equals(e2)) {
                 return 0;
@@ -77,13 +82,13 @@ public class PosifyEdges implements Strategy {
     /**
      * Returns null if some non-grid edges cannot be posified
      */
-    public static Map<Integer, List<Pair<GridDirection, GridDirection>>> collectFixes(State state, Figure figure) {
+    public static Map<Integer, List<Pair<GridDirection, GridDirection>>> collectFixes(Figure figure, LambdaMan originalMan) {
         // Save all valid variants
         HashMap<Integer, List<Pair<GridDirection, GridDirection>>> nonGridEdgeFixes = new HashMap<>();
 
         final double[] originalEdgesLength = ScoringUtils.edgeSquareLengthsFrom(
-                state.getOriginalMan().figure.vertices, state.getOriginalMan().figure.edges);
-        final double threshold = state.getOriginalMan().epsilon / 1_000_000.0;
+                originalMan.figure.vertices, originalMan.figure.edges);
+        final double threshold = originalMan.epsilon / 1_000_000.0;
 
         // Collect edges move variants
         for (int i = 0; i < figure.edges.size(); i++) {
