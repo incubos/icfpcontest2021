@@ -6,8 +6,7 @@ import icfpc2021.viz.State;
 
 public class WiggleAction implements Action {
 
-    // Percentage of grid to move
-    private static final double MOVE_DELTA = 0.1;
+    private static final int MOVE_DELTA = 10;
 
     @Override
     public Figure apply(State state, Figure figure) {
@@ -17,9 +16,8 @@ public class WiggleAction implements Action {
         }
         var minNotFitting = ScoringUtils.listNotFitting(figure, state.getHole()).size();
         Figure minFigure = figure;
-        int moveDelta = (int) Math.round(state.maxCs() - state.minCs() * MOVE_DELTA);
-        for (int x = -moveDelta; x <= moveDelta; x++) {
-            for (int y = -moveDelta; y <= moveDelta; y++) {
+        for (int x = -MOVE_DELTA; x <= MOVE_DELTA; x++) {
+            for (int y = -MOVE_DELTA; y <= MOVE_DELTA; y++) {
                 Action moveAction = Action.checked(new MoveAction(x, y));
                 Figure slightlyMoved = moveAction.apply(state, figure);
                 if (ScoringUtils.fitsWithinHole(slightlyMoved, state.getHole())) {
