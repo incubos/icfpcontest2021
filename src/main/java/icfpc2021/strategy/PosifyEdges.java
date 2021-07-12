@@ -23,7 +23,7 @@ import static icfpc2021.ScoringUtils.getEdgeCorrectRounds;
  */
 public class PosifyEdges implements Strategy {
 
-    private static final int THRESHOLD = 100;
+    private static final int THRESHOLD = 30;
 
     private static List<Pair<GridDirection, GridDirection>> STAY_VARIANTS = List.of(STAY_IN_GREED);
 
