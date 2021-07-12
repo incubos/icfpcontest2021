@@ -14,17 +14,24 @@ public class WiggleAction implements Action {
         if (ScoringUtils.fitsWithinHole(figure, state.getHole())) {
             return figure;
         }
-
+        var minNotFitting = ScoringUtils.listNotFitting(figure, state.getHole()).size();
+        Figure minFigure = figure;
         for (int x = -MOVE_DELTA; x <= MOVE_DELTA; x++) {
             for (int y = -MOVE_DELTA; y <= MOVE_DELTA; y++) {
                 Action moveAction = Action.checked(new MoveAction(x, y));
                 Figure slightlyMoved = moveAction.apply(state, figure);
                 if (ScoringUtils.fitsWithinHole(slightlyMoved, state.getHole())) {
                     return slightlyMoved;
+                } else {
+                    var notFitting = ScoringUtils.listNotFitting(slightlyMoved, state.getHole()).size();
+                    if (notFitting < minNotFitting) {
+                        minNotFitting = notFitting;
+                        minFigure = slightlyMoved;
+                    }
                 }
             }
         }
-        return figure;
+        return minFigure;
     }
 
     @Override
