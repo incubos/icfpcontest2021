@@ -9,6 +9,8 @@ import it.unimi.dsi.fastutil.ints.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FoldAction implements Action {
 
@@ -36,6 +38,10 @@ public class FoldAction implements Action {
             y1 = end.y;
             a = (y0 - y1) / (x0 - x1);
             b = y0 - a * x0;
+        }
+
+        public boolean isVertical() {
+            return x0 == x1 && y0 != y1;
         }
     }
 
@@ -118,10 +124,20 @@ public class FoldAction implements Action {
         IntSet excludedNodes = new IntOpenHashSet();
         excludedNodes.add(vertex1);
         excludedNodes.add(vertex2);
-        for (int i = 0; i < figure.vertices.size(); i++) {
-            Vertex vertex = figure.vertices.get(i);
-            if (axis.a * vertex.x + axis.b == vertex.y) {
-                excludedNodes.add(i);
+        if (axis.isVertical()) {
+            for (int i = 0; i < figure.vertices.size(); i++) {
+                Vertex vertex = figure.vertices.get(i);
+                Vertex v1 = figure.vertices.get(vertex1);
+                if (v1.x == vertex.x && v1.y != vertex.y) {
+                    excludedNodes.add(i);
+                }
+            }
+        } else {
+            for (int i = 0; i < figure.vertices.size(); i++) {
+                Vertex vertex = figure.vertices.get(i);
+                if (axis.a * vertex.x + axis.b == vertex.y) {
+                    excludedNodes.add(i);
+                }
             }
         }
 
