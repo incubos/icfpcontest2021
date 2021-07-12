@@ -1,10 +1,7 @@
 package icfpc2021;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import icfpc2021.actions.Action;
-import icfpc2021.actions.FullPosifyAction;
-import icfpc2021.actions.PosifyAction;
-import icfpc2021.actions.WiggleAction;
+import icfpc2021.actions.*;
 import icfpc2021.model.Figure;
 import icfpc2021.model.LambdaMan;
 import icfpc2021.model.Pose;
@@ -64,7 +61,9 @@ public class LocalSolver {
             }
 
             Figure figure = state.getOriginalMan().figure;
-
+            boolean correct = false;
+            boolean inHole = false;
+            boolean inGrid = false;
             skip: for (Strategy strategy : STRATEGIES) {
                 figure = state.getOriginalMan().figure;
                 for (Action action : strategy.apply(state, figure)) {
@@ -75,12 +74,15 @@ public class LocalSolver {
                     }
                     figure = next;
                 }
+                figure = Action.checked(new WiggleRotateAction()).apply(state, figure);
                 figure = Action.checked(new WiggleAction()).apply(state, figure);
 
                 figure = Action.checked(new FullPosifyAction()).apply(state, figure);
+                figure = Action.checked(new WiggleRotateAction()).apply(state, figure);
                 figure = Action.checked(new WiggleAction()).apply(state, figure);
 
                 figure = Action.checked(new PosifyAction()).apply(state, figure);
+                figure = Action.checked(new WiggleRotateAction()).apply(state, figure);
                 figure = Action.checked(new WiggleAction()).apply(state, figure);
 
                 for (Action action : new PosifyEdges().apply(state, figure)) {
@@ -88,17 +90,13 @@ public class LocalSolver {
                 }
                 figure = Action.checked(new WiggleAction()).apply(state, figure);
 
-                boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
-                boolean inHole = ScoringUtils.fitsWithinHole(figure, state.getHole());
-                boolean inGrid = ScoringUtils.isFigureInGrid(figure);
+                correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
+                inHole = ScoringUtils.fitsWithinHole(figure, state.getHole());
+                inGrid = ScoringUtils.isFigureInGrid(figure);
                 if (correct && inHole && inGrid) {
                     break;
                 }
             }
-
-            boolean correct = ScoringUtils.checkFigure(figure, lambdaMan.figure, lambdaMan.epsilon);
-            boolean inHole = ScoringUtils.fitsWithinHole(figure, state.getHole());
-            boolean inGrid = ScoringUtils.isFigureInGrid(figure);
             if (correct) {
                 correctValues += 1;
             }
