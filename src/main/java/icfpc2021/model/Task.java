@@ -35,4 +35,11 @@ public class Task {
         var rawTask = mapper.readValue(Files.readString(path), RawTask.class);
         return Task.fromRaw(rawTask);
     }
+
+    public static List<Vertex> fromJsonSolutionFile(Path path) throws IOException {
+        var mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        var rawSolution = mapper.readValue(Files.readString(path), RawSolution.class);
+        return rawSolution.vertices.stream().map(o -> new Vertex(o.get(0), o.get(1))).collect(Collectors.toList());
+    }
 }

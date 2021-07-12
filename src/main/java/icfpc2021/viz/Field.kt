@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import icfpc2021.ScoringUtils
 import icfpc2021.actions.*
 import icfpc2021.actions.Action
+import icfpc2021.model.Figure
 import icfpc2021.model.Pose
+import icfpc2021.model.Task
 import icfpc2021.model.Vertex
 import icfpc2021.strategy.AutoCenterStrategy
 import icfpc2021.strategy.AutoKutuzoffStrategy
@@ -126,6 +128,9 @@ class Field(val state: State) : JPanel() {
         actionsPanel.printButton.addActionListener {
             finishPrintAction(actionsPanel)
         }
+        actionsPanel.loadButton.addActionListener {
+            finishLoadAction(actionsPanel)
+        }
         actionsPanel.posifyButton.addActionListener {
             finishPosifyAction(actionsPanel)
         }
@@ -239,6 +244,25 @@ class Field(val state: State) : JPanel() {
         path.deleteIfExists()
         path.createFile().writeText(json)
         actionsPanel.status.text = "$state Successfully printed to ${path.name}"
+    }
+
+    private fun finishLoadAction(actionsPanel: ActionsPanel) {
+        val path = Path.of(state.problemPath.parent.parent.absolutePathString(), "solutions", state.taskName)
+        if (path.exists()) {
+            val fromJsonSolutionFile = Task.fromJsonSolutionFile(path)
+            val solution = fromJsonSolutionFile;
+            state.reset()
+            state.applyAction(object: Action {
+                override fun apply(state: State, figure: Figure): Figure =
+                    Figure(solution, state.originalMan.figure.edges)
+
+                override fun toString(): String = "Load"
+            })
+            actionsPanel.status.text = "$state Successfully loaded from ${path.name}"
+            repaint()
+        } else {
+            actionsPanel.status.text = "$state No solution found"
+        }
     }
 
     private fun finishFoldAction(actionsPanel: ActionsPanel) {

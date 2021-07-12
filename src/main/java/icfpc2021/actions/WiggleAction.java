@@ -6,7 +6,7 @@ import icfpc2021.viz.State;
 
 public class WiggleAction implements Action {
 
-    private static final int MOVE_DELTA = 10;
+    private static final int MOVE_DELTA = 30;
 
     @Override
     public Figure apply(State state, Figure figure) {

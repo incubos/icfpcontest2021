@@ -51,6 +51,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
     val autoFoldButton = createSmallButton("AutoFold")
 
     val printButton = createSmallButton("Print")
+    val loadButton = createSmallButton("Load")
     val posifyButton = createSmallButton("PosifyEdges")
     val rollBackLastAction = createSmallButton("RollbackLast")
     val forwardButton = createSmallButton(">")
@@ -74,6 +75,7 @@ class ActionsPanel : JPanel(BorderLayout()) {
             add(backButton)
             add(forwardButton)
             add(printButton)
+            add(loadButton)
             add(posifyButton)
             add(restartButton)
         }, BorderLayout.CENTER)
