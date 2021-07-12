@@ -247,7 +247,7 @@ class Field(val state: State) : JPanel() {
     }
 
     private fun finishLoadAction(actionsPanel: ActionsPanel) {
-        val path = Path.of(state.problemPath.parent.parent.absolutePathString(), "solutions", state.taskName)
+        val path = Path.of("solutions", state.taskName)
         if (path.exists()) {
             val fromJsonSolutionFile = Task.fromJsonSolutionFile(path)
             val solution = fromJsonSolutionFile;
