@@ -65,7 +65,7 @@ public class SMTSolverAction implements Action {
             }
 
             builder.append("; Vertices inside hole\n");
-            final List<Triangle> triangles = state.getHole().holesInHoleTriangulation();
+            final List<Triangle> triangles = state.getHole().holeTriangulation();
             for (int v = 0; v < state.getHole().vertices.size(); v++) {
                 final List<String> clauses = new ArrayList<>(triangles.size());
                 for (final Triangle triangle : triangles) {
@@ -148,9 +148,9 @@ public class SMTSolverAction implements Action {
             process.getOutputStream().write(smt.getBytes(StandardCharsets.UTF_8));
             process.getOutputStream().close();
 
-            if (!process.waitFor(3, TimeUnit.MINUTES)) {
+            if (!process.waitFor(1, TimeUnit.MINUTES)) {
                 log.error("SAT solver timed out");
-                process.destroyForcibly();
+                process.destroy();
                 process.destroyForcibly();
                 return figure;
             }
